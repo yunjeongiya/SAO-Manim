@@ -5,6 +5,10 @@ from manim import *
 
 fontSize = 20
 smallFont = fontSize * 0.6
+class coordinateSystemTest(Scene):
+    def construct(self):
+        numberplane = NumberPlane().add_coordinates()
+        self.add(numberplane)
 
 class CameraTest(MovingCameraScene):
     def construct(self):
