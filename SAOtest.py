@@ -80,6 +80,14 @@ class sectionTest(Scene):
         sectionTestFunc1(self)
         sectionTestFunc2(self)
         sectionTestFunc3(self)
+        # section의 사용
+        # 1) play() override에서 next_section()을 호출하지 않고, 각 함수(실질적 section)들 사이에 next_section() 추가하는 경우
+        # 1-1) 개발 중 디버깅 시 원하는 section만 빼고 skip_animation=True로 실행하는 경우에 유용
+        # 1-2) 최종 렌더링 후 필요한 section만 다시 렌더링하는 경우에 유용
+        # 2) play() override에서 next_section()을 호출하고, 각 함수(실질적 section)들 사이에 next_section() 추가하지 않는 경우
+        # 2-1) 최종 렌더링 시 각 section(사실 모든 animation) 마다 5초씩 대기하고, 순서대로 각자 파일이 나와서 동영상 편집하기에 유용
+        # 1, 2 를 동시에...분리해서 사용...할 수 있을지 고민해보기. 일단은 개발중에는 오버라이딩한거 주석처리 해놓고, 
+        # 최종 렌더링할 때는 주석 해제하고 렌더링하면 될 듯
 
 def sectionTestFunc1(self):
     self.play(Write(Text("First").move_to(UP)))
