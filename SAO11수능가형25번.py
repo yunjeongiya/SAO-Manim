@@ -22,13 +22,21 @@ CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상
 def myViewRotate(mob):
     mob.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
 
-def createCubes(axes, cubes_num):
+def createCubes(cubes_num):
+    axes = ThreeDAxes(
+        x_range=[0, CUBES_NUM, 1],
+        y_range=[0, CUBES_NUM, 1],
+        z_range=[-1, 1, 1],
+        x_length=CUBES_NUM,
+        y_length=CUBES_NUM,
+        z_length=2,
+    )
     myViewRotate(axes)
-    cubes = [] #TODO cubes도 VGroup으로 해도 되는지 확인해보기
+    cubes = VGroup()
     labels = VGroup()
     for i in range(cubes_num):
         labels.add(Tex(str(i+1)+"열").move_to(axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
-        cubes.append([])
+        cubes += VGroup()
         for j in range(i+1):
             cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
             myViewRotate(cube)
@@ -36,19 +44,13 @@ def createCubes(axes, cubes_num):
     #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
     return cubes, labels
 
-def scaleCubes(axes, cubes, cubes_num, labels, scale):
-    axes.scale(scale)
-    for i in range(cubes_num):
-        labels[i].scale(scale).move_to(axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN)
-        for j in range(len(cubes[i])):
-            cubes[i][j].scale(scale).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
-
 def popOdds(cubes, cubes_num):
     oddGroup = VGroup()   
     for i in range(cubes_num):
             if(len(cubes[i]) % 2 == 0):
                     for j in range(len(cubes[i])-1, len(cubes[i])//2-1, -1):
-                        oddGroup.add(cubes[i].pop(j))
+                        oddGroup.add(cubes[i][j])
+                        cubes[i].remove(cubes[i][j])
     return oddGroup
 
 def questionSection(scene):
@@ -58,34 +60,22 @@ def questionSection(scene):
                   SurroundingRectangle(TEXT2, buff=0.1, color = WHITE).set_stroke(width=2),
                   TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
     scene.add(texts)
-    axes = ThreeDAxes(
-            x_range=[0, CUBES_NUM, 1],
-            y_range=[0, CUBES_NUM, 1],
-            z_range=[-1, 1, 1],
-            x_length=CUBES_NUM,
-            y_length=CUBES_NUM,
-            z_length=2,
-        ).next_to(texts, RIGHT).shift(LEFT*1.2)
-    cubes, labels = createCubes(axes, CUBES_NUM)
-    scene.add(labels)
+        
+    cubes, labels = createCubes(CUBES_NUM)
+    cdots = Tex(r"$\cdots$").next_to(cubes, RIGHT*2).shift(DOWN).scale(2)
+    cubeGroup = Group(cubes, labels, cdots)
 
-    scaleCubes(axes, cubes, CUBES_NUM, labels, 0.7)
     popOdds(cubes, CUBES_NUM)
     popOdds(cubes, CUBES_NUM)
 
-    for i in range(CUBES_NUM):
-        for j in range(len(cubes[i])):
-            scene.add(cubes[i][j])
+    scene.add(cubeGroup.scale(0.7).next_to(texts, RIGHT).shift(DOWN*0.5))
         
     # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
     # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
     # self.remove(*popOdds(cubes, CUBES_NUM))
 
-    cdots = Tex(r"$\cdots$").move_to(axes.c2p(CUBES_NUM+0.7,2,-0.5)).scale(1.5)
-    scene.add(cdots)
-
-    return texts, axes, cubes, labels, cdots
+    return texts, cubes, labels, cdots
 
 class CSAT11_A_25(ThreeDScene) :
     def construct(self) :
-        texts, axes, cubes, labels, cdots = questionSection(self)
+        texts, cubes, labels, cdots = questionSection(self)
