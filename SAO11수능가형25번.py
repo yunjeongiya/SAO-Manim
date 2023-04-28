@@ -17,6 +17,47 @@ TEXT3 = Tex(r'''블록을 들어내는 시행을 모두 마쳤을 때, 1열부�
                 일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
+CUBES_NUM = 6
+
+def myViewRotate(mob):
+    mob.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+
+def createCubes(axes, cubes_num):
+    myViewRotate(axes)
+    cubes = []
+    for i in range(cubes_num):
+        cubes.append([])
+        for j in range(i+1):
+            cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
+            myViewRotate(cube)
+            cubes[i] += VGroup(cube)
+    return cubes
+
+def scaleCubes(axes, cubes, cubes_num, scale):
+    axes.scale(scale)
+    for i in range(cubes_num):
+        for j in range(i+1):
+            cubes[i][j].scale(scale).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
+
 class CSAT11_A_25(ThreeDScene) :
     def construct(self) :
-        self.add(TEXT1.to_edge(UP), TEXT2.next_to(TEXT1, DOWN), TEXT3.next_to(TEXT2, DOWN))
+        texts = Group( TITLE.to_edge(UP),
+                       TEXT1.next_to(TITLE, DOWN, aligned_edge = LEFT),
+                       TEXT2.next_to(TEXT1, DOWN, aligned_edge=LEFT),
+                       SurroundingRectangle(TEXT2, buff=0.1, color = WHITE).set_stroke(width=2),
+                       TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
+        self.add(texts)
+        axes = ThreeDAxes(
+            x_range=[0, CUBES_NUM, 1],
+            y_range=[0, CUBES_NUM, 1],
+            z_range=[-1, 1, 1],
+            x_length=CUBES_NUM,
+            y_length=CUBES_NUM,
+            z_length=2,
+        ).next_to(texts, RIGHT).shift(LEFT)
+        cubes = createCubes(axes, CUBES_NUM)
+
+        scaleCubes(axes, cubes, CUBES_NUM, 0.7)
+        for i in range(CUBES_NUM):
+            for j in range(i+1):
+                self.add(cubes[i][j])
