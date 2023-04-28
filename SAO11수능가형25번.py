@@ -66,7 +66,7 @@ class CSAT11_A_25(ThreeDScene) :
             x_length=CUBES_NUM,
             y_length=CUBES_NUM,
             z_length=2,
-        ).next_to(texts, RIGHT).shift(LEFT)
+        ).next_to(texts, RIGHT).shift(LEFT*1.2)
         cubes, labels = createCubes(axes, CUBES_NUM)
         self.add(labels)
 
@@ -81,3 +81,6 @@ class CSAT11_A_25(ThreeDScene) :
         # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
         # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
         # self.remove(*popOdds(cubes, CUBES_NUM))
+
+        cdots = Tex(r"$\cdots$").move_to(axes.c2p(CUBES_NUM+0.7,2,-0.5)).scale(1.5)
+        self.add(cdots)
