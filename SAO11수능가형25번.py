@@ -24,18 +24,22 @@ def myViewRotate(mob):
 
 def createCubes(axes, cubes_num):
     myViewRotate(axes)
-    cubes = []
+    cubes = [] #TODO cubes도 VGroup으로 해도 되는지 확인해보기
+    labels = VGroup()
     for i in range(cubes_num):
+        labels.add(Tex(str(i+1)+"열").move_to(axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
         cubes.append([])
         for j in range(i+1):
             cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
             myViewRotate(cube)
             cubes[i] += VGroup(cube)
-    return cubes
+    #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
+    return cubes, labels
 
-def scaleCubes(axes, cubes, cubes_num, scale):
+def scaleCubes(axes, cubes, cubes_num, labels, scale):
     axes.scale(scale)
     for i in range(cubes_num):
+        labels[i].scale(scale).move_to(axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN)
         for j in range(len(cubes[i])):
             cubes[i][j].scale(scale).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
 
@@ -63,9 +67,10 @@ class CSAT11_A_25(ThreeDScene) :
             y_length=CUBES_NUM,
             z_length=2,
         ).next_to(texts, RIGHT).shift(LEFT)
-        cubes = createCubes(axes, CUBES_NUM)
-        
-        scaleCubes(axes, cubes, CUBES_NUM, 0.7)
+        cubes, labels = createCubes(axes, CUBES_NUM)
+        self.add(labels)
+
+        scaleCubes(axes, cubes, CUBES_NUM, labels, 0.7)
         popOdds(cubes, CUBES_NUM)
         popOdds(cubes, CUBES_NUM)
 
