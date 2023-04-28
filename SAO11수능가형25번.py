@@ -23,36 +23,40 @@ CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상
 def myViewRotate(mob):
     mob.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
 
-def createCubes(cubes_num):
-    axes = ThreeDAxes(
-        x_range=[0, CUBES_NUM, 1],
-        y_range=[0, CUBES_NUM, 1],
-        z_range=[-1, 1, 1],
-        x_length=CUBES_NUM,
-        y_length=CUBES_NUM,
-        z_length=2,
-    )
-    myViewRotate(axes)
-    cubes = VGroup()
-    labels = VGroup()
-    for i in range(cubes_num):
-        labels.add(Tex(str(i+1)+"열").move_to(axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
-        cubes += VGroup()
-        for j in range(i+1):
-            cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
-            myViewRotate(cube)
-            cubes[i] += VGroup(cube)
-    #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
-    return cubes, labels
-
-def popOdds(cubes, cubes_num):
-    oddGroup = VGroup()   
-    for i in range(cubes_num):
-            if(len(cubes[i]) % 2 == 0):
-                    for j in range(len(cubes[i])-1, len(cubes[i])//2-1, -1):
-                        oddGroup.add(cubes[i][j])
-                        cubes[i].remove(cubes[i][j])
-    return oddGroup
+#Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
+class CubesGroup(VGroup):
+    def __init__(self, cubes_num):
+        super().__init__()
+        self.cubes_num = cubes_num
+        self.axes = ThreeDAxes(
+            x_range=[0, self.cubes_num, 1],
+            y_range=[0, self.cubes_num, 1],
+            z_range=[-1, 1, 1],
+            x_length=self.cubes_num,
+            y_length=self.cubes_num,
+            z_length=2,
+        )
+        self.cubes = VGroup()
+        self.labels = VGroup()
+        for i in range(self.cubes_num):
+            self.labels.add(Tex(str(i+1)+"열").move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
+            self.cubes += VGroup()
+            for j in range(i+1):
+                cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
+                self.cubes[i] += VGroup(cube)
+            #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
+        self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2).shift(DOWN).scale(2)
+        self.add(self.cubes, self.labels, self.cdots)
+        myViewRotate(self)
+        
+    def popOdds(self):
+        oddGroup = VGroup()   
+        for i in range(self.cubes_num):
+            if(len(self.cubes[i]) % 2 == 0):
+                    for j in range(len(self.cubes[i])-1, len(self.cubes[i])//2-1, -1):
+                        oddGroup.add(self.cubes[i][j])
+                        self.cubes[i].remove(self.cubes[i][j])
+        return oddGroup
 
 def questionSection(scene):
     texts = Group(TITLE.to_edge(UP),
@@ -62,23 +66,22 @@ def questionSection(scene):
                   TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
     scene.add(texts)
         
-    cubes, labels = createCubes(CUBES_NUM)
-    cdots = Tex(r"$\cdots$").next_to(cubes, RIGHT*2).shift(DOWN).scale(2)
-    cubeGroup = Group(cubes, labels, cdots)
+    cubesGroup = CubesGroup(CUBES_NUM)
 
-    popOdds(cubes, CUBES_NUM)
-    popOdds(cubes, CUBES_NUM)
+    cubesGroup.popOdds()
+    cubesGroup.popOdds()
 
-    scene.add(cubeGroup.scale(0.7).next_to(texts, RIGHT).shift(DOWN*0.5))
+    scene.add(cubesGroup.scale(0.7).next_to(texts, RIGHT).shift(DOWN*0.5))
         
     # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
     # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
     # self.remove(*popOdds(cubes, CUBES_NUM))
 
-    return texts, cubes, labels, cdots
+    return texts, cubesGroup
 
 class CSAT11_A_25(ThreeDScene) :
     def construct(self) :
-        texts, cubes, labels, cdots = questionSection(self)
-        self.remove(cubes, labels, cdots)
+        texts, cubesGroup = questionSection(self)
+        self.wait()
+        self.remove(cubesGroup)
         self.play(Circumscribe(texts[1].get_part_by_tex("크기가 같은 정육면체 모양의 블록"), fade_out=True))
