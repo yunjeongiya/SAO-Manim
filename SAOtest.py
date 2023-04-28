@@ -1,36 +1,4 @@
 from SAOlib import *
-fontSize = 30
-smallFont = fontSize*0.6
-
-class DotOnXY():
-    def __init__(self, axes, tracker, tex):
-        self.onX = Dot(axes.coords_to_point(tracker.get_value(),0), color=RED).add_updater(lambda m: m.move_to(axes.coords_to_point(tracker.get_value(),0)))
-        self.onXLabel = tex.next_to(axes.coords_to_point(tracker.get_value(),0), DOWN, buff=0.1).add_updater(lambda m : m.next_to(axes.coords_to_point(tracker.get_value(),0), DOWN, buff=0.1))
-        self.onY = Dot(axes.coords_to_point(0,tracker.get_value()), color=RED).add_updater(lambda m: m.move_to(axes.coords_to_point(0,tracker.get_value())))
-        self.onYLabel = tex.copy().next_to(axes.coords_to_point(0,tracker.get_value()), LEFT, buff=0.1).add_updater(lambda m: m.next_to(axes.coords_to_point(0,tracker.get_value()), LEFT, buff=0.1))
-        #여기서 copy 안해서 계속 문제 생겼었음. tex를 그냥 이동시킨 셈이었으니까...
-        #onX, onY를 화면에서 지우면 Label들은 onX가 안움직여서 안움직임
-
-def get_rectangle_corners(bottom_left, top_right):
-    return [
-        (top_right[0], top_right[1]),
-        (bottom_left[0], top_right[1]),
-        (bottom_left[0], bottom_left[1]),
-        (top_right[0], bottom_left[1]),
-    ]
-
-def get_rectangle(axes, recWidth, recColor=WHITE, recStrokeWidth=4):
-    polygon = Polygon(
-        *[
-            axes.c2p(*i)
-            for i in get_rectangle_corners(
-                (0, 0), (recWidth.get_value(), recWidth.get_value())
-            )
-        ]
-    )
-    polygon.set_stroke(color=recColor, width=recStrokeWidth)
-    return polygon
-
 class HighlightAnimationTest(Scene):
     def construct(self):
         return super().construct()
@@ -98,8 +66,124 @@ def sectionTestFunc2(self):
 def sectionTestFunc3(self):
     self.play(Write(Text("Third").move_to(DOWN)))
 
-class example(Scene):
+class threeDCubeTest(ThreeDScene):
     def construct(self):
-        self.play(Write(Text("First").move_to(UP)))
-        self.play(Write(Text("Second")))
-        self.play(Write(Text("Third").move_to(DOWN)))
+        axes = ThreeDAxes()
+        cube = Cube(side_length=3, fill_opacity=0.7, fill_color=BLUE)
+        text = Text("Cube", font_size=fontSize).move_to(cube.get_center())
+        self.add(cube, text, axes)
+        description = Text("One unit step in the positive Y direction.").to_edge(UP)
+        self.add(description)
+        self.play(Rotate(cube, axis=UP, angle=PI/6))
+        self.wait()
+        self.play(Transform(description, Text("One unit step in the positive X direction.").to_edge(UP)))
+        self.play(Rotate(cube, axis=RIGHT, angle=PI/6))
+        self.wait()
+        self.play(Transform(description, Text("One unit step in the positive Z direction.").to_edge(UP)))
+        self.play(Rotate(cube, axis=OUT, angle=PI/6))
+        self.wait()
+
+class CubeExampleWithAxes(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes()
+        labels = axes.get_axis_labels("x", "y", "z")
+        cube = Cube(side_length=3, fill_opacity=0.7, fill_color=BLUE)
+        self.add(cube, axes, labels)
+
+class axesTest(Scene):
+    def construct(self):
+        axes = Axes(
+            x_range=[-0.7, 5, 1],
+            y_range=[-0.7, 4, 1],
+            x_length=5.7,
+            y_length=4.7,
+            axis_config={
+                "include_numbers":True
+            }
+        )
+        square = Square(side_length=2, fill_opacity=1, fill_color=BLUE, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(1,1))
+        self.add(axes, square)
+
+class ThreeDSceneCameraDegreeTest(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=-10*DEGREES, theta=-135*DEGREES, gamma=-45*DEGREES)
+        axes = ThreeDAxes(
+            x_range=[0, 10, 1],
+            y_range=[0, 5, 1],
+            z_range=[-1, 1, 1],
+            x_length=10,
+            y_length=5,
+            z_length=2,
+            axis_config={
+                "include_numbers":True
+            }
+        )
+        labels = axes.get_axis_labels("x", "y", "z")
+        text = Text("rotated camera", font_size=fontSize).to_edge(UP)
+
+        self.add(axes, labels, text)
+        for i in range(3):
+            for j in range(i+1):
+                cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
+                self.play(FadeIn(cube, shift=DOWN), run_time=0.5)
+        
+        self.camera.set_zoom(0.6)
+        
+        for i in range(3, 9):
+            for j in range(i+1):
+                cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
+                self.play(FadeIn(cube), run_time=0.01)
+
+        self.play(FadeOut(axes, labels), Transform(text, Text("revert rotated camera").to_edge(UP)))
+        self.move_camera(phi=0*DEGREES, theta=-90*DEGREES, gamma=0*DEGREES, run_time=2)
+        self.wait()
+
+class CubeRotateDegreeTest(ThreeDScene):
+    def construct(self):
+        axes = ThreeDAxes(
+            x_range=[0, 10, 1],
+            y_range=[0, 5, 1],
+            z_range=[-1, 1, 1],
+            x_length=10,
+            y_length=5,
+            z_length=2,
+            axis_config={
+                "include_numbers":True
+            }
+        ).rotate(10*DEGREES, axis=RIGHT)
+        labels = axes.get_axis_labels("x", "y", "z")
+        self.add(axes, labels)
+
+        cubes = []
+        cubes_num = 10
+        for i in range(cubes_num):
+            cubes.append([])
+            for j in range(i+1):
+                cube = Cube(side_length=1, fill_opacity=1, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(axes.c2p(i+0.5,j+0.5,-0.5))
+                cube.rotate(10*DEGREES, axis=RIGHT)
+                cubes[i] += VGroup(cube)
+
+        for i in range(3):
+            for j in range(i+1):
+                self.play(FadeIn(cubes[i][j], shift=DOWN), run_time=0.5)
+
+        self.camera.set_zoom(0.6)
+
+        for i in range(3,cubes_num):
+            for j in range(i+1):
+                self.play(FadeIn(cubes[i][j]), run_time=0.01)
+        
+        self.play(FadeOut(axes, labels))
+        
+        oddGroup = VGroup()   
+
+        for i in range(cubes_num):
+            if(len(cubes[i]) % 2 == 0):
+                    noOdd = False
+                    for j in range(len(cubes[i])-1, len(cubes[i])//2-1, -1):
+                        oddGroup.add(cubes[i][j])
+
+        self.remove(oddGroup)
+        self.play(oddGroup.animate.shift(UP*2), run_time=2)
+        self.play(FadeOut(oddGroup))
+        
