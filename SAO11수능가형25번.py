@@ -51,15 +51,14 @@ def popOdds(cubes, cubes_num):
                         oddGroup.add(cubes[i].pop(j))
     return oddGroup
 
-class CSAT11_A_25(ThreeDScene) :
-    def construct(self) :
-        texts = Group(TITLE.to_edge(UP),
-                      TEXT1.next_to(TITLE, DOWN, aligned_edge = LEFT),
-                      TEXT2.next_to(TEXT1, DOWN, aligned_edge=LEFT),
-                      SurroundingRectangle(TEXT2, buff=0.1, color = WHITE).set_stroke(width=2),
-                      TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
-        self.add(texts)
-        axes = ThreeDAxes(
+def questionSection(scene):
+    texts = Group(TITLE.to_edge(UP),
+                  TEXT1.next_to(TITLE, DOWN, aligned_edge = LEFT),
+                  TEXT2.next_to(TEXT1, DOWN, aligned_edge=LEFT),
+                  SurroundingRectangle(TEXT2, buff=0.1, color = WHITE).set_stroke(width=2),
+                  TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
+    scene.add(texts)
+    axes = ThreeDAxes(
             x_range=[0, CUBES_NUM, 1],
             y_range=[0, CUBES_NUM, 1],
             z_range=[-1, 1, 1],
@@ -67,20 +66,26 @@ class CSAT11_A_25(ThreeDScene) :
             y_length=CUBES_NUM,
             z_length=2,
         ).next_to(texts, RIGHT).shift(LEFT*1.2)
-        cubes, labels = createCubes(axes, CUBES_NUM)
-        self.add(labels)
+    cubes, labels = createCubes(axes, CUBES_NUM)
+    scene.add(labels)
 
-        scaleCubes(axes, cubes, CUBES_NUM, labels, 0.7)
-        popOdds(cubes, CUBES_NUM)
-        popOdds(cubes, CUBES_NUM)
+    scaleCubes(axes, cubes, CUBES_NUM, labels, 0.7)
+    popOdds(cubes, CUBES_NUM)
+    popOdds(cubes, CUBES_NUM)
 
-        for i in range(CUBES_NUM):
-            for j in range(len(cubes[i])):
-                self.add(cubes[i][j])
+    for i in range(CUBES_NUM):
+        for j in range(len(cubes[i])):
+            scene.add(cubes[i][j])
         
-        # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
-        # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
-        # self.remove(*popOdds(cubes, CUBES_NUM))
+    # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
+    # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
+    # self.remove(*popOdds(cubes, CUBES_NUM))
 
-        cdots = Tex(r"$\cdots$").move_to(axes.c2p(CUBES_NUM+0.7,2,-0.5)).scale(1.5)
-        self.add(cdots)
+    cdots = Tex(r"$\cdots$").move_to(axes.c2p(CUBES_NUM+0.7,2,-0.5)).scale(1.5)
+    scene.add(cdots)
+
+    return texts, axes, cubes, labels, cdots
+
+class CSAT11_A_25(ThreeDScene) :
+    def construct(self) :
+        texts, axes, cubes, labels, cdots = questionSection(self)
