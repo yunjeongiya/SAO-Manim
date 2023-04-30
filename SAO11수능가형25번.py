@@ -57,6 +57,20 @@ class CubesGroup(VGroup):
                         evenGroup.add(self.cubes[i][j])
                         self.cubes[i].remove(self.cubes[i][j])
         return evenGroup
+    
+    def selectEvenCols(self):
+        evenCols = VGroup()
+        for i in range(self.cubes_num):
+            if(len(self.cubes[i]) % 2 == 0):
+                evenCols.add(self.cubes[i])
+        return evenCols
+    
+    def selectOddCols(self):
+        oddCols = VGroup()
+        for i in range(self.cubes_num):
+            if(len(self.cubes[i]) % 2 == 1):
+                oddCols.add(self.cubes[i])
+        return oddCols
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift, lag_ratio=0.3, **kwargs):
@@ -125,9 +139,28 @@ def describeBaseSituation(scene, texts):
 
     return cubesGroup
 
+def describeEvenIterate(scene, texts, cubesGroup):
+    underline = VGroup(Underline(texts[1].get_part_by_tex("블록의 개수가 짝수인 열이 남아 있지 않을 때까지 다음\\")),
+                       Underline(texts[1].get_part_by_tex("시행을 반복한다."))).set_color(RED).set_stroke(width=2)
+    scene.play(Create(underline))
+    scene.play(FadeOut(underline))
+
+    for i in range(4):
+        box = SurroundingRectangle(texts[2].get_part_by_tex("블록의 개수가 짝수인 각 열")).set_color(YELLOW).set_stroke(width=2)
+        scene.play(Create(box))
+        scene.play(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))
+        scene.play(FadeOut(box))
+        underline2 = Underline(texts[2].get_part_by_tex("만큼의 블록을 그 열에서 들어낸다.")).set_color(RED).set_stroke(width=2)
+        scene.play(Create(underline2))
+        evens = cubesGroup.popEvens()
+        scene.play(evens.animate.shift(UP*0.3)) #or 콘티에 나온 대로 두번 깜빡이고 삭제 (Fadeout)
+        scene.play(FadeOut(evens, shift=UP))
+        scene.play(FadeOut(underline2))
+
+    return cubesGroup
+
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
-        self.next_section(skip_animations = True)
         texts = questionSection(self)
         cubesGroup = describeBaseSituation(self, texts)
-        #self.next_section(skip_animations = False) #이거 들고다니면서 테스트하고싶은 거 위에다 놓으면 됨!
+        cubesGroup = describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
