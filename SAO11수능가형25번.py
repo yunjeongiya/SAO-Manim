@@ -19,7 +19,7 @@ TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
 CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상수로 정의했으니 함수 안에서 바로 쓰는게 나은지?
-CUBES_WIDTH = 4
+CUBES_WIDTH = 5
 
 def myViewRotate(mob):
     mob.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
@@ -136,7 +136,7 @@ def describeBaseSituation(scene, texts):
                    Circumscribe(texts[1].get_part_by_tex(str(i+1)+"열에 "+str(i+1)+"개"), fade_out=True))
         sampleCubes.cubes[i].set_fill_color(GREY)
 
-    cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5)
+    cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT)
     scene.play(TransformMatchingShapes(VGroup(sampleCubes.cubes, sampleCubes.labels), VGroup(cubesGroup.cubes[0:3], cubesGroup.labels[0:3])))
 
     scene.play(StackCubes(cubesGroup, 3, 16, None, run_time=2))
@@ -163,8 +163,25 @@ def describeEvenIterate(scene, texts, cubesGroup):
 
     return cubesGroup
 
+def descreibeEq(scene, texts, cubesGroup):
+    scene.play(cubesGroup.cubes.animate.set_fill_color(GREY))
+    underline = VGroup(Underline(texts[4].get_part_by_tex(r"1열부터 $m$열까지\\")),
+                       Underline(texts[4].get_part_by_tex(r"남아 있는 블록의 개수의 합을 $f(m)$"))).set_color(RED).set_stroke(width=4)
+    scene.play(Create(underline))
+    scene.play(cubesGroup.cubes.animate.set_fill_color(YELLOW))
+    circle = Circle(color=YELLOW).scale(0.2).move_to(cubesGroup.labels[-1][0])
+    scene.play(Create(circle))
+    fend = MathTex("f(","16",")").next_to(cubesGroup, DOWN)
+    scene.play(TransformFromCopy(cubesGroup.labels[-1][0], fend[1]))
+    scene.play(Write(fend[0]), Write(fend[2]))
+    scene.play(FadeOut(underline), FadeOut(circle), FadeOut(fend), cubesGroup.cubes.animate.set_fill_color(GREY))
+    eqbox = SurroundingRectangle(texts[5]).set_color(RED).set_stroke(width=4)
+    scene.play(Create(eqbox))
+    return eqbox
+
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
         texts = questionSection(self)
         cubesGroup = describeBaseSituation(self, texts)
         cubesGroup = describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
+        eqbox = descreibeEq(self, texts, cubesGroup)
