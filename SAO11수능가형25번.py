@@ -1,4 +1,5 @@
 from SAOlib import *
+config.max_files_cached = -1
 Tex.set_default(font_size=30, tex_environment="flushleft")
 #Circumscribe.set_default(fade_out=True) #TODO set_default 없음. 감싸서 변형하는 방법 찾아보기
 
@@ -10,11 +11,11 @@ TEXT1 = Tex(r"자연수 $m$에 대하여 ", "크기가 같은 정육면체 모�
             "있다. ", r"블록의 개수가 짝수인 열이 남아 있지 않을 때까지 다음\\","시행을 반복한다.")
 TEXT2 = Tex("블록의 개수가 짝수인 각 열", r"에 대하여 그 열에 있는\\",
             r"블록의 개수의 $\cfrac{1}{2}$ 만큼의 블록을 그 열에서 들어낸다.")
-TEXT3 = Tex(r'''블록을 들어내는 시행을 모두 마쳤을 때, 1열부터 $m$열까지\\
-                남아 있는 블록의 개수의 합을 $f(m)$이라 하자.\\
-                예를 들어, $f(2)=2$, $f(3)=5$, $f(4)=6$이다.\\
-                $\lim\limits_{m\to\infty}\cfrac{f(2^{n+1})-f(2^n)}{f(2^{n+2})}=\cfrac{q}{p}$\\
-                일 때, $p+q$의 값을 구하시오.\\
+TEXT3 = Tex("블록을 들어내는 시행을 모두 마쳤을 때, ", 
+            r"1열부터 $m$열까지\\",r"남아 있는 블록의 개수의 합을 $f(m)$",
+            r"이라 하자.\\예를 들어, $f(2)=2$, $f(3)=5$, $f(4)=6$이다.")
+Eq = Tex(r"$\lim\limits_{m\to\infty}\cfrac{f(2^{n+1})-f(2^n)}{f(2^{n+2})}=\cfrac{q}{p}$")
+TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
 CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상수로 정의했으니 함수 안에서 바로 쓰는게 나은지?
@@ -39,7 +40,7 @@ class CubesGroup(VGroup):
         self.cubes = VGroup()
         self.labels = VGroup()
         for i in range(self.cubes_num):
-            self.labels.add(Tex(str(i+1)+"열").move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
+            self.labels.add(Tex(str(i+1),"열").move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
             self.cubes += VGroup()
             for j in range(i+1):
                 cube = Cube(side_length=1, fill_opacity=0.9, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
@@ -101,9 +102,12 @@ class StackCubes(AnimationGroup):
 def questionSection(scene):
     texts = Group(TITLE.to_edge(UP),
                   TEXT1.next_to(TITLE, DOWN, aligned_edge = LEFT),
-                  TEXT2.next_to(TEXT1, DOWN, aligned_edge=LEFT),
-                  SurroundingRectangle(TEXT2, buff=0.1, color = WHITE).set_stroke(width=2),
-                  TEXT3.next_to(TEXT2, DOWN, aligned_edge=LEFT)).to_edge(LEFT)
+                  TEXT2.next_to(TEXT1, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER+0.2, aligned_edge=LEFT).shift(RIGHT*0.5),
+                  SurroundingRectangle(TEXT2, buff=0.2, color = WHITE).set_stroke(width=2),
+                  TEXT3.next_to(TEXT2, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER+0.2, aligned_edge=LEFT).shift(LEFT*0.5),
+                  Eq.next_to(TEXT3, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER+0.2, aligned_edge=LEFT).shift(RIGHT),
+                  TEXT4.next_to(Eq, DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER+0.2, aligned_edge=LEFT).shift(LEFT),
+                  ).to_edge(LEFT)
     scene.add(texts)
         
     cubesGroup = CubesGroup(6).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5)
@@ -141,16 +145,16 @@ def describeBaseSituation(scene, texts):
 
 def describeEvenIterate(scene, texts, cubesGroup):
     underline = VGroup(Underline(texts[1].get_part_by_tex("블록의 개수가 짝수인 열이 남아 있지 않을 때까지 다음\\")),
-                       Underline(texts[1].get_part_by_tex("시행을 반복한다."))).set_color(RED).set_stroke(width=2)
+                       Underline(texts[1].get_part_by_tex("시행을 반복한다."))).set_color(RED).set_stroke(width=4)
     scene.play(Create(underline))
     scene.play(FadeOut(underline))
 
     for i in range(4):
-        box = SurroundingRectangle(texts[2].get_part_by_tex("블록의 개수가 짝수인 각 열")).set_color(YELLOW).set_stroke(width=2)
+        box = SurroundingRectangle(texts[2].get_part_by_tex("블록의 개수가 짝수인 각 열")).set_color(YELLOW).set_stroke(width=4)
         scene.play(Create(box))
         scene.play(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))
         scene.play(FadeOut(box))
-        underline2 = Underline(texts[2].get_part_by_tex("만큼의 블록을 그 열에서 들어낸다.")).set_color(RED).set_stroke(width=2)
+        underline2 = Underline(texts[2].get_part_by_tex("만큼의 블록을 그 열에서 들어낸다.")).set_color(YELLOW).set_stroke(width=4)
         scene.play(Create(underline2))
         evens = cubesGroup.popEvens()
         scene.play(evens.animate.shift(UP*0.3)) #or 콘티에 나온 대로 두번 깜빡이고 삭제 (Fadeout)
