@@ -26,11 +26,9 @@ CUBES_WIDTH = 4
 
 #Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
 class CubesGroup(VGroup):
-    def __init__(self, cubes_num, right_axis_rotate=5*DEGREES, up_axis_rotate=-20*DEGREES):
+    def __init__(self, cubes_num, cube_fill_color=GREY, cube_stroke_color=WHITE, cube_stroke_width=2):
         super().__init__()
         self.cubes_num = cubes_num
-        self.right_axis_rotate = right_axis_rotate
-        self.up_axis_rotate = up_axis_rotate
         self.axes = ThreeDAxes(
             x_range=[0, self.cubes_num, 1],
             y_range=[0, self.cubes_num, 1],
@@ -38,19 +36,37 @@ class CubesGroup(VGroup):
             x_length=self.cubes_num,
             y_length=self.cubes_num,
             z_length=2,
-        )
+        ).set_opacity(0)
+        self.initial_cube = Cube(side_length=1, fill_color=cube_fill_color, stroke_color=cube_stroke_color, stroke_width=cube_stroke_width).set_opacity(1)
+        self.cube_tracker = self.initial_cube.copy().set_opacity(0)
         self.cubes = VGroup()
         self.labels = VGroup()
         for i in range(self.cubes_num):
-            self.labels.add(Tex(str(i+1),"열").move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN))
+            self.labels.add(Tex(str(i+1),"열")
+                            .move_to(self.axes.c2p(i+0.5,0,-0.5))
+                            .shift(0.5*DOWN))
             self.cubes += VGroup()
             for j in range(i+1):
-                cube = Cube(side_length=1, fill_opacity=0.9, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
+                cube = self.initial_cube.copy().move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
                 self.cubes[i] += VGroup(cube)
             #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
-        self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2.5).shift(DOWN).scale(2)
-        self.add(self.cubes, self.labels, self.cdots)
-        self.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+        self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2.5).scale(2)
+        self.add(self.axes, self.cubes, self.labels, self.cdots, self.cube_tracker)
+
+    def addCols(self, num):
+        scale_factor = self.cube_tracker.width/self.initial_cube.width
+        print(scale_factor)
+        for i in range(self.cubes_num, self.cubes_num+num):
+            self.labels.add(Tex(str(i+1),"열")
+                            .move_to(self.axes.c2p(i+0.5,0,-0.5))
+                            .shift(0.5*DOWN*scale_factor)
+                            .scale(scale_factor))
+            self.cubes += VGroup()
+            for j in range(i+1):
+                cube = self.cube_tracker.copy().set_opacity(1).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
+                self.cubes[i] += VGroup(cube)
+            #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
+        self.cdots.next_to(self.cubes, RIGHT*2.5*scale_factor)
         
     def popEvens(self):
         evenGroup = VGroup()   
@@ -74,6 +90,13 @@ class CubesGroup(VGroup):
             if(len(self.cubes[i]) % 2 == 1):
                 oddCols.add(self.cubes[i])
         return oddCols
+    
+class Test(ThreeDScene):
+    def construct(self):
+        cubes = CubesGroup(16).scale_to_fit_width(4).to_corner(DL)
+        self.play(StackCubes(cubes, 0, 16, None), run_time=2)
+        cubes.addCols(16)
+        self.play(StackCubes(cubes, 16, 32, None), run_time=2)
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift, lag_ratio=0.3, **kwargs):
@@ -117,7 +140,7 @@ def questionSection(scene):
     cubesGroup.popEvens()
     cubesGroup.popEvens()
 
-    scene.add(cubesGroup)
+    scene.add(cubesGroup.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP))
         
     # alter : 전체 add 먼저 하고 pop 한 뒤 지우는 방식
     # *안넣으면 안지워짐, *안넣고 FadeOut이나 Shift는 적용됨... 왜지?
@@ -131,14 +154,14 @@ def questionSection(scene):
 def describeBaseSituation(scene, texts):
     scene.play(Circumscribe(texts[1].get_part_by_tex("크기가 같은 정육면체 모양의 블록"), fade_out=True))
 
-    sampleCubes = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5)
+    sampleCubes = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
     for i in range(3):
         sampleCubes.cubes[i].set_fill_color(YELLOW)
         scene.play(Stack1ColCubes(sampleCubes, i, DOWN),
                    Circumscribe(texts[1].get_part_by_tex(str(i+1)+"열에 "+str(i+1)+"개"), fade_out=True))
         sampleCubes.cubes[i].set_fill_color(GREY)
 
-    cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT)
+    cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
     scene.play(TransformMatchingShapes(VGroup(sampleCubes.cubes, sampleCubes.labels), VGroup(cubesGroup.cubes[0:3], cubesGroup.labels[0:3])))
     scene.play(AnimationGroup(StackCubes(cubesGroup, 3, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
     return cubesGroup
