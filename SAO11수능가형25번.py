@@ -22,16 +22,15 @@ TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
 CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상수로 정의했으니 함수 안에서 바로 쓰는게 나은지?
-CUBES_WIDTH = 5
-
-def myViewRotate(mob):
-    mob.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+CUBES_WIDTH = 4
 
 #Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
 class CubesGroup(VGroup):
-    def __init__(self, cubes_num):
+    def __init__(self, cubes_num, right_axis_rotate=5*DEGREES, up_axis_rotate=-20*DEGREES):
         super().__init__()
         self.cubes_num = cubes_num
+        self.right_axis_rotate = right_axis_rotate
+        self.up_axis_rotate = up_axis_rotate
         self.axes = ThreeDAxes(
             x_range=[0, self.cubes_num, 1],
             y_range=[0, self.cubes_num, 1],
@@ -49,9 +48,9 @@ class CubesGroup(VGroup):
                 cube = Cube(side_length=1, fill_opacity=0.9, fill_color=GREY, stroke_color=WHITE, stroke_width=2).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
                 self.cubes[i] += VGroup(cube)
             #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
-        self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2).shift(DOWN).scale(2)
+        self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2.5).shift(DOWN).scale(2)
         self.add(self.cubes, self.labels, self.cdots)
-        myViewRotate(self)
+        self.rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
         
     def popEvens(self):
         evenGroup = VGroup()   
@@ -141,9 +140,7 @@ def describeBaseSituation(scene, texts):
 
     cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT)
     scene.play(TransformMatchingShapes(VGroup(sampleCubes.cubes, sampleCubes.labels), VGroup(cubesGroup.cubes[0:3], cubesGroup.labels[0:3])))
-
-    scene.play(StackCubes(cubesGroup, 3, 16, None, run_time=2))
-
+    scene.play(AnimationGroup(StackCubes(cubesGroup, 3, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
     return cubesGroup
 
 def describeEvenIterate(scene, texts, cubesGroup):
