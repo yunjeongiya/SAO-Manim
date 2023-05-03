@@ -14,7 +14,10 @@ TEXT2 = Tex("블록의 개수가 짝수인 각 열", r"에 대하여 그 열에 
 TEXT3 = Tex("블록을 들어내는 시행을 모두 마쳤을 때, ", 
             r"1열부터 $m$열까지\\",r"남아 있는 블록의 개수의 합을 $f(m)$",
             r"이라 하자.\\예를 들어, $f(2)=2$, $f(3)=5$, $f(4)=6$이다.")
-Eq = Tex(r"$\lim\limits_{m\to\infty}\cfrac{f(2^{n+1})-f(2^n)}{f(2^{n+2})}=\cfrac{q}{p}$")
+#\cfrac 쓸 때는 \mathit 로 안감싸고 끊으면 LaTex 오류 발생 (이유 모름...)
+#\cfrac 이랑 \mathit 조합해서 했는데 get_part_by_tex 했을 때 이상한 부분이 선택됨.... + italic이 숫자에도 적용되니 이상함
+#\over 써도 여기서는 큰 크기 차이 없어서 그냥 over로 하기로 함
+Eq = MathTex(r"\lim\limits_{m\to\infty}{{f(2",r"^{n+1}",r")-f(2",r"^{n}",r")}",r"\over{f(2",r"^{n+2}",r")}}",r"=\cfrac{q}{p}", font_size=30)
 TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
@@ -163,10 +166,10 @@ def describeEvenIterate(scene, texts, cubesGroup):
 
     return cubesGroup
 
-def descreibeEq(scene, texts, cubesGroup):
+def descreibeEq(scene, text, eq, cubesGroup):
     scene.play(cubesGroup.cubes.animate.set_fill_color(GREY))
-    underline = VGroup(Underline(texts[4].get_part_by_tex(r"1열부터 $m$열까지\\")),
-                       Underline(texts[4].get_part_by_tex(r"남아 있는 블록의 개수의 합을 $f(m)$"))).set_color(RED).set_stroke(width=4)
+    underline = VGroup(Underline(text.get_part_by_tex(r"1열부터 $m$열까지\\")),
+                       Underline(text.get_part_by_tex(r"남아 있는 블록의 개수의 합을 $f(m)$"))).set_color(RED).set_stroke(width=4)
     scene.play(Create(underline))
     scene.play(cubesGroup.cubes.animate.set_fill_color(YELLOW))
     circle = Circle(color=YELLOW).scale(0.2).move_to(cubesGroup.labels[-1][0])
@@ -175,8 +178,11 @@ def descreibeEq(scene, texts, cubesGroup):
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], fend[1]))
     scene.play(Write(fend[0]), Write(fend[2]))
     scene.play(FadeOut(underline), FadeOut(circle), FadeOut(fend), cubesGroup.cubes.animate.set_fill_color(GREY))
-    eqbox = SurroundingRectangle(texts[5]).set_color(RED).set_stroke(width=4)
+    eqbox = SurroundingRectangle(eq).set_color(RED).set_stroke(width=4)
     scene.play(Create(eqbox))
+    scene.play(Indicate(eq.get_part_by_tex(r"^{n+1}")),
+               Indicate(eq.get_part_by_tex(r"^{n}")),
+               Indicate(eq.get_part_by_tex(r"^{n+2}")))
     return eqbox
 
 class CSAT11_A_25(ThreeDScene):
@@ -184,4 +190,4 @@ class CSAT11_A_25(ThreeDScene):
         texts = questionSection(self)
         cubesGroup = describeBaseSituation(self, texts)
         cubesGroup = describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
-        eqbox = descreibeEq(self, texts, cubesGroup)
+        eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
