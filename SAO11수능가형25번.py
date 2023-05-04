@@ -25,6 +25,7 @@ CUBES_NUM = 6 #함수 정의할 때 인자로 받는게 나은지, 어차피 상
 CUBES_WIDTH = 4
 
 #Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
+    
 class CubesGroup(VGroup):
     def __init__(self, cubes_num, cube_fill_color=GREY, cube_stroke_color=WHITE, cube_stroke_width=2):
         super().__init__()
@@ -49,9 +50,17 @@ class CubesGroup(VGroup):
             for j in range(i+1):
                 cube = self.initial_cube.copy().move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
                 self.cubes[i] += VGroup(cube)
-            #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
         self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2.5).scale(2)
         self.add(self.axes, self.cubes, self.labels, self.cdots, self.cube_tracker)
+
+    #override
+    def rotate(self, angle: float, axis, about_point = None, **kwargs):
+        rotateGroup = Group(self.axes, self.cubes, self.cdots, self.cube_tracker, self.initial_cube)
+        rotateGroup.rotate(angle, axis, about_point, **kwargs)
+        scale_factor = self.cube_tracker.width/self.initial_cube.width
+        for i in range(self.cubes_num):
+            self.labels[i].move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN*scale_factor)
+        return self
 
     def addCols(self, num):
         scale_factor = self.cube_tracker.width/self.initial_cube.width
@@ -60,13 +69,14 @@ class CubesGroup(VGroup):
             self.labels.add(Tex(str(i+1),"열")
                             .move_to(self.axes.c2p(i+0.5,0,-0.5))
                             .shift(0.5*DOWN*scale_factor)
-                            .scale(scale_factor))
+                            .scale(scale_factor)
+                            )
             self.cubes += VGroup()
             for j in range(i+1):
                 cube = self.cube_tracker.copy().set_opacity(1).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
                 self.cubes[i] += VGroup(cube)
-            #myViewRotate(labels) #없어도 없어보임. 텍스트는 axes아래 붙여서 따로 안돌려도 돌아간 채로 붙나? axes에 평행하게?
-        self.cdots.next_to(self.cubes, RIGHT*2.5*scale_factor)
+        self.cdots.next_to(self.cubes, RIGHT*2.5*scale_factor).scale(scale_factor)
+        self.cubes_num += num
         
     def popEvens(self):
         evenGroup = VGroup()   
@@ -93,10 +103,12 @@ class CubesGroup(VGroup):
     
 class Test(ThreeDScene):
     def construct(self):
-        cubes = CubesGroup(16).scale_to_fit_width(4).to_corner(DL)
-        self.play(StackCubes(cubes, 0, 16, None), run_time=2)
-        cubes.addCols(16)
-        self.play(StackCubes(cubes, 16, 32, None), run_time=2)
+        cubesGroup = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+        self.add(cubesGroup)
+        cubesGroup.addCols(3)
+        self.play(AnimationGroup(StackCubes(cubesGroup, 3, 6, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
+        self.add(cubesGroup)
+        self.wait()
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift, lag_ratio=0.3, **kwargs):
@@ -153,22 +165,31 @@ def questionSection(scene):
 
 def describeBaseSituation(scene, texts):
     scene.play(Circumscribe(texts[1].get_part_by_tex("크기가 같은 정육면체 모양의 블록"), fade_out=True))
+    cubesGroup = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
 
-    sampleCubes = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
-    for i in range(3):
-        sampleCubes.cubes[i].set_fill_color(YELLOW)
-        scene.play(Stack1ColCubes(sampleCubes, i, DOWN),
-                   Circumscribe(texts[1].get_part_by_tex(str(i+1)+"열에 "+str(i+1)+"개"), fade_out=True))
-        sampleCubes.cubes[i].set_fill_color(GREY)
+    scene.next_section(skip_animations=False)
+    
+    # stackCubes 동작x, labels 위치/크기 다름
+    #scene.play(Group(cubesGroup.cubes[0:3], cubesGroup.labels[0:3], cubesGroup.axes, cubesGroup.cube_tracker).animate.scale(1/4, about_point=cubesGroup.axes.c2p(0, 0, 0)))
+    #아래는 안되는데 위에는 되는거임...왜...왜....cubes자체를 줄이는거랑 cubes[0:3] 을 줄이는 것의 차이는...? cubes는 VGroup인데...VGroup의 다른 요소들이 같이 줄면 문제가 되나..?
 
-    cubesGroup = CubesGroup(16).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
-    scene.play(TransformMatchingShapes(VGroup(sampleCubes.cubes, sampleCubes.labels), VGroup(cubesGroup.cubes[0:3], cubesGroup.labels[0:3])))
+    cubesGroup.addCols(13)
     scene.play(AnimationGroup(StackCubes(cubesGroup, 3, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
+    scene.add(cubesGroup)
+    scene.wait()
+    '''
+    scene.play(Group(cubesGroup.cubes[0:3], cubesGroup.labels[0:3]).animate.scale(1/4, about_point=cubesGroup.axes.c2p(0, 0, 0)))
+    cubesGroup.addCols(13)
+    cubesGroup.scale(1/4, about_point=cubesGroup.axes.c2p(0, 0, 0))
+    Group(cubesGroup.cubes[0:3], cubesGroup.labels[0:3]).scale(4, about_point=cubesGroup.axes.c2p(0, 0, 0))
+    scene.play(AnimationGroup(StackCubes(cubesGroup, 3, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
+    '''
+    scene.next_section(skip_animations=True)
     return cubesGroup
 
 def describeEvenIterate(scene, texts, cubesGroup):
     underline = VGroup(Underline(texts[1].get_part_by_tex("블록의 개수가 짝수인 열이 남아 있지 않을 때까지 다음\\")),
-                       Underline(texts[1].get_part_by_tex("시행을 반복한다."))).set_color(RED).set_stroke(width=4)
+                       Underline(texts[1].get_part_by_tex("시행을 반복한다."))).set_color(YELLOW).set_stroke(width=4)
     scene.play(Create(underline))
     scene.play(FadeOut(underline))
 
@@ -189,7 +210,7 @@ def describeEvenIterate(scene, texts, cubesGroup):
 def descreibeEq(scene, text, eq, cubesGroup):
     scene.play(cubesGroup.cubes.animate.set_fill_color(GREY))
     underline = VGroup(Underline(text.get_part_by_tex(r"1열부터 $m$열까지\\")),
-                       Underline(text.get_part_by_tex(r"남아 있는 블록의 개수의 합을 $f(m)$"))).set_color(RED).set_stroke(width=4)
+                       Underline(text.get_part_by_tex(r"남아 있는 블록의 개수의 합을 $f(m)$"))).set_color(YELLOW).set_stroke(width=4)
     scene.play(Create(underline))
     scene.play(cubesGroup.cubes.animate.set_fill_color(YELLOW))
     circle = Circle(color=YELLOW).scale(0.2).move_to(cubesGroup.labels[-1][0])
@@ -198,16 +219,28 @@ def descreibeEq(scene, text, eq, cubesGroup):
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], fend[1]))
     scene.play(Write(fend[0]), Write(fend[2]))
     scene.play(FadeOut(underline), FadeOut(circle), FadeOut(fend), cubesGroup.cubes.animate.set_fill_color(GREY))
-    eqbox = SurroundingRectangle(eq).set_color(RED).set_stroke(width=4)
+    eqbox = SurroundingRectangle(eq).set_color(YELLOW).set_stroke(width=4)
     scene.play(Create(eqbox))
     scene.play(Indicate(eq.get_part_by_tex(r"^{n+1}")),
                Indicate(eq.get_part_by_tex(r"^{n}")),
                Indicate(eq.get_part_by_tex(r"^{n+2}")))
     return eqbox
 
+def iteratingMore(scene, texts, cubesGroup, eqbox):
+    scene.play(FadeOut(texts[0:5], texts[6], eqbox), cubesGroup.animate.to_edge(LEFT), texts[5].animate.to_edge(UP))
+    fend = MathTex("f(","16",")").next_to(cubesGroup, DOWN)
+    scene.play(Write(fend))
+    potentialTex = MathTex(r"2^",r"4").move_to(fend[1])
+    potentialTex[1].set_color(RED)
+    scene.play(Transform(fend[1], potentialTex))
+    cubesGroup.addCols(16)
+    scene.play(StackCubes(cubesGroup, 16, 32, None, run_time=2))
+
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
+        self.next_section(skip_animations=True)
         texts = questionSection(self)
         cubesGroup = describeBaseSituation(self, texts)
-        cubesGroup = describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
+        describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
         eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
+        iteratingMore(self, texts, cubesGroup, eqbox)
