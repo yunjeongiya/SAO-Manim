@@ -101,13 +101,7 @@ class Test(ThreeDScene):
     def construct(self):
         cubesGroup = CubesGroup(10).scale(1/2)
         self.add(cubesGroup)
-
-        #남은 evens가 없을 때까지 popEvens()하고 FadeOut 반복
-        while len(cubesGroup.selectEvenCols()) != 0:
-            print("evneCols: ", len(cubesGroup.selectEvenCols())) #debug
-            self.play(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))
-            evens = cubesGroup.popEvens()
-            self.play(FadeOut(evens, shift=UP))
+        fadeOutAllEvens(cubesGroup, self)
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift=None, lag_ratio=0.3, **kwargs):
@@ -137,17 +131,22 @@ class StackCubes(AnimationGroup):
             **kwargs
         )
 
-class fadeOutAllEvens(AnimationGroup):
+'''
+class FadeOutAllEvens(Succession):
     def __init__(self, cubesGroup, shift=UP, **kwargs):
         animations = []
         while len(cubesGroup.selectEvenCols()) > 0:
-            animations += [AnimationGroup(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))]
-            evens = cubesGroup.popEvens()
-            animations += [FadeOut(evens, shift=shift)]
-
+           animations += [AnimationGroup(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))]
+           animations += [FadeOut(cubesGroup.popEvens(), shift=shift)] #popEvens()로 cubesGroup에 변화가 생김 -> FadeOutAllEvens객체 생성 후 play()될 때 문제 발생
         super().__init__(
             *animations, **kwargs
         )
+'''
+
+def fadeOutAllEvens(cubesGroup, scene, shift=UP):
+    while len(cubesGroup.selectEvenCols()) > 0:
+        scene.play(AnimationGroup(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY)))
+        scene.play(FadeOut(cubesGroup.popEvens(), shift=shift))
 
 def questionSection(scene):
     texts = Group(TITLE.to_edge(UP),
@@ -245,7 +244,7 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     potentialTex[1].set_color(RED)
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex))
-    scene.play(fadeOutAllEvens(cubesGroup))
+    fadeOutAllEvens(cubesGroup, scene)
     scene.play(Group(cubesGroup.cubes[:33], cubesGroup.labels[:33], cubesGroup.axes)
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
     
@@ -255,7 +254,7 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     potentialTex[1].set_color(RED)
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex))
-    scene.play(fadeOutAllEvens(cubesGroup))
+    fadeOutAllEvens(cubesGroup, scene)
 
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
