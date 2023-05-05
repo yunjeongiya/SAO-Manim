@@ -33,91 +33,94 @@ class CubesGroup(VGroup):
         self.axes = ThreeDAxes(
             x_range=[0, self.cubes_num, 1],
             y_range=[0, self.cubes_num, 1],
-            z_range=[-1, 1, 1],
+            z_range=[0, 1, 1],
             x_length=self.cubes_num,
             y_length=self.cubes_num,
-            z_length=2,
+            z_length=1,
         ).set_opacity(0)
-        self.initial_cube = Cube(side_length=1, fill_color=cube_fill_color, stroke_color=cube_stroke_color, stroke_width=cube_stroke_width).set_opacity(1)
-        self.cube_tracker = self.initial_cube.copy().set_opacity(0)
         self.cubes = VGroup()
-        self.labels = VGroup()
-        for i in range(self.cubes_num):
-            self.labels.add(Tex(str(i+1),"열")
-                            .move_to(self.axes.c2p(i+0.5,0,-0.5))
-                            .shift(0.5*DOWN))
-            self.cubes += VGroup()
-            for j in range(i+1):
-                cube = self.initial_cube.copy().move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
+        self.initial_cube = Cube(side_length=1, fill_color=cube_fill_color, stroke_color=cube_stroke_color, stroke_width=cube_stroke_width).set_opacity(1)
+        cube_tracker = self.initial_cube.copy().set_opacity(0)
+        self.cubes += cube_tracker #index 0 번은 cube_tracker
+        self.labels = VGroup(VMobject()) #index 0 번은 사용 x
+        for i in range(1, self.cubes_num+1):
+            self.labels.add(Tex(str(i),"열")
+                            .move_to(self.axes.c2p(i-0.5,-0.5,0.5)))
+            self.cubes += VGroup(VMobject()) #index 0 번은 사용 x
+            for j in range(1, i+1):
+                cube = self.initial_cube.copy().move_to(self.axes.c2p(i-0.5,j-0.5,0.5))
                 self.cubes[i] += VGroup(cube)
         self.cdots = Tex(r"$\cdots$").next_to(self.cubes, RIGHT*2.5).scale(2)
-        self.add(self.axes, self.cubes, self.labels, self.cdots, self.cube_tracker)
+        self.add(self.axes, self.cubes, self.labels, self.cdots)
 
     #override
     def rotate(self, angle: float, axis, about_point = None, **kwargs):
-        rotateGroup = Group(self.axes, self.cubes, self.cdots, self.cube_tracker, self.initial_cube)
+        rotateGroup = Group(self.axes, self.cubes, self.cdots, self.initial_cube)
         rotateGroup.rotate(angle, axis, about_point, **kwargs)
-        scale_factor = self.cube_tracker.width/self.initial_cube.width
-        for i in range(self.cubes_num):
-            self.labels[i].move_to(self.axes.c2p(i+0.5,0,-0.5)).shift(0.5*DOWN*scale_factor)
+        for i in range(1, self.cubes_num+1):
+            self.labels[i].move_to(self.axes.c2p(i-0.5,-0.5,0.5))
         return self
 
     def addCols(self, num):
-        scale_factor = self.cube_tracker.width/self.initial_cube.width
-        print(scale_factor)
-        for i in range(self.cubes_num, self.cubes_num+num):
-            self.labels.add(Tex(str(i+1),"열")
-                            .move_to(self.axes.c2p(i+0.5,0,-0.5))
-                            .shift(0.5*DOWN*scale_factor)
+        scale_factor = self.cubes[0].width/self.initial_cube.width
+        print("scale factor: ", scale_factor)
+        for i in range(self.cubes_num+1, self.cubes_num+num+1):
+            self.labels.add(Tex(str(i),"열")
+                            .move_to(self.axes.c2p(i-0.5,-0.5,0.5))
                             .scale(scale_factor)
                             )
-            self.cubes += VGroup()
-            for j in range(i+1):
-                cube = self.cube_tracker.copy().set_opacity(1).move_to(self.axes.c2p(i+0.5,j+0.5,-0.5))
+            self.cubes += VGroup(VMobject()) #index 0 번은 사용 x
+            for j in range(1, i+1):
+                cube = self.cubes[0].copy().set_opacity(1).move_to(self.axes.c2p(i-0.5,j-0.5,0.5))
                 self.cubes[i] += VGroup(cube)
         self.cdots.next_to(self.cubes, RIGHT*2.5*scale_factor).scale(scale_factor)
         self.cubes_num += num
         
     def popEvens(self):
         evenGroup = VGroup()   
-        for i in range(self.cubes_num):
-            if(len(self.cubes[i]) % 2 == 0):
-                    for j in range(len(self.cubes[i])-1, len(self.cubes[i])//2-1, -1):
+        for i in range(1, self.cubes_num+1):
+            if((len(self.cubes[i]) - 1) % 2 == 0):
+                    for j in range(len(self.cubes[i]) - 1, (len(self.cubes[i]) - 1)//2, -1):
                         evenGroup.add(self.cubes[i][j])
                         self.cubes[i].remove(self.cubes[i][j])
         return evenGroup
     
     def selectEvenCols(self):
         evenCols = VGroup()
-        for i in range(self.cubes_num):
-            if(len(self.cubes[i]) % 2 == 0):
+        for i in range(1, self.cubes_num+1):
+            if((len(self.cubes[i]) - 1) % 2 == 0):
                 evenCols.add(self.cubes[i])
         return evenCols
     
     def selectOddCols(self):
         oddCols = VGroup()
-        for i in range(self.cubes_num):
-            if(len(self.cubes[i]) % 2 == 1):
+        for i in range(1, self.cubes_num+1):
+            if((len(self.cubes[i]) - 1) % 2 == 1):
                 oddCols.add(self.cubes[i])
         return oddCols
     
 class Test(ThreeDScene):
     def construct(self):
-        cubesGroup = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
-        self.add(cubesGroup)
+        cubesGroup = CubesGroup(5)
+        self.play(StackCubes(cubesGroup, 1, 5))
+        evens = cubesGroup.popEvens()
+        self.play(FadeOut(evens, shift=UP))
+        #self.play(cubesGroup.animate.scale(1/2)) or self.play(Group(cubesGroup.cubes, cubesGroup.labels, cubesGroup.axes).animate.scale(1/2)) 는 동작x
+        #이유는 못찾음... 정확히 화면 위에 올라와 있는 큐브, 라벨만 골라서 scale하지 않으면 addCols 된 큐브들에 animation 적용이 x
+        self.play(Group(cubesGroup.cubes[:6], cubesGroup.labels[:6], cubesGroup.axes).animate.scale(1/2))
         cubesGroup.addCols(3)
-        self.play(AnimationGroup(StackCubes(cubesGroup, 3, 6, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
-        self.add(cubesGroup)
-        self.wait()
+        self.play(StackCubes(cubesGroup, 6, 8))
 
 class Stack1ColCubes(AnimationGroup):
-    def __init__(self, cubesGroup, col, shift, lag_ratio=0.3, **kwargs):
+    def __init__(self, cubesGroup, col, shift=None, lag_ratio=0.3, **kwargs):
+        #print("col: ", col, "len: ", len(cubesGroup.cubes[col])) #debug
+        # col:  1 len:  2 / col:  2 len:  3 / col:  3 len:  4 -> 0번인덱스를 사용 안할 뿐 채워져는 있어서 len은 col+1
         super().__init__(
             FadeIn(cubesGroup.labels[col]),
             AnimationGroup(
                     *[
-                        FadeIn(cubesGroup.cubes[col][j], shift=shift) 
-                        for j in range(len(cubesGroup.cubes[col]))
+                        FadeIn(cubesGroup.cubes[col][j], shift=shift)
+                        for j in range(1, len(cubesGroup.cubes[col]))
                     ],
                     lag_ratio=lag_ratio
                 )
@@ -126,11 +129,11 @@ class Stack1ColCubes(AnimationGroup):
         )
     
 class StackCubes(AnimationGroup):
-    def __init__(self, cubesGroup, start_col, end_col, shift, col_lag_ratio=0.3, lag_ratio=0.3, **kwargs):
+    def __init__(self, cubesGroup, start_col, end_col, shift=None, col_lag_ratio=0.3, lag_ratio=0.3, **kwargs):
         super().__init__(
             *[
                 Stack1ColCubes(cubesGroup, col, shift, col_lag_ratio, **kwargs)
-                for col in range(start_col, end_col)
+                for col in range(start_col, end_col+1)
             ],
             lag_ratio=lag_ratio,
             **kwargs
@@ -166,6 +169,11 @@ def questionSection(scene):
 def describeBaseSituation(scene, texts):
     scene.play(Circumscribe(texts[1].get_part_by_tex("크기가 같은 정육면체 모양의 블록"), fade_out=True))
     cubesGroup = CubesGroup(3).scale_to_fit_width(CUBES_WIDTH).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+    for i in range(1, 4):
+        cubesGroup.cubes[i].set_fill_color(YELLOW)
+        scene.play(Stack1ColCubes(cubesGroup, i, DOWN),
+                   Circumscribe(texts[1].get_part_by_tex(str(i)+"열에 "+str(i)+"개"), fade_out=True))
+        cubesGroup.cubes[i].set_fill_color(GREY)
 
     scene.next_section(skip_animations=False)
     
@@ -174,7 +182,7 @@ def describeBaseSituation(scene, texts):
     #아래는 안되는데 위에는 되는거임...왜...왜....cubes자체를 줄이는거랑 cubes[0:3] 을 줄이는 것의 차이는...? cubes는 VGroup인데...VGroup의 다른 요소들이 같이 줄면 문제가 되나..?
 
     cubesGroup.addCols(13)
-    scene.play(AnimationGroup(StackCubes(cubesGroup, 3, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
+    scene.play(AnimationGroup(StackCubes(cubesGroup, 4, 16, None, run_time=2), FadeIn(cubesGroup.cdots), lag_ratio=0.8))
     scene.add(cubesGroup)
     scene.wait()
     '''
