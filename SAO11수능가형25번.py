@@ -1,5 +1,6 @@
 from SAOlib import *
 config.max_files_cached = -1
+config.disable_caching = True
 Tex.set_default(font_size=30, tex_environment="flushleft")
 #Circumscribe.set_default(fade_out=True) #TODO set_default 없음. 감싸서 변형하는 방법 찾아보기
 
@@ -20,8 +21,6 @@ TEXT3 = Tex("블록을 들어내는 시행을 모두 마쳤을 때, ",
 Eq = MathTex(r"\lim\limits_{m\to\infty}{{f(2",r"^{n+1}",r")-f(2",r"^{n}",r")}",r"\over{f(2",r"^{n+2}",r")}}",r"=\cfrac{q}{p}", font_size=30)
 TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
-FRAME_WIDTH = 12
-FRAME_HEIGHT = 8
 
 #Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
     
@@ -62,7 +61,7 @@ class CubesGroup(VGroup):
 
     def addCols(self, num):
         scale_factor = self.cubes[0].width/self.initial_cube.width
-        print("scale factor: ", scale_factor)
+        #print("scale factor: ", scale_factor)
         for i in range(self.cubes_num+1, self.cubes_num+num+1):
             self.labels.add(Tex(str(i),"열")
                             .move_to(self.axes.c2p(i-0.5,-0.5,0.5))
@@ -100,15 +99,15 @@ class CubesGroup(VGroup):
     
 class Test(ThreeDScene):
     def construct(self):
-        cubesGroup = CubesGroup(5)
-        self.play(StackCubes(cubesGroup, 1, 5))
-        evens = cubesGroup.popEvens()
-        self.play(FadeOut(evens, shift=UP))
-        #self.play(cubesGroup.animate.scale(1/2)) or self.play(Group(cubesGroup.cubes, cubesGroup.labels, cubesGroup.axes).animate.scale(1/2)) 는 동작x
-        #이유는 못찾음... 정확히 화면 위에 올라와 있는 큐브, 라벨만 골라서 scale하지 않으면 addCols 된 큐브들에 animation 적용이 x
-        self.play(Group(cubesGroup.cubes[:6], cubesGroup.labels[:6], cubesGroup.axes).animate.scale(1/2))
-        cubesGroup.addCols(3)
-        self.play(StackCubes(cubesGroup, 6, 8))
+        cubesGroup = CubesGroup(10).scale(1/2)
+        self.add(cubesGroup)
+
+        #남은 evens가 없을 때까지 popEvens()하고 FadeOut 반복
+        while len(cubesGroup.selectEvenCols()) != 0:
+            print("evneCols: ", len(cubesGroup.selectEvenCols())) #debug
+            self.play(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))
+            evens = cubesGroup.popEvens()
+            self.play(FadeOut(evens, shift=UP))
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift=None, lag_ratio=0.3, **kwargs):
@@ -138,6 +137,18 @@ class StackCubes(AnimationGroup):
             **kwargs
         )
 
+class fadeOutAllEvens(AnimationGroup):
+    def __init__(self, cubesGroup, shift=UP, **kwargs):
+        animations = []
+        while len(cubesGroup.selectEvenCols()) > 0:
+            animations += [AnimationGroup(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))]
+            evens = cubesGroup.popEvens()
+            animations += [FadeOut(evens, shift=shift)]
+
+        super().__init__(
+            *animations, **kwargs
+        )
+
 def questionSection(scene):
     texts = Group(TITLE.to_edge(UP),
                   TEXT1.next_to(TITLE, DOWN, aligned_edge = LEFT),
@@ -149,7 +160,7 @@ def questionSection(scene):
                   ).to_edge(LEFT)
     scene.add(texts)
         
-    cubesGroup = CubesGroup(6).scale_to_fit_width(FRAME_WIDTH/3).next_to(texts, RIGHT).shift(DOWN*0.5)
+    cubesGroup = CubesGroup(6).scale_to_fit_width(config.frame_width/3).next_to(texts, RIGHT).shift(DOWN*0.5)
 
     cubesGroup.popEvens()
     cubesGroup.popEvens()
@@ -167,7 +178,7 @@ def questionSection(scene):
 
 def describeBaseSituation(scene, texts):
     scene.play(Circumscribe(texts[1].get_part_by_tex("크기가 같은 정육면체 모양의 블록"), fade_out=True))
-    cubesGroup = CubesGroup(3).scale_to_fit_width(FRAME_WIDTH/3).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
+    cubesGroup = CubesGroup(3).scale_to_fit_width(config.frame_width/3).next_to(texts, RIGHT).shift(DOWN*0.5).rotate(5*DEGREES, axis=RIGHT).rotate(-20*DEGREES, axis=UP)
     for i in range(1, 4):
         cubesGroup.cubes[i].set_fill_color(YELLOW)
         scene.play(Stack1ColCubes(cubesGroup, i, DOWN),
@@ -184,7 +195,7 @@ def describeEvenIterate(scene, texts, cubesGroup):
     scene.play(Create(underline))
     scene.play(FadeOut(underline))
 
-    for i in range(4):
+    while len(cubesGroup.selectEvenCols()) > 0:
         box = SurroundingRectangle(texts[2].get_part_by_tex("블록의 개수가 짝수인 각 열")).set_color(YELLOW).set_stroke(width=4)
         scene.play(Create(box))
         scene.play(cubesGroup.selectEvenCols().animate.set_fill_color(YELLOW), cubesGroup.selectOddCols().animate.set_fill_color(GREY))
@@ -221,14 +232,30 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     scene.next_section(skip_animations=False)
     scene.play(FadeOut(texts[0:5], texts[6], eqbox), texts[5].animate.to_edge(UP).scale(1.5),
                Group(cubesGroup.cubes[:17], cubesGroup.labels[:17], cubesGroup.axes)
-               .animate.to_corner(DL).rotate(20*DEGREES, axis=UP).scale_to_fit_height((FRAME_HEIGHT-1)/2))
+               .animate.to_corner(DL).rotate(20*DEGREES, axis=UP).scale_to_fit_height((config.frame_height-1)/2))
     fend = MathTex("f(","16",")").next_to(texts[5], DOWN*2).shift(LEFT)
     scene.play(Write(fend))
     potentialTex = MathTex(r"2^",r"4").move_to(fend[1])
     potentialTex[1].set_color(RED)
     scene.play(Transform(fend[1], potentialTex))
+
     cubesGroup.addCols(16)
     scene.play(StackCubes(cubesGroup, 17, 32, None, run_time=2))
+    potentialTex = MathTex(r"2^",r"5").move_to(fend[1])
+    potentialTex[1].set_color(RED)
+    scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
+    scene.play(Transform(fend[1], potentialTex))
+    scene.play(fadeOutAllEvens(cubesGroup))
+    scene.play(Group(cubesGroup.cubes[:33], cubesGroup.labels[:33], cubesGroup.axes)
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+    
+    cubesGroup.addCols(32)
+    scene.play(StackCubes(cubesGroup, 33, 64, None, run_time=2))
+    potentialTex = MathTex(r"2^",r"6").move_to(fend[1])
+    potentialTex[1].set_color(RED)
+    scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
+    scene.play(Transform(fend[1], potentialTex))
+    scene.play(fadeOutAllEvens(cubesGroup))
 
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
