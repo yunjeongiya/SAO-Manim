@@ -357,6 +357,39 @@ def iteratingMoreOnyWithOddCols(scene, cubesGroup, fend):
     cubesGroup.addCols(2048)
     scene.play(FadeIn(cubesGroup.getOddthCols()))
 
+def comparingTriangles(scene, cubesGroup):
+    smallTriangle = TriangleSpanningCubes(cubesGroup, 1024)
+    bigTriangle = TriangleSpanningCubes(cubesGroup, 2048, PURE_BLUE).set_z_index(-1)
+    
+    f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", PURE_RED)
+    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", PURE_BLUE).next_to(f2n, RIGHT)
+    
+    f2nLen = MathTex("1",color=PURE_RED).next_to(f2n, DOWN)
+    f2n_1Len = MathTex("2",color=PURE_BLUE).next_to(f2n_1, DOWN)
+    f2nArea = MathTex("1",color=PURE_RED).next_to(f2nLen, DOWN)
+    f2n_1Area = MathTex("4",color=PURE_BLUE).next_to(f2n_1Len, DOWN)
+    
+    lenRatio = Text("길이비", font="NanumGothicBold").next_to(f2nLen, LEFT)
+    areaRatio = Text("넓이비", font="NanumGothicBold").next_to(f2nArea, LEFT)
+    colon = MathTex(":").next_to(lenRatio, RIGHT*1.5)
+    colon2 = MathTex(":").next_to(areaRatio, RIGHT*1.5)
+    equal = MathTex("=").next_to(f2n, RIGHT*0.5)
+
+    scene.next_section(skip_animations=False)
+    scene.play(Create(smallTriangle))
+    scene.play(TransformFromCopy(smallTriangle, f2n))
+    scene.play(Create(bigTriangle))
+    scene.play(TransformFromCopy(bigTriangle, f2n_1))
+    scene.play(FadeOut(cubesGroup), Write(lenRatio))
+    scene.play(Write(f2nLen), Write(f2n_1Len), Write(colon))
+    scene.play(Write(areaRatio))
+    scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
+    scene.play(FadeOut(Group(f2n, f2n_1, lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
+               f2nArea.animate.move_to(f2n, LEFT*0.25), f2n_1Area.animate.move_to(f2n_1, LEFT*0.25))
+    scene.remove(smallTriangle, bigTriangle)
+
+    return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal).set_color(WHITE)
+
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
         self.next_section(skip_animations=True)
@@ -367,3 +400,4 @@ class CSAT11_A_25(ThreeDScene):
         fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
         iteratingMoreOnyWithOddCols(self, cubesGroup, fend)
+        f2nEq = comparingTriangles(self, cubesGroup)
