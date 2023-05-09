@@ -319,6 +319,44 @@ def neglectEventhCols(scene, cubesGroup, fend):
     
     scene.play(FadeOut(cubesGroup.getEventhCols()))
 
+def iteratingMoreOnyWithOddCols(scene, cubesGroup, fend):
+    potentialTex7 = MathTex(r"2^",r"7").set_color(YELLOW).move_to(fend[1])
+    potentialTex8 = MathTex(r"2^",r"8").set_color(YELLOW).move_to(fend[1])
+
+    scene.play(Group(cubesGroup.cubes[:65], cubesGroup.labels[:65], cubesGroup.axes)
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
+               FadeOut(cubesGroup.labels[:65]))
+    cubesGroup.addCols(64)
+    scene.play(FadeIn(cubesGroup.getOddthCols()),
+               Transform(fend[1][1], potentialTex7[1]))
+
+    scene.play(Group(cubesGroup.cubes[:129], cubesGroup.axes)
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+    cubesGroup.addCols(128)
+    scene.play(FadeIn(cubesGroup.getOddthCols()),
+               Transform(fend[1][1], potentialTex8[1]))
+
+    scene.play(Group(cubesGroup.cubes[:257], cubesGroup.axes)
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
+               FadeOut(fend))
+    cubesGroup.addCols(256)
+    scene.play(FadeIn(cubesGroup.getOddthCols()))
+
+    scene.play(Group(cubesGroup.cubes[:513], cubesGroup.axes)
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+    cubesGroup.addCols(512)
+    scene.play(FadeIn(cubesGroup.getOddthCols()))
+
+    scene.play(Group(cubesGroup.cubes[:1025], cubesGroup.axes)
+                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+    cubesGroup.addCols(1024)
+    scene.play(FadeIn(cubesGroup.getOddthCols()))
+
+    scene.play(Group(cubesGroup.cubes[:2049], cubesGroup.axes)
+                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+    cubesGroup.addCols(2048)
+    scene.play(FadeIn(cubesGroup.getOddthCols()))
+
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
         self.next_section(skip_animations=True)
@@ -328,3 +366,4 @@ class CSAT11_A_25(ThreeDScene):
         eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
         fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
+        iteratingMoreOnyWithOddCols(self, cubesGroup, fend)
