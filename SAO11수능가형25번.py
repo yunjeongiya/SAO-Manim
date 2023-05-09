@@ -113,9 +113,21 @@ class CubesGroup(VGroup):
     
 class Test(ThreeDScene):
     def construct(self):
-        cubesGroup = CubesGroup(10).scale(1/2)
+        cubesGroup = CubesGroup(64).scale_to_fit_height((config.frame_height-1)).to_corner(DL)
+        while len(cubesGroup.getEvenCols()) > 0:
+            cubesGroup.popEvens()
+
         self.add(cubesGroup)
-        fadeOutAllEvens(cubesGroup, self)
+        triangle = TriangleSpanningCubes(cubesGroup, 32)
+        self.play(cubesGroup.cubes[:33].animate.set_fill_color(YELLOW),
+               Create(triangle))
+        self.play(cubesGroup.cubes[33:65].animate.set_fill_color(YELLOW),
+               Transform(triangle, TriangleSpanningCubes(cubesGroup, 65)))
+
+        self.play(cubesGroup.getOddthCols().animate.set_fill_color(YELLOW),
+        cubesGroup.getEventhCols().animate.set_fill_color(PURE_GREEN))
+    
+        self.play(FadeOut(cubesGroup.getEventhCols()))
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift=None, lag_ratio=0.3, **kwargs):
@@ -163,8 +175,8 @@ def fadeOutAllEvens(cubesGroup, scene, shift=UP):
         scene.play(FadeOut(cubesGroup.popEvens(), shift=shift))
 
 class TriangleSpanningCubes(Polygon) :
-    def __init__(self, cubesGroup, col, color=RED, **kwargs):
-        super().__init__(cubesGroup.axes.c2p(0,0,0.5), cubesGroup.axes.c2p(col, 0, 0.5), cubesGroup.axes.c2p(col, col, 0.5), color=color, **kwargs)
+    def __init__(self, cubesGroup, col, color=PURE_RED, stroke_width=6, **kwargs):
+        super().__init__(cubesGroup.axes.c2p(0,0,0.5), cubesGroup.axes.c2p(col, 0, 0.5), cubesGroup.axes.c2p(col, col, 0.5), color=color, stroke_width=stroke_width, **kwargs)
 
 def questionSection(scene):
     texts = Group(TITLE.to_edge(UP),
@@ -253,13 +265,13 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     fend = MathTex("f(","16",")").next_to(eq, DOWN*2).shift(LEFT)
     scene.play(Write(fend))
     potentialTex = MathTex(r"2^",r"4").move_to(fend[1])
-    potentialTex[1].set_color(RED)
+    potentialTex[1].set_color(YELLOW)
     scene.play(Transform(fend[1], potentialTex))
 
     cubesGroup.addCols(16)
     scene.play(StackCubes(cubesGroup, 17, 32, None, run_time=2))
     potentialTex = MathTex(r"2^",r"5").move_to(fend[1])
-    potentialTex[1].set_color(RED)
+    potentialTex[1].set_color(YELLOW)
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
@@ -269,17 +281,17 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     cubesGroup.addCols(32)
     scene.play(StackCubes(cubesGroup, 33, 64, None, run_time=2))
     potentialTex = MathTex(r"2^",r"6").move_to(fend[1])
-    potentialTex[1].set_color(RED)
+    potentialTex[1].set_color(YELLOW)
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
 
-    return fend, eq
+    return fend
 
 def neglectEventhCols(scene, cubesGroup, fend):
-    potentialTex4 = MathTex(r"2^",r"4").set_color(RED).move_to(fend[1])
-    potentialTex5 = MathTex(r"2^",r"5").set_color(RED).move_to(fend[1])
-    potentialTex6 = MathTex(r"2^",r"6").set_color(RED).move_to(fend[1])
+    potentialTex4 = MathTex(r"2^",r"4").set_color(YELLOW).move_to(fend[1])
+    potentialTex5 = MathTex(r"2^",r"5").set_color(YELLOW).move_to(fend[1])
+    potentialTex6 = MathTex(r"2^",r"6").set_color(YELLOW).move_to(fend[1])
 
     scene.play(cubesGroup.cubes[-1].animate.set_fill_color(GREY), 
                Transform(fend[1][1], potentialTex4[1]),
@@ -314,5 +326,5 @@ class CSAT11_A_25(ThreeDScene):
         cubesGroup = describeBaseSituation(self, texts)
         describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
         eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
-        fend, eq = iteratingMore(self, texts, cubesGroup, eqbox)
+        fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
