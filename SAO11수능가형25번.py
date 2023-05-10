@@ -277,7 +277,7 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
     scene.play(Group(cubesGroup.cubes[:33], cubesGroup.labels[:33], cubesGroup.axes)
-               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)).set_fill_color(GREY))
     
     cubesGroup.addCols(32)
     scene.play(StackCubes(cubesGroup, 33, 64, None, run_time=2))
