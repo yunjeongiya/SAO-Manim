@@ -96,16 +96,20 @@ class CubesGroup(VGroup):
                 oddCols.add(self.cubes[i])
         return oddCols
     
-    def getEventhCols(self):
+    def getEventhCols(self, start=1, end=None):
+        if(end == None):
+            end = self.cubes_num
         eventhCol = VGroup()
-        for i in range(1, self.cubes_num+1):
+        for i in range(start, end+1):
             if(i % 2 == 0):
                 eventhCol.add(self.cubes[i])
         return eventhCol
     
-    def getOddthCols(self):
+    def getOddthCols(self, start=1, end=None):
+        if(end == None):
+            end = self.cubes_num
         oddthCol = VGroup()
-        for i in range(1, self.cubes_num+1):
+        for i in range(start, end+1):
             if(i % 2 == 1):
                 oddthCol.add(self.cubes[i])
         return oddthCol
@@ -117,11 +121,6 @@ class Test(ThreeDScene):
             cubesGroup.popEvens()
 
         self.add(cubesGroup)
-        triangle = TriangleSpanningCubes(cubesGroup, 32)
-        self.play(cubesGroup.cubes[:33].animate.set_fill_color(YELLOW),
-               Create(triangle))
-        self.play(cubesGroup.cubes[33:65].animate.set_fill_color(YELLOW),
-               Transform(triangle, TriangleSpanningCubes(cubesGroup, 65)))
 
         self.play(cubesGroup.getOddthCols().animate.set_fill_color(YELLOW),
         cubesGroup.getEventhCols().animate.set_fill_color(PURE_GREEN))
@@ -172,6 +171,11 @@ def fadeOutAllEvens(cubesGroup, scene, shift=UP):
     while len(cubesGroup.getEvenCols()) > 0:
         scene.play(AnimationGroup(cubesGroup.getEvenCols().animate.set_fill_color(YELLOW), cubesGroup.getOddCols().animate.set_fill_color(GREY)))
         scene.play(FadeOut(cubesGroup.popEvens(), shift=shift))
+
+def twoPotentialTexBuilder(exponent):
+    potentialTex = MathTex(r"2^",r"{}".format(exponent))
+    potentialTex[1].set_color(YELLOW)
+    return potentialTex
 
 class TriangleSpanningCubes(Polygon) :
     def __init__(self, cubesGroup, col, color=PURE_RED, stroke_width=6, **kwargs):
@@ -263,14 +267,12 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
                .animate.to_corner(DL).shift(DOWN*0.5).rotate(20*DEGREES, axis=UP).scale_to_fit_height((config.frame_height-1)/2))
     fend = MathTex("f(","16",")").next_to(eq, DOWN*2).shift(LEFT)
     scene.play(Write(fend))
-    potentialTex = MathTex(r"2^",r"4").move_to(fend[1])
-    potentialTex[1].set_color(YELLOW)
+    potentialTex = twoPotentialTexBuilder(4).move_to(fend[1])
     scene.play(Transform(fend[1], potentialTex))
 
     cubesGroup.addCols(16)
     scene.play(StackCubes(cubesGroup, 17, 32, None, run_time=2))
-    potentialTex = MathTex(r"2^",r"5").move_to(fend[1])
-    potentialTex[1].set_color(YELLOW)
+    potentialTex = twoPotentialTexBuilder(5).move_to(fend[1])
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
@@ -279,8 +281,7 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     
     cubesGroup.addCols(32)
     scene.play(StackCubes(cubesGroup, 33, 64, None, run_time=2))
-    potentialTex = MathTex(r"2^",r"6").move_to(fend[1])
-    potentialTex[1].set_color(YELLOW)
+    potentialTex = twoPotentialTexBuilder(6).move_to(fend[1])
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
@@ -288,9 +289,9 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     return fend
 
 def neglectEventhCols(scene, cubesGroup, fend):
-    potentialTex4 = MathTex(r"2^",r"4").set_color(YELLOW).move_to(fend[1])
-    potentialTex5 = MathTex(r"2^",r"5").set_color(YELLOW).move_to(fend[1])
-    potentialTex6 = MathTex(r"2^",r"6").set_color(YELLOW).move_to(fend[1])
+    potentialTex4 = twoPotentialTexBuilder(4).move_to(fend[1])
+    potentialTex5 = twoPotentialTexBuilder(5).move_to(fend[1])
+    potentialTex6 = twoPotentialTexBuilder(6).move_to(fend[1])
 
     scene.play(cubesGroup.cubes[-1].animate.set_fill_color(GREY), 
                Transform(fend[1][1], potentialTex4[1]),
@@ -319,8 +320,8 @@ def neglectEventhCols(scene, cubesGroup, fend):
     scene.play(FadeOut(cubesGroup.getEventhCols()))
 
 def iteratingMoreOnyWithOddCols(scene, cubesGroup, fend):
-    potentialTex7 = MathTex(r"2^",r"7").set_color(YELLOW).move_to(fend[1])
-    potentialTex8 = MathTex(r"2^",r"8").set_color(YELLOW).move_to(fend[1])
+    potentialTex7 = twoPotentialTexBuilder(7).move_to(fend[1])
+    potentialTex8 = twoPotentialTexBuilder(8).move_to(fend[1])
 
     scene.play(Group(cubesGroup.cubes[:65], cubesGroup.labels[:65], cubesGroup.axes)
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
