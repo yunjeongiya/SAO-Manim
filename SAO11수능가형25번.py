@@ -1,6 +1,5 @@
 from SAOlib import *
 config.max_files_cached = -1
-config.disable_caching = True
 Tex.set_default(font_size=30, tex_environment="flushleft")
 #Circumscribe.set_default(fade_out=True) #TODO set_default 없음. 감싸서 변형하는 방법 찾아보기
 
@@ -18,8 +17,8 @@ TEXT3 = Tex("블록을 들어내는 시행을 모두 마쳤을 때, ",
 #\cfrac 쓸 때는 \mathit 로 안감싸고 끊으면 LaTex 오류 발생 (이유 모름...)
 #\cfrac 이랑 \mathit 조합해서 했는데 get_part_by_tex 했을 때 이상한 부분이 선택됨.... + italic이 숫자에도 적용되니 이상함
 #\over 써도 여기서는 큰 크기 차이 없어서 그냥 over로 하기로 함
-Eq = MathTex(r"\lim\limits_{m\to\infty}{{f(2",r"^{n+1}",r")-f(2",r"^{n}",r")}",r"\over{f(2",r"^{n+2}",r")}}",r"=\cfrac{q}{p}", font_size=30)
-TEXT4 = Tex(r'''일 때, $p+q$의 값을 구하시오.\\
+Eq = MathTex(r"\lim\limits_{m\to\infty}{{",r"f(2",r"^{n+1}",r")",r"-",r"f(2",r"^{n}",r")}",r"\over",r"{f(2",r"^{n+2}",r")}",r"}=",r"{{q}",r"\over",r"{p}}", font_size=30)
+TEXT4 = Tex("일 때, ", r"$p+q$", r'''의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
 #Square 소스코드 아이디어 참고 -> VGroup 상속받아 VGroup처럼 통째로 사용 가능하게 만들기
@@ -336,46 +335,24 @@ def iteratingMoreOnyWithOddCols(scene, cubesGroup, fend):
     scene.play(FadeIn(cubesGroup.getOddthCols()),
                Transform(fend[1][1], potentialTex8[1]))
 
-    scene.play(Group(cubesGroup.cubes[:257], cubesGroup.axes)
-               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
-               FadeOut(fend))
-    cubesGroup.addCols(256)
-    scene.play(FadeIn(cubesGroup.getOddthCols()))
-
-    scene.play(Group(cubesGroup.cubes[:513], cubesGroup.axes)
-               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
-    cubesGroup.addCols(512)
-    scene.play(FadeIn(cubesGroup.getOddthCols()))
-
-    scene.play(Group(cubesGroup.cubes[:1025], cubesGroup.axes)
-                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
-    cubesGroup.addCols(1024)
-    scene.play(FadeIn(cubesGroup.getOddthCols()))
-
-    scene.play(Group(cubesGroup.cubes[:2049], cubesGroup.axes)
-                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
-    cubesGroup.addCols(2048)
-    scene.play(FadeIn(cubesGroup.getOddthCols()))
-
 def comparingTriangles(scene, cubesGroup):
-    smallTriangle = TriangleSpanningCubes(cubesGroup, 1024)
-    bigTriangle = TriangleSpanningCubes(cubesGroup, 2048, PURE_BLUE).set_z_index(-1)
+    smallTriangle = TriangleSpanningCubes(cubesGroup, 8)
+    bigTriangle = TriangleSpanningCubes(cubesGroup, 16, PURE_BLUE).set_z_index(-1)
+
+    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT)
+    f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", RED).next_to(f2n_1, LEFT*4)
     
-    f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", PURE_RED)
-    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", PURE_BLUE).next_to(f2n, RIGHT)
+    f2nLen = MathTex("1",color=RED).next_to(f2n, DOWN)
+    f2n_1Len = MathTex("2",color=BLUE).next_to(f2n_1, DOWN)
+    f2nArea = MathTex("1",color=RED).next_to(f2nLen, DOWN)
+    f2n_1Area = MathTex("4",color=BLUE).next_to(f2n_1Len, DOWN)
     
-    f2nLen = MathTex("1",color=PURE_RED).next_to(f2n, DOWN)
-    f2n_1Len = MathTex("2",color=PURE_BLUE).next_to(f2n_1, DOWN)
-    f2nArea = MathTex("1",color=PURE_RED).next_to(f2nLen, DOWN)
-    f2n_1Area = MathTex("4",color=PURE_BLUE).next_to(f2n_1Len, DOWN)
-    
-    lenRatio = Text("길이비", font="NanumGothicBold").next_to(f2nLen, LEFT)
-    areaRatio = Text("넓이비", font="NanumGothicBold").next_to(f2nArea, LEFT)
-    colon = MathTex(":").next_to(lenRatio, RIGHT*1.5)
-    colon2 = MathTex(":").next_to(areaRatio, RIGHT*1.5)
+    lenRatio = Text("길이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height).next_to(f2nLen, LEFT*2)
+    areaRatio = Text("넓이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height).next_to(f2nArea, LEFT*2)
+    colon = MathTex(":").next_to(lenRatio, RIGHT*6)
+    colon2 = MathTex(":").next_to(areaRatio, RIGHT*6)
     equal = MathTex("=").next_to(f2n, RIGHT*0.5)
 
-    scene.next_section(skip_animations=False)
     scene.play(Create(smallTriangle))
     scene.play(TransformFromCopy(smallTriangle, f2n))
     scene.play(Create(bigTriangle))
@@ -384,16 +361,86 @@ def comparingTriangles(scene, cubesGroup):
     scene.play(Write(f2nLen), Write(f2n_1Len), Write(colon))
     scene.play(Write(areaRatio))
     scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
-    scene.play(FadeOut(Group(f2n, f2n_1, lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
-               f2nArea.animate.move_to(f2n, LEFT*0.25), f2n_1Area.animate.move_to(f2n_1, LEFT*0.25))
+    scene.next_section(skip_animations=False)
+    scene.play(FadeOut(Group(lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
+               f2nArea.animate.next_to(f2n, LEFT*0.5), f2n_1Area.animate.next_to(f2n_1, LEFT*0.5))
     scene.remove(smallTriangle, bigTriangle)
+    
+    return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal)
 
-    return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal).set_color(WHITE)
+def calculateEq(scene, questionEq, f2nEq):
+    scene.play(questionEq.animate.move_to(ORIGIN+UP).scale_to_fit_height(f2nEq.height*2),
+               f2nEq.animate.shift(UP*3).set_color(WHITE))
+    scene.play(FadeToColor(VGroup(questionEq.get_part_by_tex(r"^{n+1}"), questionEq.get_part_by_tex(r"^{n}"), questionEq.get_part_by_tex(r"^{n+2}")), YELLOW))
+
+    #동일한 수식 여러개 있어서 get_part_by_tex 사용 못하고 인덱스로 참조 -> 텍스트 변경 시 문제 발생 가능(종속적)
+    f2n_1Square = SurroundingRectangle(questionEq[1:4], color=PURE_RED)
+    f2nSquare = SurroundingRectangle(questionEq[5:8], color=PURE_RED)
+    f2n_2Square = SurroundingRectangle(questionEq[9:12], color=PURE_RED)
+    starEq = MathTex(r"{4",r"\bigstar",r" - ",r"\bigstar}",r"\over", r"{4\cdot4",r"\bigstar}").set_color_by_tex('igsta', RED).next_to(questionEq, DOWN)
+
+    arrow = Arrow(f2nSquare.get_edge_center(DOWN), starEq[3], buff=0.5, color=PURE_RED)
+    arrow2 = Arrow(f2n_1Square.get_edge_center(DOWN), starEq[1], buff=0.5, color=PURE_RED)
+    arrow3 = Arrow(f2n_2Square.get_edge_center(DOWN), starEq[-1], buff=0.5, color=PURE_RED)
+
+    scene.play(Create(f2nSquare))
+    scene.play(Create(arrow))
+    scene.play(Write(starEq[3]))
+    scene.play(Create(f2n_1Square), FadeOut(Group(f2nSquare, arrow)))
+    scene.play(Create(arrow2), TransformFromCopy(starEq[3], starEq[1]))
+    scene.play(Write(starEq[0]), Write(starEq[2]))
+    scene.play(Create(f2n_2Square), FadeOut(Group(f2n_1Square, arrow2)))
+    scene.play(Create(arrow3), TransformFromCopy(starEq[1], starEq[-1]))
+    scene.play(Write(starEq.get_part_by_tex(r"\over")), Write(starEq.get_part_by_tex(r"4\cdot4")))
+    scene.play(FadeOut(Group(f2n_2Square, arrow3)))
+    scene.play(Transform(starEq[-2:], MathTex("16 ",r"\bigstar").set_color_by_tex('igsta', RED).move_to(starEq[-2:])))
+    scene.play(Transform(starEq[:4], MathTex("3 ",r"\bigstar").set_color_by_tex('igsta', RED).move_to(starEq[:4])))
+    valOfQoverP = MathTex(r"{3}",r"\over",r"{16}").next_to(questionEq.get_part_by_tex("="), LEFT)
+    scene.play(FadeOut(questionEq[:-4]), FadeOut(starEq.get_parts_by_tex("igsta")), FadeOut(f2nEq),
+               ReplacementTransform(starEq[-2:], valOfQoverP.get_part_by_tex("16")),
+               ReplacementTransform(starEq[:4], valOfQoverP.get_part_by_tex("3")),
+               ReplacementTransform(starEq.get_part_by_tex(r"\over"), valOfQoverP.get_part_by_tex(r"\over")))
+    pqEq = Tex("$p$", " = ", "16", r"\\", "$q$", " = ", "3", font_size=50).to_edge(LEFT)
+    scene.play(Write(pqEq.get_parts_by_tex("=")), Write(pqEq.get_parts_by_tex("\\")),
+               FadeOut(Group(questionEq[-2], questionEq.get_part_by_tex("="), valOfQoverP.get_part_by_tex(r"\over"))),
+               ReplacementTransform(questionEq.get_part_by_tex(r"{{q}"), pqEq.get_part_by_tex("p")),
+               ReplacementTransform(questionEq.get_part_by_tex(r"{p}}"), pqEq.get_part_by_tex("q")),
+               ReplacementTransform(valOfQoverP.get_part_by_tex("3"), pqEq.get_part_by_tex("3")),
+               ReplacementTransform(valOfQoverP.get_part_by_tex("16"), pqEq.get_part_by_tex("16")))
+    return pqEq
+
+def findFinalAnswer(scene, pqEq, texts):
+    scene.play(pqEq.animate.to_edge(RIGHT), FadeIn(texts.to_edge(LEFT), shift=RIGHT))
+
+    answer = MathTex("p", "+", "q", "=", "19").next_to(pqEq, DOWN*2, aligned_edge=RIGHT)
+    scene.play(Circumscribe(texts[-1][1], fade_out=True))
+    scene.play(TransformFromCopy(texts[-1][1], answer[:3]))
+
+    pVal = MathTex("16").move_to(answer.get_part_by_tex("p"))
+    qVal = MathTex("3").move_to(answer.get_part_by_tex("q"))
+    scene.play(TransformFromCopy(pqEq.get_part_by_tex("16"), pVal),
+               FadeOut(answer.get_part_by_tex("p")),
+               TransformFromCopy(pqEq.get_part_by_tex("3"), qVal),
+               FadeOut(answer.get_part_by_tex("q")))
+    scene.play(Write(answer.get_part_by_tex("=")), Write(answer.get_part_by_tex("19")))
+
+class FinalPartTest(ThreeDScene):
+    def construct(self):
+        self.next_section(skip_animations=True)
+        texts = questionSection(self)
+        self.remove(texts)
+        originalTexts = texts.copy()
+        cubesGroup = CubesGroup(16).scale_to_fit_height(config.frame_height*0.8).to_corner(DL)
+        self.add(cubesGroup)
+        f2nEq = comparingTriangles(self, cubesGroup)
+        pqEq = calculateEq(self, texts[5], f2nEq)
+        findFinalAnswer(self, pqEq, originalTexts)
 
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
         self.next_section(skip_animations=True)
         texts = questionSection(self)
+        originalTexts = texts.copy()
         cubesGroup = describeBaseSituation(self, texts)
         describeEvenIterate(self, texts, cubesGroup) #cubesGroup에 다시 할당 필요한지 확인 필요
         eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
@@ -401,3 +448,5 @@ class CSAT11_A_25(ThreeDScene):
         neglectEventhCols(self, cubesGroup, fend)
         iteratingMoreOnyWithOddCols(self, cubesGroup, fend)
         f2nEq = comparingTriangles(self, cubesGroup)
+        pqEq = calculateEq(self, texts[5], f2nEq)
+        findFinalAnswer(self, pqEq, originalTexts)
