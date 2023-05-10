@@ -319,26 +319,26 @@ def neglectEventhCols(scene, cubesGroup, fend):
     
     scene.play(FadeOut(cubesGroup.getEventhCols()))
 
-def iteratingMoreOnyWithOddCols(scene, cubesGroup, fend):
+def iteratingMoreOnlyWithOddCols(scene, cubesGroup, fend):
     potentialTex7 = twoPotentialTexBuilder(7).move_to(fend[1])
     potentialTex8 = twoPotentialTexBuilder(8).move_to(fend[1])
 
-    scene.play(Group(cubesGroup.cubes[:65], cubesGroup.labels[:65], cubesGroup.axes)
+    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes)
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
                FadeOut(cubesGroup.labels[:65]))
     cubesGroup.addCols(64)
-    scene.play(FadeIn(cubesGroup.getOddthCols()),
+    scene.play(FadeIn(cubesGroup.getOddthCols(65, 128)),
                Transform(fend[1][1], potentialTex7[1]))
 
-    scene.play(Group(cubesGroup.cubes[:129], cubesGroup.axes)
+    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes)
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
     cubesGroup.addCols(128)
-    scene.play(FadeIn(cubesGroup.getOddthCols()),
+    scene.play(FadeIn(cubesGroup.getOddthCols(129, 256)),
                Transform(fend[1][1], potentialTex8[1]))
 
 def comparingTriangles(scene, cubesGroup):
-    smallTriangle = TriangleSpanningCubes(cubesGroup, 8)
-    bigTriangle = TriangleSpanningCubes(cubesGroup, 16, PURE_BLUE).set_z_index(-1)
+    smallTriangle = TriangleSpanningCubes(cubesGroup, 128)
+    bigTriangle = TriangleSpanningCubes(cubesGroup, 256, PURE_BLUE).set_z_index(-1)
 
     f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT)
     f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", RED).next_to(f2n_1, LEFT*4)
@@ -362,7 +362,6 @@ def comparingTriangles(scene, cubesGroup):
     scene.play(Write(f2nLen), Write(f2n_1Len), Write(colon))
     scene.play(Write(areaRatio))
     scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
-    scene.next_section(skip_animations=False)
     scene.play(FadeOut(Group(lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
                f2nArea.animate.next_to(f2n, LEFT*0.5), f2n_1Area.animate.next_to(f2n_1, LEFT*0.5))
     scene.remove(smallTriangle, bigTriangle)
@@ -439,7 +438,7 @@ class FinalPartTest(ThreeDScene):
 
 class CSAT11_A_25(ThreeDScene):
     def construct(self):
-        self.next_section(skip_animations=True)
+        self.next_section(skip_animations=False)
         texts = questionSection(self)
         originalTexts = texts.copy()
         cubesGroup = describeBaseSituation(self, texts)
@@ -447,7 +446,7 @@ class CSAT11_A_25(ThreeDScene):
         eqbox = descreibeEq(self, texts[4], texts[5], cubesGroup)
         fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
-        iteratingMoreOnyWithOddCols(self, cubesGroup, fend)
+        iteratingMoreOnlyWithOddCols(self, cubesGroup, fend)
         f2nEq = comparingTriangles(self, cubesGroup)
         pqEq = calculateEq(self, texts[5], f2nEq)
         findFinalAnswer(self, pqEq, originalTexts)
