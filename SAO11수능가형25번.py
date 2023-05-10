@@ -116,16 +116,17 @@ class CubesGroup(VGroup):
     
 class Test(ThreeDScene):
     def construct(self):
-        cubesGroup = CubesGroup(64).scale_to_fit_height((config.frame_height-1)).to_corner(DL)
+        cubesGroup = CubesGroup(4).scale_to_fit_height((config.frame_height-1)).to_corner(DL)
         while len(cubesGroup.getEvenCols()) > 0:
             cubesGroup.popEvens()
-
         self.add(cubesGroup)
-
-        self.play(cubesGroup.getOddthCols().animate.set_fill_color(YELLOW),
-        cubesGroup.getEventhCols().animate.set_fill_color(PURE_GREEN))
-    
         self.play(FadeOut(cubesGroup.getEventhCols()))
+
+        self.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes, cubesGroup.cubes[0])
+               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
+               FadeOut(cubesGroup.labels))
+        cubesGroup.addCols(4)
+        self.play(FadeIn(cubesGroup.getOddthCols(5, 8).set_fill_color(YELLOW)))
 
 class Stack1ColCubes(AnimationGroup):
     def __init__(self, cubesGroup, col, shift=None, lag_ratio=0.3, **kwargs):
@@ -273,6 +274,7 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     cubesGroup.addCols(16)
     scene.play(StackCubes(cubesGroup, 17, 32, None, run_time=2))
     potentialTex = twoPotentialTexBuilder(5).move_to(fend[1])
+
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
@@ -323,17 +325,17 @@ def iteratingMoreOnlyWithOddCols(scene, cubesGroup, fend):
     potentialTex7 = twoPotentialTexBuilder(7).move_to(fend[1])
     potentialTex8 = twoPotentialTexBuilder(8).move_to(fend[1])
 
-    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes)
+    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes, cubesGroup.cubes[0])
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)),
                FadeOut(cubesGroup.labels[:65]))
     cubesGroup.addCols(64)
-    scene.play(FadeIn(cubesGroup.getOddthCols(65, 128)),
+    scene.play(FadeIn(cubesGroup.getOddthCols(65, 128).set_fill_color(YELLOW)),
                Transform(fend[1][1], potentialTex7[1]))
 
-    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes)
+    scene.play(Group(cubesGroup.getOddthCols(), cubesGroup.axes, cubesGroup.cubes[0])
                .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
     cubesGroup.addCols(128)
-    scene.play(FadeIn(cubesGroup.getOddthCols(129, 256)),
+    scene.play(FadeIn(cubesGroup.getOddthCols(129, 256).set_fill_color(YELLOW)),
                Transform(fend[1][1], potentialTex8[1]))
 
 def comparingTriangles(scene, cubesGroup):
