@@ -365,7 +365,7 @@ def comparingTriangles(scene, cubesGroup, fend):
     scene.play(Write(areaRatio))
     scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
     scene.play(FadeOut(Group(lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
-               f2nArea.animate.next_to(f2n, LEFT*0.5), f2n_1Area.animate.next_to(f2n_1, LEFT*0.5))
+               f2nArea.animate.next_to(f2n_1, LEFT*0.5), f2n_1Area.animate.next_to(f2n, LEFT*0.5))
     scene.remove(smallTriangle, bigTriangle, fend)
     
     return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal)
