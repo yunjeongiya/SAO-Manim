@@ -379,11 +379,11 @@ def calculateEq(scene, questionEq, f2nEq):
     f2n_1Square = SurroundingRectangle(questionEq[1:4], color=PURE_RED)
     f2nSquare = SurroundingRectangle(questionEq[5:8], color=PURE_RED)
     f2n_2Square = SurroundingRectangle(questionEq[9:12], color=PURE_RED)
-    starEq = MathTex(r"{4",r"\bigstar",r" - ",r"\bigstar}",r"\over", r"{4\cdot4",r"\bigstar}").set_color_by_tex('igsta', RED).next_to(questionEq, DOWN)
+    starEq = MathTex(r"{4",r"\bigstar",r" - ",r"\bigstar}",r"\over", r"{4\cdot", r"4", r"\bigstar}").set_color_by_tex('igsta', RED).next_to(questionEq, DOWN).shift(DOWN)
 
-    arrow = Arrow(f2nSquare.get_edge_center(DOWN), starEq[3], buff=0.5, color=PURE_RED)
-    arrow2 = Arrow(f2n_1Square.get_edge_center(DOWN), starEq[1], buff=0.5, color=PURE_RED)
-    arrow3 = Arrow(f2n_2Square.get_edge_center(DOWN), starEq[-1], buff=0.5, color=PURE_RED)
+    arrow = Arrow(f2nSquare.get_edge_center(DOWN), starEq[3], buff=0, color=PURE_RED, tip_length=0.3)
+    arrow2 = Arrow(f2n_1Square.get_edge_center(DOWN), starEq[1], buff=0, color=PURE_RED, tip_length=0.3)
+    arrow3 = Arrow(f2n_2Square.get_edge_center(DOWN), starEq[-1], buff=0, color=PURE_RED, tip_length=0.3)
 
     scene.play(Create(f2nSquare))
     scene.play(Create(arrow))
@@ -392,14 +392,14 @@ def calculateEq(scene, questionEq, f2nEq):
     scene.play(Create(arrow2), TransformFromCopy(starEq[3], starEq[1]))
     scene.play(Write(starEq[0]), Write(starEq[2]))
     scene.play(Create(f2n_2Square), FadeOut(Group(f2n_1Square, arrow2)))
-    scene.play(Create(arrow3), TransformFromCopy(starEq[1], starEq[-1]))
-    scene.play(Write(starEq.get_part_by_tex(r"\over")), Write(starEq.get_part_by_tex(r"4\cdot4")))
+    scene.play(Create(arrow3), TransformFromCopy(starEq[:2], starEq[-2:]))
+    scene.play(Write(starEq.get_part_by_tex(r"\over")), Write(starEq.get_part_by_tex(r"4\cdot")))
     scene.play(FadeOut(Group(f2n_2Square, arrow3)))
-    scene.play(Transform(starEq[-2:], MathTex("16 ",r"\bigstar").set_color_by_tex('igsta', RED).move_to(starEq[-2:])))
+    scene.play(Transform(starEq[-3:], MathTex("16 ",r"\bigstar").set_color_by_tex('igsta', RED).move_to(starEq[-3:])))
     scene.play(Transform(starEq[:4], MathTex("3 ",r"\bigstar").set_color_by_tex('igsta', RED).move_to(starEq[:4])))
     valOfQoverP = MathTex(r"{3}",r"\over",r"{16}").next_to(questionEq.get_part_by_tex("="), LEFT)
     scene.play(FadeOut(questionEq[:-4]), FadeOut(starEq.get_parts_by_tex("igsta")), FadeOut(f2nEq),
-               ReplacementTransform(starEq[-2:], valOfQoverP.get_part_by_tex("16")),
+               ReplacementTransform(starEq[-3:], valOfQoverP.get_part_by_tex("16")),
                ReplacementTransform(starEq[:4], valOfQoverP.get_part_by_tex("3")),
                ReplacementTransform(starEq.get_part_by_tex(r"\over"), valOfQoverP.get_part_by_tex(r"\over")))
     pqEq = Tex("$p$", " = ", "16", r"\\", "$q$", " = ", "3", font_size=50).to_edge(LEFT)
