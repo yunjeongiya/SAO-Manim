@@ -402,7 +402,7 @@ def calculateEq(scene, questionEq, f2nEq):
                ReplacementTransform(starEq[-3:], valOfQoverP.get_part_by_tex("16")),
                ReplacementTransform(starEq[:4], valOfQoverP.get_part_by_tex("3")),
                ReplacementTransform(starEq.get_part_by_tex(r"\over"), valOfQoverP.get_part_by_tex(r"\over")))
-    pqEq = Tex("$p$", " = ", "16", r"\\", "$q$", " = ", "3", font_size=50).to_edge(LEFT)
+    pqEq = Tex("$p$", " = ", "16", r"\\", "$q$", " = ", "3", font_size=50).to_edge(RIGHT)
     scene.play(Write(pqEq.get_parts_by_tex("=")), Write(pqEq.get_parts_by_tex("\\")),
                FadeOut(Group(questionEq[-2], questionEq.get_part_by_tex("="), valOfQoverP.get_part_by_tex(r"\over"))),
                ReplacementTransform(questionEq.get_part_by_tex(r"{{q}"), pqEq.get_part_by_tex("p")),
@@ -412,7 +412,7 @@ def calculateEq(scene, questionEq, f2nEq):
     return pqEq
 
 def findFinalAnswer(scene, pqEq, texts):
-    scene.play(pqEq.animate.to_edge(RIGHT), FadeIn(texts.to_edge(LEFT), shift=RIGHT))
+    scene.play(FadeIn(texts.to_edge(LEFT), shift=RIGHT))
 
     answer = MathTex("p", "+", "q", "=", "19").next_to(pqEq, DOWN*2, aligned_edge=RIGHT)
     scene.play(Circumscribe(texts[-1][1], fade_out=True))
