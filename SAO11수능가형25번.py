@@ -342,7 +342,7 @@ def comparingTriangles(scene, cubesGroup, fend):
     smallTriangle = TriangleSpanningCubes(cubesGroup, 128)
     bigTriangle = TriangleSpanningCubes(cubesGroup, 256, PURE_BLUE).set_z_index(-1)
 
-    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT)
+    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT*0.1)
     f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", RED).next_to(f2n_1, LEFT*4)
     
     f2nLen = MathTex("1",color=RED).next_to(f2n, DOWN)
@@ -350,8 +350,8 @@ def comparingTriangles(scene, cubesGroup, fend):
     f2nArea = MathTex("1",color=RED).next_to(f2nLen, DOWN)
     f2n_1Area = MathTex("4",color=BLUE).next_to(f2n_1Len, DOWN)
     
-    lenRatio = Text("길이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height).next_to(f2nLen, LEFT*2)
-    areaRatio = Text("넓이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height).next_to(f2nArea, LEFT*2)
+    lenRatio = Text("길이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height*0.8).next_to(f2nLen, LEFT*2.2)
+    areaRatio = Text("넓이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height*0.8).next_to(f2nArea, LEFT*2.2)
     colon = MathTex(":").next_to(lenRatio, RIGHT*6)
     colon2 = MathTex(":").next_to(areaRatio, RIGHT*6)
     equal = MathTex("=").next_to(f2n, RIGHT*0.5)
