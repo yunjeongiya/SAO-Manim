@@ -360,7 +360,7 @@ def comparingTriangles(scene, cubesGroup, fend):
     scene.play(TransformFromCopy(smallTriangle, f2n))
     scene.play(Create(bigTriangle))
     scene.play(TransformFromCopy(bigTriangle, f2n_1))
-    scene.play(FadeOut(cubesGroup), Write(lenRatio))
+    scene.play(FadeOut(cubesGroup.getOddthCols()), Write(lenRatio)) #FadeOut(cubesGroup) 하면 화면에 안나타나 있던 것들이 보였다가 사라짐
     scene.play(Write(f2nLen), Write(f2n_1Len), Write(colon))
     scene.play(Write(areaRatio))
     scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
