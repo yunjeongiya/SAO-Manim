@@ -338,7 +338,7 @@ def iteratingMoreOnlyWithOddCols(scene, cubesGroup, fend):
     scene.play(FadeIn(cubesGroup.getOddthCols(129, 256).set_fill_color(YELLOW)),
                Transform(fend[1][1], potentialTex8[1]))
 
-def comparingTriangles(scene, cubesGroup):
+def comparingTriangles(scene, cubesGroup, fend):
     smallTriangle = TriangleSpanningCubes(cubesGroup, 128)
     bigTriangle = TriangleSpanningCubes(cubesGroup, 256, PURE_BLUE).set_z_index(-1)
 
@@ -366,7 +366,7 @@ def comparingTriangles(scene, cubesGroup):
     scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
     scene.play(FadeOut(Group(lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
                f2nArea.animate.next_to(f2n, LEFT*0.5), f2n_1Area.animate.next_to(f2n_1, LEFT*0.5))
-    scene.remove(smallTriangle, bigTriangle)
+    scene.remove(smallTriangle, bigTriangle, fend)
     
     return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal)
 
@@ -434,7 +434,8 @@ class FinalPartTest(ThreeDScene):
         originalTexts = texts.copy()
         cubesGroup = CubesGroup(16).scale_to_fit_height(config.frame_height*0.8).to_corner(DL)
         self.add(cubesGroup)
-        f2nEq = comparingTriangles(self, cubesGroup)
+        fend = MathTex("f(","16",")").to_corner(UL)
+        f2nEq = comparingTriangles(self, cubesGroup, fend)
         pqEq = calculateEq(self, texts[5], f2nEq)
         findFinalAnswer(self, pqEq, originalTexts)
 
@@ -449,6 +450,6 @@ class CSAT11_A_25(ThreeDScene):
         fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
         iteratingMoreOnlyWithOddCols(self, cubesGroup, fend)
-        f2nEq = comparingTriangles(self, cubesGroup)
+        f2nEq = comparingTriangles(self, cubesGroup, fend)
         pqEq = calculateEq(self, texts[5], f2nEq)
         findFinalAnswer(self, pqEq, originalTexts)
