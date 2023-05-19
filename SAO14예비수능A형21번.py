@@ -1,4 +1,4 @@
-from SAOlib import *
+from manim import *
 config.max_files_cached = -1
 
 config.background_color = WHITE #함수 안에 넣었더니 적용이 안되네 순서문제인가

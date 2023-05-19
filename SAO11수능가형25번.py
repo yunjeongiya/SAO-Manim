@@ -1,4 +1,4 @@
-from SAOlib import *
+from manim import *
 config.max_files_cached = -1
 Tex.set_default(font_size=30, tex_environment="flushleft")
 #Circumscribe.set_default(fade_out=True) #TODO set_default 없음. 감싸서 변형하는 방법 찾아보기
