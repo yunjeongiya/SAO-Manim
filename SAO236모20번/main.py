@@ -7,3 +7,4 @@ class main(Scene):
     def construct(self):
         self.next_section()
         texts = showProblem(self)
+        describeProblem(self, texts)
