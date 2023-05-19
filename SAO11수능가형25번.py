@@ -278,8 +278,8 @@ def iteratingMore(scene, texts, cubesGroup, eqbox):
     scene.play(TransformFromCopy(cubesGroup.labels[-1][0], potentialTex))
     scene.play(Transform(fend[1], potentialTex), FadeOut(potentialTex))
     fadeOutAllEvens(cubesGroup, scene)
-    scene.play(Group(cubesGroup.cubes[:33], cubesGroup.labels[:33], cubesGroup.axes)
-               .animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)).set_fill_color(GREY))
+    scene.play(cubesGroup.cubes[:33].animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)).set_fill_color(GREY),
+               Group(cubesGroup.labels[:33], cubesGroup.axes).animate.scale(1/2, about_point=cubesGroup.axes.c2p(0,0,0)))
     
     cubesGroup.addCols(32)
     scene.play(StackCubes(cubesGroup, 33, 64, None, run_time=2))
@@ -350,9 +350,9 @@ def iteratingMoreWithOutFend(scene, cubesGroup, fend):
     cubesGroup.addCols(512)
     scene.play(FadeIn(cubesGroup.getOddthCols(513, 1024).set_fill_color(YELLOW)))
 
-def comparingTriangles(scene, cubesGroup):
-    smallTriangle = TriangleSpanningCubes(cubesGroup, 512)
-    bigTriangle = TriangleSpanningCubes(cubesGroup, 1024, PURE_BLUE).set_z_index(-1)
+def comparingTriangles(scene, cubesGroup, fend):
+    smallTriangle = TriangleSpanningCubes(cubesGroup, 128)
+    bigTriangle = TriangleSpanningCubes(cubesGroup, 256, PURE_BLUE).set_z_index(-1)
 
     f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT*0.1)
     f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", RED).next_to(f2n_1, LEFT*4)
@@ -368,7 +368,7 @@ def comparingTriangles(scene, cubesGroup):
     colon2 = MathTex(":").next_to(areaRatio, RIGHT*6)
     equal = MathTex("=").next_to(f2n, RIGHT*0.5)
 
-    scene.play(Create(smallTriangle))
+    scene.play(Create(smallTriangle), FadeOut(fend))
     scene.play(TransformFromCopy(smallTriangle, f2n))
     scene.play(Create(bigTriangle))
     scene.play(TransformFromCopy(bigTriangle, f2n_1))
@@ -467,7 +467,7 @@ class CSAT11_A_25(ThreeDScene):
         fend = iteratingMore(self, texts, cubesGroup, eqbox)
         neglectEventhCols(self, cubesGroup, fend)
         iteratingMoreOnlyWithOddCols(self, cubesGroup, fend)
-        iteratingMoreWithOutFend(self, cubesGroup, fend)
-        f2nEq = comparingTriangles(self, cubesGroup)
+        #iteratingMoreWithOutFend(self, cubesGroup, fend)
+        f2nEq = comparingTriangles(self, cubesGroup, fend)
         pqEq = calculateEq(self, texts[5], f2nEq)
         findFinalAnswer(self, pqEq, originalTexts)
