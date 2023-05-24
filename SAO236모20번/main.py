@@ -9,3 +9,4 @@ class main(Scene):
         texts = showProblem(self)
         describeProblem(self, texts)
         minimumDescription = describeMinimum(self, texts)
+        gx, gxDescription = describeIntegral(self, texts, minimumDescription)
