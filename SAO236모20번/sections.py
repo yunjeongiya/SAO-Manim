@@ -14,7 +14,9 @@ def describeProblem(scene, texts):
     graph = Axes().plot(lambda x: 2*x**2, x_range = [-1, 1]).next_to(fx, RIGHT)
     
     box = SurroundingRectangle(texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$"))
-    ul2 = Underline(texts[2].get_part_by_tex(r"$x=1$과 $x=4$"), color = YELLOW)
+    ul2 = VGroup(Underline(texts[2].get_part_by_tex("$x=1$"), color=YELLOW),
+                 Underline(texts[2].get_part_by_tex("과"), color=YELLOW),
+                 Underline(texts[2].get_part_by_tex("$x=4$"), color=YELLOW))
     box2 = SurroundingRectangle(texts[2].get_part_by_tex("극소"))
 
     scene.play(Create(ul))
@@ -41,14 +43,14 @@ def describeMinimum(scene, texts):
     arrow = Arrow(gprimexSigns[0].get_edge_center(RIGHT), gprimexSigns[1].get_edge_center(LEFT), buff=0.05)
     scene.play(Create(arrow))
     scene.play(FadeOut(Group(gx, gxShapes)), Group(gprimex, gprimexSigns, arrow).animate.move_to(Group(gx, gxShapes)).shift(RIGHT*0.1))
-    return Group(minimum, colon, gprimex, gprimexSigns, arrow)
+    return VGroup(minimum, colon, gprimex, gprimexSigns, arrow)
 
 def describeIntegral(scene, texts, minimumDescription):
     originGx = texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$")
     box = SurroundingRectangle(originGx)
     gx = MathTex(r"g(x)={{{\int}}^{x+1}{{_x}}}{{|f(t)|}}dt").scale_to_fit_width(originGx.get_width()).move_to(originGx)
     gxDescription = Group(
-        MathTex("|f(t)|").set_color(YELLOW),
+        MathTex("|{{f(t)}}|").set_color(YELLOW),
         Text("를", font="NanumBarunGothic"),
         MathTex("x").set_color(RED),
         Text("부터", font="NanumBarunGothic"),
@@ -68,5 +70,81 @@ def describeIntegral(scene, texts, minimumDescription):
                TransformFromCopy(gx.get_part_by_tex("x+1"), gxDescription[4]))
     scene.play(Write(gxDescription[3]), Write(gxDescription[5]))
     scene.play(FadeToColor(Group(gx.get_part_by_tex("int"), gx.get_part_by_tex("dt")), GREEN), Write(gxDescription[6]))
-    scene.play(gxDescription.animate.set_color(WHITE).next_to(gx.get_part_by_tex("g(x)="), RIGHT), FadeOut(gx), FadeIn(gx.get_part_by_tex("g(x)=")))
-    return gx, gxDescription
+    gxCopy = gx.get_part_by_tex("g(x)=").copy()
+    scene.play(gxDescription.animate.set_color(WHITE).next_to(gx.get_part_by_tex("g(x)="), RIGHT), FadeOut(gx), FadeIn(gxCopy))
+    return Group(gxCopy, gxDescription)
+
+def graphAnalysis(scene, gxDescription, minimumDescription, texts):
+    ax = Axes(
+        x_range=[-2.5,2.5],
+        y_range=[0,7.25],
+        x_length=3,
+        y_length=3,
+        x_axis_config={
+            "include_tip": True,
+            "tip_width": 0.1,
+            "tip_height": 0.15,
+            "include_ticks": False
+        },
+        y_axis_config={
+            "include_tip": False,
+            "stroke_width": 0
+        }
+    ).next_to(gxDescription[1], DOWN*2, aligned_edge=LEFT)
+    graph = ax.plot(lambda x: x**2+1, x_range = [-2.5,2.5])
+    numbering = Text("①").scale(0.6).next_to(ax, LEFT).shift(UP*0.5)
+
+    scene.play(Create(ax), Create(graph))
+    x = ValueTracker(-2.3)
+    label_x = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.5))
+    label_xPlus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
+    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)))
+    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)))
+    area = ax.get_area(graph, [x.get_value(), x.get_value()+1], color=YELLOW, opacity=0.5, stroke_width=0)
+    
+    scene.play(Create(line_x), Create(line_xPlus1), Write(label_x), Write(label_xPlus1))
+    scene.play(FadeIn(area))
+    
+    ax2 = ax.copy().next_to(gxDescription[1], DOWN*2, aligned_edge=RIGHT)
+    graph2 = ax2.plot(lambda x: x**2-1, x_range = [-2.5,2.5])
+    numbering2 = Text("②").scale(0.6).next_to(ax2, LEFT).shift(UP*0.5)
+
+    scene.play(Create(ax2), Create(graph2), Write(numbering), Write(numbering2))
+    graph2abs = ax2.plot(lambda x: abs(x**2-1), x_range = [-2.5,2.5])
+    scene.play(Indicate(gxDescription[1][0].get_parts_by_tex("|")))
+    scene.play(Transform(graph2, graph2abs))
+    #graph2 = graph2abs
+
+    x2 = ValueTracker(-2.3)
+    label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.5))
+    label_x2Plus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax2.c2p(x2.get_value()+1), DOWN*0.5))
+    line_x2 = always_redraw(lambda: ax2.get_vertical_line(ax2.input_to_graph_point(x2.get_value(),graph2)))
+    line_x2Plus1 = always_redraw(lambda: ax2.get_vertical_line(ax2.i2gp(x2.get_value()+1, graph2)))
+    area2 = ax2.get_area(graph2, [x2.get_value(), x2.get_value()+1], color=YELLOW, opacity=0.5, stroke_width=0)
+    scene.play(Create(line_x2), Create(line_x2Plus1), Write(label_x2), Write(label_x2Plus1))
+    scene.play(FadeIn(area2))
+
+    scene.play(Write(minimumDescription.next_to(gxDescription, UP, aligned_edge=LEFT)))
+    scene.play(Transform(minimumDescription[2], Text("넓이의 순간변화율", font="NanumBarunGothic", color=YELLOW, t2c={"의":WHITE}).next_to(minimumDescription[1], RIGHT)),
+               minimumDescription[3:].animate.shift(RIGHT*4))
+
+    area_RED = always_redraw(lambda: ax.get_area(graph, [x.get_value(), x.get_value()+1], color=RED, opacity=0.5, stroke_width=0))
+    scene.remove(area)
+    scene.add(area_RED)
+    scene.play(x.animate.set_value(-0.5))
+    area_BLUE = always_redraw(lambda: ax.get_area(graph, [x.get_value(), x.get_value()+1], color=BLUE, opacity=0.5, stroke_width=0))
+    scene.remove(area_RED)
+    scene.add(area_BLUE)
+    scene.play(x.animate.set_value(1.3))
+
+    scene.play(FadeIn(texts.scale(0.7).to_corner(UL)), FadeOut(gxDescription), FadeOut(minimumDescription))
+    box = SurroundingRectangle(texts[2].get_part_by_tex("$x=1$"), color=YELLOW)
+    box2 = SurroundingRectangle(texts[2].get_part_by_tex("$x=4$"), color=YELLOW)
+    scene.play(Create(box), Create(box2))
+
+    scene.next_section(skip_animations=False)
+    wrong = Line([0, 0, 0], [0.5, 0.5, 0], color=RED).move_to(numbering)
+    minNum = Text("극소 1개", font="NanumBarunGothic").scale(0.6).next_to(ax, DOWN)
+    minNum2 = Text("극소 2개?", font="NanumBarunGothic").scale(0.6).next_to(ax2, DOWN)
+    scene.play(Write(wrong), Write(minNum))
+    scene.play(Write(minNum2))
