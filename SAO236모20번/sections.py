@@ -91,10 +91,11 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
             "stroke_width": 0
         }
     ).next_to(gxDescription[1], DOWN*2, aligned_edge=LEFT)
+    label = ax.get_x_axis_label("t")
     graph = ax.plot(lambda x: x**2+1, x_range = [-2.5,2.5])
     numbering = Text("①").scale(0.6).next_to(ax, LEFT).shift(UP*0.5)
-
-    scene.play(Create(ax), Create(graph))
+    graphGroup = VGroup(ax, label, graph, numbering)
+    scene.play(Create(graphGroup[:-1]))
     x = ValueTracker(-2.3)
     label_x = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.5))
     label_xPlus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
@@ -106,10 +107,12 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     scene.play(FadeIn(area))
     
     ax2 = ax.copy().next_to(gxDescription[1], DOWN*2, aligned_edge=RIGHT)
+    label2 = ax2.get_x_axis_label("t")
     graph2 = ax2.plot(lambda x: x**2-1, x_range = [-2.5,2.5])
     numbering2 = Text("②").scale(0.6).next_to(ax2, LEFT).shift(UP*0.5)
+    graph2Group = VGroup(ax2, label2, graph2, numbering2)
 
-    scene.play(Create(ax2), Create(graph2), Write(numbering), Write(numbering2))
+    scene.play(Create(graph2Group[:-1]), Write(numbering), Write(numbering2))
     graph2abs = ax2.plot(lambda x: abs(x**2-1), x_range = [-2.5,2.5])
     scene.play(Indicate(gxDescription[1][0].get_parts_by_tex("|")))
     scene.play(Transform(graph2, graph2abs))
