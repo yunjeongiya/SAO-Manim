@@ -142,9 +142,48 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     box2 = SurroundingRectangle(texts[2].get_part_by_tex("$x=4$"), color=YELLOW)
     scene.play(Create(box), Create(box2))
 
-    scene.next_section(skip_animations=False)
     wrong = Line([0, 0, 0], [0.5, 0.5, 0], color=RED).move_to(numbering)
     minNum = Text("극소 1개", font="NanumBarunGothic").scale(0.6).next_to(ax, DOWN)
     minNum2 = Text("극소 2개?", font="NanumBarunGothic").scale(0.6).next_to(ax2, DOWN)
     scene.play(Write(wrong), Write(minNum))
     scene.play(Write(minNum2))
+
+    return texts
+
+def calculateGxIntegral(scene, texts):
+    scene.clear()
+    scene.add(texts)
+    originGx = texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$")
+    #처음부터 부분 다 쪼개기 힘들면, 이런식으로 원본은 쪼개놓지 말고, 각각 섹션별로 '지금 필요한 대로 쪼갠 버전'으로 대체하기
+    gx = MathTex((r"g(x)={\displaystyle\int_x^{x+1}}{{|f(t)|}}dt")).scale_to_fit_width(originGx.width).move_to(originGx)
+    ft = MathTex("{{|f(t)|}}=p(t)").next_to(texts, DOWN*1.5, aligned_edge=LEFT)
+    scene.play(TransformFromCopy(gx.get_part_by_tex("|f(t)|"), ft.get_part_by_tex("|f(t)|")))
+    scene.play(Write(ft.get_part_by_tex("p(t)")))
+    newGx = MathTex((r"g(x){{=}}{\displaystyle\int{{_x}}^{x+1}{{p(t)}}dt")).next_to(ft, DOWN*1.5, aligned_edge=LEFT)
+    scene.play(FadeIn(gx.get_part_by_tex("|f(t)|").set_color(YELLOW)), TransformFromCopy(gx.get_part_by_tex("|f(t)|"), newGx.get_part_by_tex("p(t)").set_color(YELLOW)))
+    scene.play(FadeIn(newGx[:5]), FadeIn(newGx[6:]))
+    newGx2 = MathTex(r"{{=}}[{{P(t)}}]{{_x}}^{x+1}").next_to(newGx.get_part_by_tex("="), DOWN*2.5, aligned_edge=LEFT)
+    scene.play(FadeToColor(newGx, WHITE), 
+               Write(newGx2.get_part_by_tex("=")), TransformFromCopy(newGx.get_part_by_tex("p(t)"), newGx2.get_part_by_tex("P(t)")))
+    scene.play(FadeIn(newGx2.get_part_by_tex("[")), FadeIn(newGx2.get_part_by_tex("]")))
+    scene.play(TransformFromCopy(newGx.get_part_by_tex("_x"), newGx2.get_part_by_tex("_x")), TransformFromCopy(newGx.get_part_by_tex("x+1"), newGx2.get_part_by_tex("x+1")))
+    newGx3 = Group(
+        MathTex("="),
+        MathTex("P({{t}})"),
+        MathTex("-P({{t}})")
+    ).arrange(RIGHT).next_to(newGx2, DOWN*1.5, aligned_edge=LEFT)
+    Pt = newGx3[1].copy().move_to(newGx2.get_part_by_tex("P(t)"))
+    scene.play(Write(newGx3[0]), TransformFromCopy(Pt, newGx3[1]))
+    PxPlus1 = MathTex("P({{x+1}})").move_to(newGx3[1], aligned_edge=LEFT)
+    PxPlus1.get_part_by_tex("x+1").set_color(BLACK)
+    scene.play(TransformMatchingTex(newGx3[1], PxPlus1),
+               TransformFromCopy(newGx2.get_part_by_tex("x+1"), PxPlus1.get_part_by_tex("x+1").set_color(WHITE).set_z_index(1)))
+
+    scene.play(TransformFromCopy(Pt, newGx3[2].next_to(PxPlus1, RIGHT)))
+    Px = MathTex("-P({{x}})").next_to(PxPlus1, RIGHT)
+    Px.get_part_by_tex("x").set_color(BLACK)
+    scene.play(TransformMatchingTex(newGx3[2], Px),
+               TransformFromCopy(newGx2.get_part_by_tex("_x"), Px.get_part_by_tex("x").set_color(WHITE).set_z_index(1)))
+    scene.next_section(skip_animations=False)
+    scene.play(FadeOut(newGx[2:]), FadeOut(newGx2), FadeOut(newGx3[0]), VGroup(PxPlus1, Px).animate.move_to(newGx[2:], aligned_edge=LEFT))
+    return ft, VGroup(newGx[:2], PxPlus1, Px)
