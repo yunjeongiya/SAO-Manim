@@ -29,7 +29,7 @@ def describeProblem(scene, texts):
     scene.play(FadeOut(box), FadeOut(box2), FadeOut(ul2))
 
 def describeMinimum(scene, texts):
-    minimum = Text("극소", font="NanumBarunGothic").next_to(texts, DOWN*2).to_edge(LEFT)
+    minimum = Tex("극소").next_to(texts, DOWN*2).to_edge(LEFT)
     colon = Tex(": ").next_to(minimum, RIGHT)
     gx = Tex("$g(x)$  ").next_to(colon, RIGHT)
     gxShapes = Tex("↘", "↗").next_to(gx, RIGHT*2).scale(1.2)
@@ -91,7 +91,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
             "stroke_width": 0
         }
     ).next_to(gxDescription[1], DOWN*2, aligned_edge=LEFT)
-    label = ax.get_x_axis_label("t")
+    label = ax.get_x_axis_label("t", direction=RIGHT).scale(0.7)
     graph = ax.plot(lambda x: x**2+1, x_range = [-2.5,2.5])
     numbering = Text("①").scale(0.6).next_to(ax, LEFT).shift(UP*0.5)
     graphGroup = VGroup(ax, label, graph, numbering)
@@ -107,7 +107,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     scene.play(FadeIn(area))
     
     ax2 = ax.copy().next_to(gxDescription[1], DOWN*2, aligned_edge=RIGHT)
-    label2 = ax2.get_x_axis_label("t")
+    label2 = ax2.get_x_axis_label("t", direction=RIGHT).scale(0.7)
     graph2 = ax2.plot(lambda x: x**2-1, x_range = [-2.5,2.5])
     numbering2 = Text("②").scale(0.6).next_to(ax2, LEFT).shift(UP*0.5)
     graph2Group = VGroup(ax2, label2, graph2, numbering2)
@@ -117,6 +117,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     scene.play(Indicate(gxDescription[1][0].get_parts_by_tex("|")))
     scene.play(Transform(graph2, graph2abs))
     #graph2 = graph2abs
+    scene.next_section(skip_animations=True)
 
     x2 = ValueTracker(-2.3)
     label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.5))
@@ -187,6 +188,5 @@ def calculateGxIntegral(scene, texts):
     Px.get_part_by_tex("x").set_color(BLACK)
     scene.play(TransformMatchingTex(newGx3[2], Px),
                TransformFromCopy(newGx2.get_part_by_tex("_x"), Px.get_part_by_tex("x").set_color(WHITE).set_z_index(1)))
-    scene.next_section(skip_animations=False)
     scene.play(FadeOut(newGx[2:]), FadeOut(newGx2), FadeOut(newGx3[0]), VGroup(PxPlus1, Px).animate.move_to(newGx[2:], aligned_edge=LEFT))
     return ft, VGroup(newGx[:2], PxPlus1, Px)
