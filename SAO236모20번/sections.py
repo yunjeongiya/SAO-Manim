@@ -117,7 +117,6 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     scene.play(Indicate(gxDescription[1][0].get_parts_by_tex("|")))
     scene.play(Transform(graph2, graph2abs))
     #graph2 = graph2abs
-    scene.next_section(skip_animations=True)
 
     x2 = ValueTracker(-2.3)
     label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.5))
@@ -167,7 +166,7 @@ def calculateGxIntegral(scene, texts):
     scene.play(FadeIn(gx.get_part_by_tex("|f(t)|").set_color(YELLOW)), TransformFromCopy(gx.get_part_by_tex("|f(t)|"), newGx.get_part_by_tex("p(t)").set_color(YELLOW)))
     scene.play(FadeIn(newGx[:5]), FadeIn(newGx[6:]))
     newGx2 = MathTex(r"{{=}}[{{P(t)}}]{{_x}}^{x+1}").next_to(newGx.get_part_by_tex("="), DOWN*2.5, aligned_edge=LEFT)
-    scene.play(FadeToColor(newGx, WHITE), 
+    scene.play(FadeToColor(newGx, WHITE), FadeToColor(gx.get_part_by_tex("|f(t)|"), WHITE), 
                Write(newGx2.get_part_by_tex("=")), TransformFromCopy(newGx.get_part_by_tex("p(t)"), newGx2.get_part_by_tex("P(t)")))
     scene.play(FadeIn(newGx2.get_part_by_tex("[")), FadeIn(newGx2.get_part_by_tex("]")))
     scene.play(TransformFromCopy(newGx.get_part_by_tex("_x"), newGx2.get_part_by_tex("_x")), TransformFromCopy(newGx.get_part_by_tex("x+1"), newGx2.get_part_by_tex("x+1")))
@@ -178,6 +177,7 @@ def calculateGxIntegral(scene, texts):
     ).arrange(RIGHT).next_to(newGx2, DOWN*1.5, aligned_edge=LEFT)
     Pt = newGx3[1].copy().move_to(newGx2.get_part_by_tex("P(t)"))
     scene.play(Write(newGx3[0]), TransformFromCopy(Pt, newGx3[1]))
+    scene.next_section(skip_animations=False)
     PxPlus1 = MathTex("P({{x+1}})").move_to(newGx3[1], aligned_edge=LEFT)
     PxPlus1.get_part_by_tex("x+1").set_color(BLACK)
     scene.play(TransformMatchingTex(newGx3[1], PxPlus1),
