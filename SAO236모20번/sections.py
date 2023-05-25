@@ -14,9 +14,9 @@ def describeProblem(scene, texts):
     graph = Axes().plot(lambda x: 2*x**2, x_range = [-1, 1]).next_to(fx, RIGHT)
     
     box = SurroundingRectangle(texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$"))
-    ul2 = VGroup(Underline(texts[2].get_part_by_tex("$x=1$"), color=YELLOW),
-                 Underline(texts[2].get_part_by_tex("과"), color=YELLOW),
-                 Underline(texts[2].get_part_by_tex("$x=4$"), color=YELLOW))
+    ul2 = Underline(VGroup(texts[2].get_part_by_tex("$x=1$"),
+                           texts[2].get_part_by_tex("과"),
+                           texts[2].get_part_by_tex("$x=4$")), color = YELLOW)
     box2 = SurroundingRectangle(texts[2].get_part_by_tex("극소"))
 
     scene.play(Create(ul))
