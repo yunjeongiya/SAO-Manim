@@ -177,16 +177,49 @@ def calculateGxIntegral(scene, texts):
     ).arrange(RIGHT).next_to(newGx2, DOWN*1.5, aligned_edge=LEFT)
     Pt = newGx3[1].copy().move_to(newGx2.get_part_by_tex("P(t)"))
     scene.play(Write(newGx3[0]), TransformFromCopy(Pt, newGx3[1]))
-    scene.next_section(skip_animations=False)
-    PxPlus1 = MathTex("P({{x+1}})").move_to(newGx3[1], aligned_edge=LEFT)
+    PxPlus1 = MathTex("P{{'}}({{x+1}})").move_to(newGx3[1], aligned_edge=LEFT)
+    PxPlus1.get_part_by_tex("'").set_color(BLACK)
     PxPlus1.get_part_by_tex("x+1").set_color(BLACK)
     scene.play(TransformMatchingTex(newGx3[1], PxPlus1),
                TransformFromCopy(newGx2.get_part_by_tex("x+1"), PxPlus1.get_part_by_tex("x+1").set_color(WHITE).set_z_index(1)))
 
     scene.play(TransformFromCopy(Pt, newGx3[2].next_to(PxPlus1, RIGHT)))
-    Px = MathTex("-P({{x}})").next_to(PxPlus1, RIGHT)
+    Px = MathTex("{{-}}P{{'}}({{x}})").next_to(PxPlus1, RIGHT)
+    Px.get_part_by_tex("'").set_color(BLACK)
     Px.get_part_by_tex("x").set_color(BLACK)
     scene.play(TransformMatchingTex(newGx3[2], Px),
                TransformFromCopy(newGx2.get_part_by_tex("_x"), Px.get_part_by_tex("x").set_color(WHITE).set_z_index(1)))
     scene.play(FadeOut(newGx[2:]), FadeOut(newGx2), FadeOut(newGx3[0]), VGroup(PxPlus1, Px).animate.move_to(newGx[2:], aligned_edge=LEFT))
+
     return ft, VGroup(newGx[:2], PxPlus1, Px)
+
+def specifyTarget(scene, texts, gx, minimumDescription):
+    prime = MathTex("g{{'}}").move_to(gx, aligned_edge=LEFT)
+    scene.play(FadeIn(prime[1].set_color(YELLOW)))
+    scene.play(FadeToColor(gx[1].get_part_by_tex("'"),YELLOW), FadeToColor(gx[2].get_part_by_tex("'"), YELLOW))
+    pXplus1 = MathTex("{{p}}({{x+1}})").move_to(gx[1:], aligned_edge=LEFT)
+    pX = MathTex("-{{p}}({{x}})").next_to(pXplus1, RIGHT)
+    scene.play(TransformMatchingTex(gx[1:], VGroup(pXplus1, pX)))
+    box = SurroundingRectangle(texts[2].get_part_by_tex("극소"))
+    gprimex = MathTex("g'(x)").next_to(box, DOWN*3)
+    gprimexSigns = minimumDescription[3].next_to(gprimex, RIGHT)
+    arrow = Arrow(gprimexSigns[0].get_edge_center(RIGHT), gprimexSigns[1].get_edge_center(LEFT), buff=0.05)
+    boxArrow = Arrow(box.get_edge_center(DOWN), gprimex.get_edge_center(UP), buff=0, color=YELLOW)
+    scene.play(AnimationGroup(Create(box), Create(boxArrow), AnimationGroup(Write(gprimex), Write(gprimexSigns), Create(arrow)), lag_ratio=0.7))
+    under0 = MathTex("{{<}}0").next_to(pX, RIGHT).set_color(RED)
+    pXplus1_2 = pXplus1.copy().next_to(pXplus1, DOWN*2)
+    pX_2 = pX.copy().next_to(pXplus1_2, RIGHT)
+    over0 = MathTex("{{>}}0").next_to(pX_2, RIGHT).set_color(BLUE)
+    arrow2 = Arrow(under0[0].get_edge_center(DOWN), over0[0].get_edge_center(UP), buff=0.1)
+    scene.play(TransformFromCopy(gprimexSigns[0], under0))
+    scene.play(Create(arrow2), TransformFromCopy(pXplus1, pXplus1_2), TransformFromCopy(pX, pX_2))
+    scene.play(TransformFromCopy(gprimexSigns[1], over0))
+
+    scene.next_section(skip_animations=False)
+    scene.play(FadeOut(VGroup(under0.get_part_by_tex("0"), over0.get_part_by_tex("0"),
+                              box, boxArrow, gprimex, gprimexSigns, arrow, prime, gx[0]),
+                              pX.get_part_by_tex("-"), pX_2.get_part_by_tex("-")),
+                pXplus1.animate.next_to(under0, LEFT), pX[1:].animate.next_to(under0[0], RIGHT),
+                pXplus1_2.animate.next_to(over0, LEFT), pX_2[1:].animate.next_to(over0[0], RIGHT))
+
+    
