@@ -215,11 +215,111 @@ def specifyTarget(scene, texts, gx, minimumDescription):
     scene.play(Create(arrow2), TransformFromCopy(pXplus1, pXplus1_2), TransformFromCopy(pX, pX_2))
     scene.play(TransformFromCopy(gprimexSigns[1], over0))
 
-    scene.next_section(skip_animations=False)
     scene.play(FadeOut(VGroup(under0.get_part_by_tex("0"), over0.get_part_by_tex("0"),
                               box, boxArrow, gprimex, gprimexSigns, arrow, prime, gx[0]),
                               pX.get_part_by_tex("-"), pX_2.get_part_by_tex("-")),
                 pXplus1.animate.next_to(under0, LEFT), pX[1:].animate.next_to(under0[0], RIGHT),
                 pXplus1_2.animate.next_to(over0, LEFT), pX_2[1:].animate.next_to(over0[0], RIGHT))
-
     
+    return VGroup(pXplus1, pX[1:], pXplus1_2, pX_2[1:], under0[0], over0[0], arrow2)
+
+def findMinimum(scene, texts, targetSituation):
+    ax = Axes(
+        x_range=[0,6],
+        y_range=[0,15],
+        x_length=5,
+        y_length=3,
+        x_axis_config={
+            "include_tip": True,
+            "tip_width": 0.1,
+            "tip_height": 0.15,
+            "include_ticks": False
+        },
+        y_axis_config={
+            "include_tip": False,
+            "stroke_width": 0
+        }
+    )
+    axLabel = ax.get_x_axis_label("t", direction=RIGHT).scale(0.7)
+    func = lambda x: abs(2*(x-3)**2-5)
+    graph = ax.plot(func, x_range = [0,6])
+    graphLabel = MathTex("y=p({{t}})").scale(0.7).next_to(graph, UR).shift(LEFT*0.5)
+    graphGroup = VGroup(ax, axLabel, graph, graphLabel).to_edge(RIGHT)
+
+    scene.play(targetSituation.animate.set_color(WHITE).to_edge(LEFT))
+    scene.play(FadeIn(graphGroup))
+
+    x = ValueTracker(0.1)
+    
+    label_x = MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.7).add_updater(lambda m: m.next_to(ax.c2p(x.get_value()), DOWN*0.7))
+    label_xPlus1 = MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5).add_updater(lambda m: m.next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
+
+    line_x_white = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)).set_color(WHITE))
+    line_xPlus1_white = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)).set_color(WHITE))
+    
+    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)).set_color(BLUE))
+    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)).set_color(YELLOW))
+
+    scene.play(Create(line_x_white), Create(line_xPlus1_white), Create(label_x), Create(label_xPlus1))
+    scene.play(FadeToColor(label_xPlus1, YELLOW), FadeToColor(line_xPlus1_white, YELLOW),
+               targetSituation[0].animate.set_color(YELLOW), targetSituation[2].animate.set_color(YELLOW))
+    scene.remove(line_xPlus1_white)
+    scene.add(line_xPlus1)
+
+    scene.play(FadeToColor(label_x, BLUE), FadeToColor(line_x_white, BLUE),
+               targetSituation[1].animate.set_color(BLUE), targetSituation[3].animate.set_color(BLUE))
+    scene.remove(line_x_white)
+    scene.add(line_x)
+
+    scene.play(x.animate(rate_func=linear).set_value(1))
+    minLine = Line(ax.c2p(0, func(x.get_value())), ax.c2p(6, func(x.get_value())), stroke_width=3)
+    scene.play(Create(minLine))
+
+    a = MathTex("a").scale(0.5).next_to(label_x, DOWN)
+    aPointer = Arrow(ax.i2gp(x.get_value(), graph), a.get_edge_center(UP), stroke_width=2, buff=0, max_tip_length_to_length_ratio=0.1)
+    aPlus1 = MathTex("{{a}}+1").scale(0.5).next_to(label_xPlus1, DOWN)
+    aPlus1Pointer = Arrow(ax.i2gp(x.get_value()+1, graph), aPlus1.get_edge_center(UP), stroke_width=2, buff=0, max_tip_length_to_length_ratio=0.1)
+    scene.play(Create(a.shift(DOWN*0.05)), Create(aPointer))
+    scene.play(Create(aPlus1), Create(aPlus1Pointer))
+
+    scene.play(x.animate(rate_func=linear).set_value(2.5))
+    maxLine = Line(ax.c2p(0, func(x.get_value())), ax.c2p(6, func(x.get_value())), stroke_width=3)
+    scene.play(Create(maxLine))
+    arrow = targetSituation[-1]
+    scene.play(Transform(arrow, arrow.copy().rotate(PI)))
+    maxTex = Text("극대", font="NanumBarunGothic").scale(0.5).next_to(ax.i2gp(3, graph), UP)
+    scene.play(Indicate(arrow), Write(maxTex))
+
+    scene.play(Transform(arrow, arrow.copy().rotate(PI)), FadeOut(maxTex), FadeOut(maxLine))
+    scene.play(x.animate(rate_func=linear).set_value(4))
+    b = MathTex("b").scale(0.5).next_to(label_x, DOWN)
+    bPointer = Arrow(ax.i2gp(x.get_value(), graph), b.get_edge_center(UP), stroke_width=2, buff=0, max_tip_length_to_length_ratio=0.1)
+    bPlus1 = MathTex("{{b}}+1").scale(0.5).next_to(label_xPlus1, DOWN)
+    bPlus1Pointer = Arrow(ax.i2gp(x.get_value()+1, graph), bPlus1.get_edge_center(UP), stroke_width=2, buff=0, max_tip_length_to_length_ratio=0.1)
+    scene.play(Create(b.shift(DOWN*0.05)), Create(bPointer))
+    scene.play(Create(bPlus1), Create(bPlus1Pointer))
+
+    aCircle = Circle(radius=0.2, color=YELLOW).move_to(a)
+    bCircle = Circle(radius=0.2, color=BLUE).move_to(b)
+    scene.play(Create(aCircle), Create(bCircle),
+               FadeOut(Group(line_x, line_xPlus1, label_x, label_xPlus1, targetSituation)))
+    box1 = SurroundingRectangle(texts[2].get_part_by_tex("x=1"), buff=0.1, color=YELLOW)
+    box2 = SurroundingRectangle(texts[2].get_part_by_tex("x=4"), buff=0.1, color=BLUE)
+    scene.play(Create(box1), Create(box2))
+    aVal = MathTex("1").scale(0.5).move_to(a)
+    aPlus1Val = MathTex("{{1}}+1").scale(0.5).move_to(aPlus1)
+    bVal = MathTex("4").scale(0.5).move_to(b)
+    bPlus1Val = MathTex("{{4}}+1").scale(0.5).move_to(bPlus1)
+    scene.play(FadeOut(a), FadeOut(b), FadeOut(aPlus1[0]), FadeOut(bPlus1[0]),
+               TransformFromCopy(texts[2].get_part_by_tex("x=1")[-1], aVal), TransformFromCopy(texts[2].get_part_by_tex("x=4")[-1], bVal),
+               TransformFromCopy(texts[2].get_part_by_tex("x=1")[-1], aPlus1Val[0]), TransformFromCopy(texts[2].get_part_by_tex("x=4")[-1], bPlus1Val[0]))
+    scene.play(FadeOut(Group(aCircle, bCircle, box1, box2, aPointer, bPointer, aPlus1Pointer, bPlus1Pointer, aPlus1[1:], bPlus1[1:])),
+               Transform(aPlus1Val, MathTex("2").scale(0.5).move_to(aPlus1)), Transform(bPlus1Val, MathTex("5").scale(0.5).move_to(bPlus1)))
+    verticalLines = VGroup(ax.get_vertical_line(ax.i2gp(1, graph)),
+                           ax.get_vertical_line(ax.i2gp(2, graph)),
+                           ax.get_vertical_line(ax.i2gp(4, graph)),
+                           ax.get_vertical_line(ax.i2gp(5, graph)))
+    scene.play(aVal.animate.next_to(ax.c2p(1), DOWN*0.5), aPlus1Val.animate.next_to(ax.c2p(2), DOWN*0.5),
+               bVal.animate.next_to(ax.c2p(4), DOWN*0.5), bPlus1Val.animate.next_to(ax.c2p(5), DOWN*0.5),
+               Create(verticalLines[0]), Create(verticalLines[1]), Create(verticalLines[2]), Create(verticalLines[3]))
+    return graphGroup, minLine, verticalLines, Group(aVal, aPlus1Val, bVal, bPlus1Val)
