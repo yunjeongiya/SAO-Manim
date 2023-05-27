@@ -97,7 +97,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     graphGroup = VGroup(ax, label, graph, numbering)
     scene.play(Create(graphGroup[:-1]))
     x = ValueTracker(-2.3)
-    label_x = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.5))
+    label_x = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.7))
     label_xPlus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
     line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)))
     line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)))
@@ -119,7 +119,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     #graph2 = graph2abs
 
     x2 = ValueTracker(-2.3)
-    label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.5))
+    label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.7))
     label_x2Plus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax2.c2p(x2.get_value()+1), DOWN*0.5))
     line_x2 = always_redraw(lambda: ax2.get_vertical_line(ax2.input_to_graph_point(x2.get_value(),graph2)))
     line_x2Plus1 = always_redraw(lambda: ax2.get_vertical_line(ax2.i2gp(x2.get_value()+1, graph2)))
