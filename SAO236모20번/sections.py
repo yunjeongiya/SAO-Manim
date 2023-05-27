@@ -193,7 +193,7 @@ def calculateGxIntegral(scene, texts):
 
     return ft, VGroup(newGx[:2], PxPlus1, Px)
 
-def specifyTarget(scene, texts, gx, minimumDescription):
+def specifyMinimum(scene, texts, gx, minimumDescription):
     prime = MathTex("g{{'}}").move_to(gx, aligned_edge=LEFT)
     scene.play(FadeIn(prime[1].set_color(YELLOW)))
     scene.play(FadeToColor(gx[1].get_part_by_tex("'"),YELLOW), FadeToColor(gx[2].get_part_by_tex("'"), YELLOW))

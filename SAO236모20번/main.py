@@ -12,5 +12,5 @@ class main(Scene):
         gxDescription = describeIntegral(self, texts, minimumDescription)
         texts = graphAnalysis(self, gxDescription, minimumDescription, texts)
         ft, gx = calculateGxIntegral(self, texts)
-        targetSituation = specifyTarget(self, texts, gx, minimumDescription)
+        targetSituation = specifyMinimum(self, texts, gx, minimumDescription)
         graphGroup, minLine, verticalLines, vals = findMinimum(self, texts, targetSituation)
