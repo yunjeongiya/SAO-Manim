@@ -127,7 +127,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
     scene.play(Create(line_x2), Create(line_x2Plus1), Write(label_x2), Write(label_x2Plus1))
     scene.play(FadeIn(area2))
 
-    scene.play(Write(minimumDescription.next_to(gxDescription, UP, aligned_edge=LEFT)))
+    scene.play(FadeIn(minimumDescription.next_to(gxDescription, UP, aligned_edge=LEFT), shift=UP)) #이미 있던 텍스트 다시 보여주는거니까 write가 아니라 fadein
     scene.play(Transform(minimumDescription[2], Text("넓이의 순간변화율", font="NanumBarunGothic", color=YELLOW, t2c={"의":WHITE}).next_to(minimumDescription[1], RIGHT)),
                minimumDescription[3:].animate.shift(RIGHT*4))
 
