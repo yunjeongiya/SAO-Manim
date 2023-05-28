@@ -437,6 +437,5 @@ def finalAnswer(scene:Scene, texts, fx, kval):
                FadeToColor(texts[3].get_part_by_tex("0"), YELLOW),
                TransformFromCopy(yellow0, yellow0copy1),
                TransformFromCopy(yellow0, yellow0copy2))
-    scene.next_section(skip_animations=False)
     scene.play(FadeToColor(texts[3].get_part_by_tex("0"), WHITE), FadeToColor(yellow0copy1, WHITE),
                FadeOut(yellow0copy2), Transform(VGroup(fx[3:], kval[1]), MathTex("13").move_to(fx[3:], aligned_edge=LEFT)))
