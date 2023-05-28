@@ -453,7 +453,7 @@ class FinalPartTest(ThreeDScene):
 class CSAT11_A_25(ThreeDScene):
     def play(self, *args, **kwargs):
         args = list(args)
-        args.append(Wait(1))
+        args.append(Wait(2)) # append 하는거라 앞 애니메이션들이랑 동시에 진행되므로 1 초과해야 추가로 기다림
         super().play(*args, **kwargs)
         self.next_section()
 
