@@ -14,3 +14,4 @@ class main(Scene):
         ft, gx = calculateGxIntegral(self, texts)
         targetSituation = specifyMinimum(self, texts, gx, minimumDescription)
         graphGroup, minLine, verticalLines, vals = findMinimum(self, texts, targetSituation)
+        fx, f1f2eq = findFx(self, texts, ft, graphGroup, minLine, verticalLines, vals)

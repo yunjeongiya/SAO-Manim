@@ -9,7 +9,7 @@ def showProblem(scene):
     return texts
 
 def describeProblem(scene, texts):
-    ul = Underline(texts[1].get_part_by_tex(r"최고차항의 계수가 2인 이차함수 $f(x)$"), color = YELLOW)
+    ul = Underline(texts[1][:-1], color = YELLOW)
     fx = MathTex(r"f(x)=2x^2+\cdots").next_to(texts, DOWN*2).to_edge(LEFT)
     graph = Axes().plot(lambda x: 2*x**2, x_range = [-1, 1]).next_to(fx, RIGHT)
     
@@ -243,7 +243,7 @@ def findMinimum(scene, texts, targetSituation):
     axLabel = ax.get_x_axis_label("t", direction=RIGHT).scale(0.7)
     func = lambda x: abs(2*(x-3)**2-5)
     graph = ax.plot(func, x_range = [0,6])
-    graphLabel = MathTex("y=p({{t}})").scale(0.7).next_to(graph, UR).shift(LEFT*0.5)
+    graphLabel = MathTex("y={{p}}({{t}})").scale(0.7).next_to(graph, UR).shift(LEFT*0.5)
     graphGroup = VGroup(ax, axLabel, graph, graphLabel).to_edge(RIGHT)
 
     scene.play(targetSituation.animate.set_color(WHITE).to_edge(LEFT))
@@ -322,4 +322,76 @@ def findMinimum(scene, texts, targetSituation):
     scene.play(aVal.animate.next_to(ax.c2p(1), DOWN*0.5), aPlus1Val.animate.next_to(ax.c2p(2), DOWN*0.5),
                bVal.animate.next_to(ax.c2p(4), DOWN*0.5), bPlus1Val.animate.next_to(ax.c2p(5), DOWN*0.5),
                Create(verticalLines[0]), Create(verticalLines[1]), Create(verticalLines[2]), Create(verticalLines[3]))
-    return graphGroup, minLine, verticalLines, Group(aVal, aPlus1Val, bVal, bPlus1Val)
+    return graphGroup, minLine, verticalLines, VGroup(aVal, aPlus1Val, bVal, bPlus1Val)
+
+def findFx(scene:Scene, texts, ft, graphGroup, minLine, verticalLines, vals):
+    
+    #TODO graphGroup -> VMap 으로 바꾸기
+    ax = graphGroup[0]
+    axLabel = graphGroup[1]
+    abs_graph = graphGroup[2]
+    graphLabel_old = graphGroup[3]
+
+    lineOfSymmetry = DashedLine(ax.c2p(3, 15), ax.c2p(3, -7), stroke_width=2)
+    val3 = MathTex("3").scale(0.5).next_to(ax.c2p(3, 0), DOWN*0.5).shift(LEFT*0.1)
+    vals += val3
+    scene.play(Create(lineOfSymmetry), Write(val3))
+
+    #ft = MathTex("{{|f(t)|}}=p(t)").next_to(texts, DOWN*1.5, aligned_edge=LEFT)
+    ft_dividedByT = MathTex("{{|}}f({{t}}){{|}}{{=}}p({{t}})").move_to(ft).set_color_by_tex("x", YELLOW)
+    fx_dividedByX = MathTex("{{|}}f({{x}}){{|}}{{=}}p({{x}})").move_to(ft).set_color_by_tex("x", YELLOW)
+    fx_forTransform = MathTex("f(x)").move_to(fx_dividedByX[1], aligned_edge=LEFT)
+    fx = MathTex("f(x){{=}}(x-3)^2{{+}}k").next_to(ft, DOWN*1.5, aligned_edge=LEFT).shift(RIGHT*0.1)
+
+    graphLabel = MathTex("y={{p}}({{x}})").set_color_by_tex("x", YELLOW).scale(0.7).move_to(graphLabel_old)
+    scene.add(ft_dividedByT)
+    scene.play(Transform(axLabel, MathTex("x").scale(0.7).set_color(YELLOW).move_to(axLabel)),
+               TransformMatchingTex(graphLabel_old, graphLabel),
+               FadeOut(ft, run_time=0.1),
+               TransformMatchingTex(ft_dividedByT, fx_dividedByX))
+    graphLabel_new = MathTex("y={{f}}({{x}})").scale(0.7).move_to(graphLabel)
+    func = lambda x: 2*(x-3)**2-5
+    graph = ax.plot(func, x_range = [0,6])
+    minLine2 = Line(ax.c2p(0, func(2)), ax.c2p(6, func(4)), stroke_width=3)
+    scene.play(TransformMatchingTex(graphLabel, graphLabel_new),
+               FadeToColor(fx_dividedByX, WHITE), FadeToColor(axLabel, WHITE),
+               TransformFromCopy(fx_forTransform.set_color(WHITE), fx[:2]),
+               Transform(abs_graph, graph),
+               TransformFromCopy(minLine, minLine2),
+               Transform(verticalLines[1], ax.get_vertical_line(ax.i2gp(2, graph))),
+               Transform(verticalLines[2], ax.get_vertical_line(ax.i2gp(4, graph))))
+    graphGroup -= graphLabel_old
+    graphGroup += graphLabel_new
+
+    scene.play(FadeToColor(lineOfSymmetry, YELLOW), FadeToColor(val3, YELLOW))
+    scene.play(Write(fx.get_part_by_tex("(x-3)^2").set_color(YELLOW)))
+    scene.play(Write(fx.get_part_by_tex("+").set_color(BLUE)), Write(fx.get_part_by_tex("k").set_color(BLUE)))
+    fx2 = MathTex("f(x){{=}}{{2}}(x-3)^2{{+}}k").move_to(fx, aligned_edge=LEFT)
+    fx2.get_part_by_tex("2").set_color(BLACK)
+    ul = Underline(VGroup(texts[1].get_part_by_tex("최고차항의 계수가"), texts[1].get_part_by_tex("2")), color=YELLOW)
+    fx2copy = fx2.get_part_by_tex("2").copy().set_color(YELLOW).set_z_index(1)
+    scene.play(Create(ul), TransformMatchingTex(fx, fx2),
+               TransformFromCopy(texts[1].get_part_by_tex("2"), fx2copy),
+               FadeToColor(lineOfSymmetry, WHITE), FadeToColor(val3, WHITE))
+    scene.play(FadeOut(ul), FadeToColor(fx2copy, WHITE), FadeToColor(fx2.get_part_by_tex("2"), WHITE), FadeToColor(fx2.get_part_by_tex("k"), BLUE))
+    scene.remove(fx2copy)
+
+    scene.play(FadeOut(fx_dividedByX), FadeToColor(fx2.get_part_by_tex("k"), WHITE), Indicate(ax, scale_factor=1), Indicate(axLabel))
+    scene.play(Indicate(minLine, color=BLUE), Indicate(minLine2, color=BLUE))
+
+    f1Line = VGroup(Line(ax.c2p(1,0), ax.c2p(1,func(1))), Line(ax.c2p(1,func(1)), ax.c2p(0,func(1)))).set_color(YELLOW)
+    f1 = MathTex("f({{1}})").scale(0.7).next_to(f1Line[1], LEFT).set_color_by_tex("1", YELLOW)
+    scene.play(FadeToColor(vals[0], YELLOW))
+    scene.play(Create(f1Line))
+    scene.play(Write(f1))
+    f2Line = VGroup(Line(ax.c2p(2,0), ax.c2p(2,func(2))), Line(ax.c2p(2,func(2)), ax.c2p(0,func(2)))).set_color(BLUE)
+    f2 = MathTex("f({{2}})").scale(0.7).next_to(f2Line[1], LEFT).set_color_by_tex("2", BLUE)
+    scene.play(FadeToColor(vals[1], BLUE))
+    scene.play(Create(f2Line))
+    scene.play(Write(f2))
+
+    f1f2eq = VGroup(f1.copy().scale(10/7), MathTex("= -"), f2.copy().scale(10/7)).arrange(RIGHT).next_to(fx2, DOWN*4, aligned_edge=LEFT)
+    scene.play(TransformFromCopy(f1, f1f2eq[0]), TransformFromCopy(f2, f1f2eq[2]))
+    scene.play(Write(f1f2eq[1]))
+    scene.play(FadeOut(Group(graphGroup, f1, f2, f1Line, f2Line, minLine, minLine2, verticalLines, vals, lineOfSymmetry)))
+    return fx2, f1f2eq
