@@ -8,7 +8,7 @@ def showProblem(scene):
     scene.add(texts)
     return texts
 
-def describeProblem(scene, texts):
+def describeProblem(scene:Scene, texts):
     ul = Underline(texts[1][:-1], color = YELLOW)
     fx = MathTex(r"f(x)=2x^2+\cdots").next_to(texts, DOWN*2).to_edge(LEFT)
     graph = Axes().plot(lambda x: 2*x**2, x_range = [-1, 1]).next_to(fx, RIGHT)
@@ -28,7 +28,7 @@ def describeProblem(scene, texts):
     scene.play(Create(box2))
     scene.play(FadeOut(box), FadeOut(box2), FadeOut(ul2))
 
-def describeMinimum(scene, texts):
+def describeMinimum(scene:Scene, texts):
     minimum = Tex("극소").next_to(texts, DOWN*2).to_edge(LEFT)
     colon = Tex(": ").next_to(minimum, RIGHT)
     gx = Tex("$g(x)$  ").next_to(colon, RIGHT)
@@ -45,7 +45,7 @@ def describeMinimum(scene, texts):
     scene.play(FadeOut(Group(gx, gxShapes)), Group(gprimex, gprimexSigns, arrow).animate.move_to(Group(gx, gxShapes)).shift(RIGHT*0.1))
     return VGroup(minimum, colon, gprimex, gprimexSigns, arrow)
 
-def describeIntegral(scene, texts, minimumDescription):
+def describeIntegral(scene:Scene, texts, minimumDescription):
     originGx = texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$")
     box = SurroundingRectangle(originGx)
     gx = MathTex(r"g(x)={{{\int}}^{x+1}{{_x}}}{{|f(t)|}}dt").scale_to_fit_width(originGx.get_width()).move_to(originGx)
@@ -74,7 +74,7 @@ def describeIntegral(scene, texts, minimumDescription):
     scene.play(gxDescription.animate.set_color(WHITE).next_to(gx.get_part_by_tex("g(x)="), RIGHT), FadeOut(gx), FadeIn(gxCopy))
     return Group(gxCopy, gxDescription)
 
-def graphAnalysis(scene, gxDescription, minimumDescription, texts):
+def graphAnalysis(scene:Scene, gxDescription, minimumDescription, texts):
     ax = Axes(
         x_range=[-2.5,2.5],
         y_range=[0,7.25],
@@ -153,7 +153,7 @@ def graphAnalysis(scene, gxDescription, minimumDescription, texts):
 
     return texts
 
-def calculateGxIntegral(scene, texts):
+def calculateGxIntegral(scene:Scene, texts):
     scene.clear()
     scene.add(texts)
     originGx = texts[2].get_part_by_tex(r"$g(x)={\displaystyle\int_x^{x+1}}|f(t)|dt$")
@@ -193,7 +193,7 @@ def calculateGxIntegral(scene, texts):
 
     return ft, VGroup(newGx[:2], PxPlus1, Px)
 
-def specifyMinimum(scene, texts, gx, minimumDescription):
+def specifyMinimum(scene:Scene, texts, gx, minimumDescription):
     prime = MathTex("g{{'}}").move_to(gx, aligned_edge=LEFT)
     scene.play(FadeIn(prime[1].set_color(YELLOW)))
     scene.play(FadeToColor(gx[1].get_part_by_tex("'"),YELLOW), FadeToColor(gx[2].get_part_by_tex("'"), YELLOW))
@@ -223,7 +223,7 @@ def specifyMinimum(scene, texts, gx, minimumDescription):
     
     return VGroup(pXplus1, pX[1:], pXplus1_2, pX_2[1:], under0[0], over0[0], arrow2)
 
-def findMinimum(scene, texts, targetSituation):
+def findMinimum(scene:Scene, texts, targetSituation):
     ax = Axes(
         x_range=[0,6],
         y_range=[0,15],
