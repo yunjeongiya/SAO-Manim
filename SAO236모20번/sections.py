@@ -390,8 +390,53 @@ def findFx(scene:Scene, texts, ft, graphGroup, minLine, verticalLines, vals):
     scene.play(Create(f2Line))
     scene.play(Write(f2))
 
-    f1f2eq = VGroup(f1.copy().scale(10/7), MathTex("= -"), f2.copy().scale(10/7)).arrange(RIGHT).next_to(fx2, DOWN*4, aligned_edge=LEFT)
+    f1f2eq = VGroup(f1.copy().scale(10/7), MathTex("= ", "-"), f2.copy().scale(10/7)).arrange(RIGHT).next_to(fx2, DOWN*4, aligned_edge=LEFT)
     scene.play(TransformFromCopy(f1, f1f2eq[0]), TransformFromCopy(f2, f1f2eq[2]))
     scene.play(Write(f1f2eq[1]))
     scene.play(FadeOut(Group(graphGroup, f1, f2, f1Line, f2Line, minLine, minLine2, verticalLines, vals, lineOfSymmetry)))
     return fx2, f1f2eq
+
+def calculateK(scene:Scene, fx, f1f2eq):
+    scene.remove(fx)
+    fx = MathTex("f({{x}})={{2(}}{{x}}-3)^2{{+k}}").move_to(fx, aligned_edge=LEFT)
+    scene.add(fx)
+
+    fxCopy = fx.copy().next_to(fx, DOWN, aligned_edge=LEFT)
+    f1eq = MathTex("f({{1}})={{2(}}{{1}}-3)^2{{+k}}").set_color_by_tex("1", YELLOW).move_to(fxCopy, aligned_edge=LEFT)
+    f1eqCalced = MathTex("f({{1}})={{8}}{{+k}}").set_color_by_tex("1", YELLOW).move_to(f1eq, aligned_edge=LEFT)
+    f1val = MathTex("8{{+k}}").move_to(f1f2eq[0], aligned_edge=RIGHT)
+    f2eq = MathTex(r"f({{\mathrm2}})={{2(}}{{\mathrm2}}-3)^2{{+k}}").set_color_by_tex(r"\mathrm2", BLUE).move_to(fxCopy, aligned_edge=LEFT)
+    f2eqCalced = MathTex(r"f({{\mathrm2}})={{2}}{{+k}}").set_color_by_tex(r"\mathrm2", BLUE).move_to(f2eq, aligned_edge=LEFT)
+    f2val = MathTex("({{2}}{{+k}})").move_to(f1f2eq[2], aligned_edge=LEFT)
+
+    scene.play(TransformFromCopy(fx, fxCopy))
+    scene.play(TransformMatchingTex(fxCopy, f1eq))
+    scene.play(TransformMatchingTex(f1eq, f1eqCalced))
+    scene.play(FadeOut(f1f2eq[0]), TransformFromCopy(f1eqCalced[-2:], f1val))
+    scene.play(FadeOut(f1eqCalced))
+    scene.play(TransformFromCopy(fx, fxCopy))
+    scene.play(TransformMatchingTex(fxCopy, f2eq))
+    scene.play(TransformMatchingTex(f2eq, f2eqCalced))
+    scene.play(FadeOut(f1f2eq[2]), TransformFromCopy(f2eqCalced[-2:], f2val))
+    keq = VGroup(f1val, f1f2eq[1], f2val)
+    scene.play(FadeOut(f2eqCalced), FadeToColor(keq, YELLOW))
+    kval = MathTex("k={{-5}}").set_color(YELLOW).move_to(keq).shift(LEFT*0.5)
+    scene.play(ReplacementTransform(keq, kval))
+    scene.play(FadeOut(kval[0]), FadeOut(fx.get_part_by_tex("+k")), kval[1].animate.move_to(fx.get_part_by_tex("+k"), aligned_edge=LEFT))
+    return fx, kval
+
+def finalAnswer(scene:Scene, texts, fx, kval):
+    box = SurroundingRectangle(texts[3][:3])
+    scene.play(Create(box), FadeToColor(kval[1], WHITE))
+
+    yellow0 = texts[3].get_part_by_tex("0").copy().set_color(YELLOW)
+    yellow0copy1 = yellow0.copy().scale(10/7).move_to(fx.get_parts_by_tex("x")[0])
+    yellow0copy2 = yellow0.copy().scale(10/7).move_to(fx.get_parts_by_tex("x")[1])
+    scene.play(FadeOut(box),
+               FadeOut(fx.get_parts_by_tex("x").set_color(BLACK)),
+               FadeToColor(texts[3].get_part_by_tex("0"), YELLOW),
+               TransformFromCopy(yellow0, yellow0copy1),
+               TransformFromCopy(yellow0, yellow0copy2))
+    scene.next_section(skip_animations=False)
+    scene.play(FadeToColor(texts[3].get_part_by_tex("0"), WHITE), FadeToColor(yellow0copy1, WHITE),
+               FadeOut(yellow0copy2), Transform(VGroup(fx[3:], kval[1]), MathTex("13").move_to(fx[3:], aligned_edge=LEFT)))

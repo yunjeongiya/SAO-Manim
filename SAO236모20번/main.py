@@ -15,3 +15,5 @@ class main(Scene):
         targetSituation = specifyMinimum(self, texts, gx, minimumDescription)
         graphGroup, minLine, verticalLines, vals = findMinimum(self, texts, targetSituation)
         fx, f1f2eq = findFx(self, texts, ft, graphGroup, minLine, verticalLines, vals)
+        fx, kval = calculateK(self, fx, f1f2eq)
+        finalAnswer(self, texts, fx, kval)
