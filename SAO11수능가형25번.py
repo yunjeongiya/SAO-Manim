@@ -17,7 +17,7 @@ TEXT3 = Tex("블록을 들어내는 시행을 모두 마쳤을 때, ",
 #\cfrac 쓸 때는 \mathit 로 안감싸고 끊으면 LaTex 오류 발생 (이유 모름...)
 #\cfrac 이랑 \mathit 조합해서 했는데 get_part_by_tex 했을 때 이상한 부분이 선택됨.... + italic이 숫자에도 적용되니 이상함
 #\over 써도 여기서는 큰 크기 차이 없어서 그냥 over로 하기로 함
-Eq = MathTex(r"\lim\limits_{m\to\infty}{{",r"f(2",r"^{n+1}",r")",r"-",r"f(2",r"^{n}",r")}",r"\over",r"{f(2",r"^{n+2}",r")}",r"}=",r"{{q}",r"\over",r"{p}}", font_size=30)
+Eq = MathTex(r"\lim\limits_{n\to\infty}{{",r"f(2",r"^{n+1}",r")",r"-",r"f(2",r"^{n}",r")}",r"\over",r"{f(2",r"^{n+2}",r")}",r"}=",r"{{q}",r"\over",r"{p}}", font_size=30)
 TEXT4 = Tex("일 때, ", r"$p+q$", r'''의 값을 구하시오.\\
                 (단, $p$와 $q$는 서로소인 자연수이다.) [4점]''')
 
@@ -261,7 +261,7 @@ def descreibeEq(scene, text, eq, cubesGroup):
                Indicate(eq.get_part_by_tex(r"^{n+2}")))
     return eqbox
 
-def iteratingMore(scene, texts, cubesGroup, eqbox):
+def iteratingMore(scene:Scene, texts, cubesGroup, eqbox):
     eq = texts[5]
     scene.play(FadeOut(texts[0:5], texts[6], eqbox), eq.animate.to_edge(UP).scale(1.5),
                Group(cubesGroup.cubes[:17], cubesGroup.labels[:17], cubesGroup.axes)
@@ -384,7 +384,9 @@ def comparingTriangles(scene, cubesGroup, fend):
 
 def calculateEq(scene, questionEq, f2nEq):
     scene.play(questionEq.animate.move_to(ORIGIN+UP).scale_to_fit_height(f2nEq.height*2),
-               f2nEq.animate.shift(UP*3).set_color(WHITE))
+               f2nEq[0].animate.shift(UP*3).set_color(WHITE),
+               f2nEq[3:].animate.shift(UP*3).set_color(WHITE),
+               f2nEq[1].animate.shift(LEFT*0.5+UP*3).set_color(WHITE), FadeOut(f2nEq[2])) 
     scene.play(FadeToColor(VGroup(questionEq.get_part_by_tex(r"^{n+1}"), questionEq.get_part_by_tex(r"^{n}"), questionEq.get_part_by_tex(r"^{n+2}")), YELLOW))
 
     #동일한 수식 여러개 있어서 get_part_by_tex 사용 못하고 인덱스로 참조 -> 텍스트 변경 시 문제 발생 가능(종속적)
@@ -430,24 +432,53 @@ def findFinalAnswer(scene, pqEq, texts):
     scene.play(Circumscribe(texts[-1][1], fade_out=True))
     scene.play(TransformFromCopy(texts[-1][1], answer[:3]))
 
-    pVal = MathTex("16").move_to(answer.get_part_by_tex("p"))
-    qVal = MathTex("3").move_to(answer.get_part_by_tex("q"))
+    pVal = MathTex("16").move_to(answer.get_part_by_tex("p")).shift(UP*0.1)
+    qVal = MathTex("3").move_to(answer.get_part_by_tex("q")).shift(UP*0.1)
     scene.play(TransformFromCopy(pqEq.get_part_by_tex("16"), pVal),
                FadeOut(answer.get_part_by_tex("p")),
                TransformFromCopy(pqEq.get_part_by_tex("3"), qVal),
                FadeOut(answer.get_part_by_tex("q")))
     scene.play(Write(answer.get_part_by_tex("=")), Write(answer.get_part_by_tex("19")))
 
+def temp(scene):
+    f2n_1 = MathTex("f(", r"2^{n+1}", ")").set_color_by_tex(r"2^{n+1}", BLUE).to_edge(RIGHT).shift(LEFT*0.1)
+    f2n = MathTex("f(", r"2^n", ")").set_color_by_tex(r"2^n", RED).next_to(f2n_1, LEFT*4)
+    
+    f2nLen = MathTex("1",color=RED).next_to(f2n, DOWN)
+    f2n_1Len = MathTex("2",color=BLUE).next_to(f2n_1, DOWN)
+    f2nArea = MathTex("1",color=RED).next_to(f2nLen, DOWN)
+    f2n_1Area = MathTex("4",color=BLUE).next_to(f2n_1Len, DOWN)
+    
+    lenRatio = Text("길이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height*0.8).next_to(f2nLen, LEFT*2.2)
+    areaRatio = Text("넓이비", font="NanumBarunGothic").scale_to_fit_height(f2n.height*0.8).next_to(f2nArea, LEFT*2.2)
+    colon = MathTex(":").next_to(lenRatio, RIGHT*6)
+    colon2 = MathTex(":").next_to(areaRatio, RIGHT*6)
+    equal = MathTex("=").next_to(f2n, RIGHT*0.5)
+
+    scene.add(f2n, f2n_1, lenRatio, f2nLen, f2n_1Len, colon, areaRatio)
+    scene.play(TransformFromCopy(f2nLen, f2nArea), TransformFromCopy(f2n_1Len, f2n_1Area), Write(colon2))
+    scene.play(FadeOut(Group(lenRatio, areaRatio, colon, colon2, f2nLen, f2n_1Len)),
+               f2nArea.animate.next_to(f2n_1, LEFT*0.5), f2n_1Area.animate.next_to(f2n, LEFT*0.5))
+    
+    return Group(f2n, f2n_1, f2nArea, f2n_1Area, equal)
+
 class FinalPartTest(ThreeDScene):
+    count = 0
+    def play(self, *args, **kwargs):
+        args = list(args)
+        args.append(Wait(2)) # append 하는거라 앞 애니메이션들이랑 동시에 진행되므로 1 초과해야 추가로 기다림
+        super().play(*args, **kwargs)
+        self.next_section(str(self.count))
+        self.count += 1
+
     def construct(self):
-        self.next_section(skip_animations=True)
         texts = questionSection(self)
         self.remove(texts)
         originalTexts = texts.copy()
-        cubesGroup = CubesGroup(16).scale_to_fit_height(config.frame_height*0.8).to_corner(DL)
-        self.add(cubesGroup)
-        f2nEq = comparingTriangles(self, cubesGroup)
-        pqEq = calculateEq(self, texts[5], f2nEq)
+
+        f2nEq = temp(self)
+        
+        pqEq = calculateEq(self, texts[5].to_edge(UP).scale(1.5), f2nEq)
         findFinalAnswer(self, pqEq, originalTexts)
 
 class CSAT11_A_25(ThreeDScene):
@@ -455,7 +486,6 @@ class CSAT11_A_25(ThreeDScene):
         args = list(args)
         args.append(Wait(2)) # append 하는거라 앞 애니메이션들이랑 동시에 진행되므로 1 초과해야 추가로 기다림
         super().play(*args, **kwargs)
-        self.next_section()
 
     def construct(self):
         self.next_section()
