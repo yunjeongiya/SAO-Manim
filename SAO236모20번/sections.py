@@ -51,12 +51,12 @@ def describeIntegral(scene:Scene, texts, minimumDescription):
     gx = MathTex(r"g(x)={{{\int}}^{x+1}{{_x}}}{{|f(t)|}}dt").scale_to_fit_width(originGx.get_width()).move_to(originGx)
     gxDescription = Group(
         MathTex("|{{f(t)}}|").set_color(YELLOW),
-        Text("를", font="NanumBarunGothic"),
+        Text("를", font="NanumBarunGothic").scale(0.9),
         MathTex("x").set_color(RED),
-        Text("부터", font="NanumBarunGothic"),
+        Text("부터", font="NanumBarunGothic").scale(0.9),
         MathTex("x+1").set_color(BLUE),
-        Text("까지", font="NanumBarunGothic"),
-        Text("적분", font="NanumBarunGothic").set_color(GREEN)
+        Text("까지", font="NanumBarunGothic").scale(0.9),
+        Text("적분", font="NanumBarunGothic").set_color(GREEN).scale(0.9)
     ).arrange().next_to(gx, DOWN*2, aligned_edge=LEFT)
     
     scene.play(Create(box))
@@ -128,7 +128,7 @@ def graphAnalysis(scene:Scene, gxDescription, minimumDescription, texts):
     scene.play(FadeIn(area2))
 
     scene.play(FadeIn(minimumDescription.next_to(gxDescription, UP, aligned_edge=LEFT), shift=UP)) #이미 있던 텍스트 다시 보여주는거니까 write가 아니라 fadein
-    scene.play(Transform(minimumDescription[2], Text("넓이의 순간변화율", font="NanumBarunGothic", color=YELLOW, t2c={"의":WHITE}).next_to(minimumDescription[1], RIGHT)),
+    scene.play(Transform(minimumDescription[2], Text("넓이의 순간변화율", font="NanumBarunGothic", color=YELLOW, t2c={"의":WHITE}).scale(0.9).next_to(minimumDescription[1], RIGHT)),
                minimumDescription[3:].animate.shift(RIGHT*4))
 
     area_RED = always_redraw(lambda: ax.get_area(graph, [x.get_value(), x.get_value()+1], color=RED, opacity=0.5, stroke_width=0))
