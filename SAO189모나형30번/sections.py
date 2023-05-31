@@ -44,3 +44,24 @@ def showProblem(scene:Scene):
     scene.add(TEXTS, VGroup(graphGroup, graphGroup2).arrange(RIGHT).scale(0.5).next_to(TEXTS, DOWN, aligned_edge=LEFT))
     
     return a, graphGroup, graphGroup2
+
+def describeProblem(scene:Scene):
+    scene.play(Circumscribe(TEXTS[2][0], fade_out=True), Circumscribe(TEXTS[2][1], fade_out=True))
+    ul = Underline(TEXTS[4], color=YELLOW)
+    scene.play(Create(ul))
+    scene.remove(ul)
+    ul2 = Underline(TEXTS[3].get_part_by_tex("양의 실수 $k, a, b$"), color=YELLOW)
+    scene.play(Create(ul2),
+               Indicate(TEXTS[4].get_part_by_tex("k")),
+               Indicate(TEXTS[4].get_part_by_tex("a")),
+               Indicate(TEXTS[4].get_part_by_tex("b")))
+    scene.remove(ul2)
+    ul3 = Underline(TEXTS[5].get_part_by_tex(r"0\leq h(x)\leq g(x)"), color=YELLOW)
+    scene.play(Create(ul3))
+    scene.remove(ul3)
+    ul4 = Underline(TEXTS[6].get_part_by_tex("최소가 되게 하는 $k, a, b$"), color=YELLOW)
+    box = SurroundingRectangle(TEXTS[6][0])
+    scene.play(Create(ul4), Create(box))
+    scene.remove(ul4, box)
+    scene.play(Create(ul))
+    scene.remove(ul)
