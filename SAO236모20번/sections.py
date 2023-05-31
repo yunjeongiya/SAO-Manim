@@ -166,31 +166,34 @@ def calculateGxIntegral(scene:Scene, texts):
     scene.play(FadeIn(gx.get_part_by_tex("|f(t)|").set_color(YELLOW)), TransformFromCopy(gx.get_part_by_tex("|f(t)|"), newGx.get_part_by_tex("p(t)").set_color(YELLOW)))
     scene.play(FadeIn(newGx[:5]), FadeIn(newGx[6:]))
     newGx2 = MathTex(r"{{=}}[{{P(t)}}]{{_x}}^{x+1}").next_to(newGx.get_part_by_tex("="), DOWN*2.5, aligned_edge=LEFT)
+
     scene.play(FadeToColor(newGx, WHITE), FadeToColor(gx.get_part_by_tex("|f(t)|"), WHITE), 
                Write(newGx2.get_part_by_tex("=")), TransformFromCopy(newGx.get_part_by_tex("p(t)"), newGx2.get_part_by_tex("P(t)")))
     scene.play(FadeIn(newGx2.get_part_by_tex("[")), FadeIn(newGx2.get_part_by_tex("]")))
     scene.play(TransformFromCopy(newGx.get_part_by_tex("_x"), newGx2.get_part_by_tex("_x")), TransformFromCopy(newGx.get_part_by_tex("x+1"), newGx2.get_part_by_tex("x+1")))
+
     newGx3 = Group(
         MathTex("="),
-        MathTex("P({{t}})"),
-        MathTex("-P({{t}})")
+        MathTex("{{P}}({{t}})"),
+        MathTex("-{{P}}({{t}})")
     ).arrange(RIGHT).next_to(newGx2, DOWN*1.5, aligned_edge=LEFT)
     Pt = newGx3[1].copy().move_to(newGx2.get_part_by_tex("P(t)"))
     scene.play(Write(newGx3[0]), TransformFromCopy(Pt, newGx3[1]))
     PxPlus1 = MathTex("P{{'}}({{x+1}})").move_to(newGx3[1], aligned_edge=LEFT)
     PxPlus1.get_part_by_tex("'").set_color(BLACK)
+    forcopytemp = PxPlus1.get_part_by_tex("x+1").copy().scale_to_fit_height(MathTex(r"^{x+1}").height).move_to(newGx2[4], aligned_edge=LEFT)
     PxPlus1.get_part_by_tex("x+1").set_color(BLACK)
     scene.play(TransformMatchingTex(newGx3[1], PxPlus1),
-               TransformFromCopy(newGx2.get_part_by_tex("x+1"), PxPlus1.get_part_by_tex("x+1").set_color(WHITE).set_z_index(1)))
+               TransformFromCopy(forcopytemp, PxPlus1.get_part_by_tex("x+1").set_color(WHITE).set_z_index(1)))
 
     scene.play(TransformFromCopy(Pt, newGx3[2].next_to(PxPlus1, RIGHT)))
     Px = MathTex("{{-}}P{{'}}({{x}})").next_to(PxPlus1, RIGHT)
     Px.get_part_by_tex("'").set_color(BLACK)
     Px.get_part_by_tex("x").set_color(BLACK)
+    forcopytemp2 =  Px.get_part_by_tex("x").copy().scale_to_fit_height(MathTex(r"_x").height).move_to(newGx2[4], aligned_edge=LEFT).shift(DOWN*0.3)
     scene.play(TransformMatchingTex(newGx3[2], Px),
-               TransformFromCopy(newGx2.get_part_by_tex("_x"), Px.get_part_by_tex("x").set_color(WHITE).set_z_index(1)))
+               TransformFromCopy(forcopytemp2, Px.get_part_by_tex("x").set_color(WHITE).set_z_index(1)))
     scene.play(FadeOut(newGx[2:]), FadeOut(newGx2), FadeOut(newGx3[0]), VGroup(PxPlus1, Px).animate.move_to(newGx[2:], aligned_edge=LEFT))
-
     return ft, VGroup(newGx[:2], PxPlus1, Px)
 
 def specifyMinimum(scene:Scene, texts, gx, minimumDescription):
