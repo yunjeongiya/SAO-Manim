@@ -99,8 +99,8 @@ def graphAnalysis(scene:Scene, gxDescription, minimumDescription, texts):
     x = ValueTracker(-2.3)
     label_x = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.7))
     label_xPlus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
-    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)))
-    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)))
+    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph), line_func=Line))
+    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph), line_func=Line))
     area = ax.get_area(graph, [x.get_value(), x.get_value()+1], color=YELLOW, opacity=0.5, stroke_width=0)
     
     scene.play(Create(line_x), Create(line_xPlus1), Write(label_x), Write(label_xPlus1))
@@ -121,8 +121,8 @@ def graphAnalysis(scene:Scene, gxDescription, minimumDescription, texts):
     x2 = ValueTracker(-2.3)
     label_x2 = always_redraw(lambda: MathTex("x").scale(0.5).next_to(ax2.c2p(x2.get_value()), DOWN*0.7))
     label_x2Plus1 = always_redraw(lambda: MathTex("x+1").scale(0.5).next_to(ax2.c2p(x2.get_value()+1), DOWN*0.5))
-    line_x2 = always_redraw(lambda: ax2.get_vertical_line(ax2.input_to_graph_point(x2.get_value(),graph2)))
-    line_x2Plus1 = always_redraw(lambda: ax2.get_vertical_line(ax2.i2gp(x2.get_value()+1, graph2)))
+    line_x2 = always_redraw(lambda: ax2.get_vertical_line(ax2.input_to_graph_point(x2.get_value(),graph2), line_func=Line))
+    line_x2Plus1 = always_redraw(lambda: ax2.get_vertical_line(ax2.i2gp(x2.get_value()+1, graph2), line_func=Line))
     area2 = ax2.get_area(graph2, [x2.get_value(), x2.get_value()+1], color=YELLOW, opacity=0.5, stroke_width=0)
     scene.play(Create(line_x2), Create(line_x2Plus1), Write(label_x2), Write(label_x2Plus1))
     scene.play(FadeIn(area2))
@@ -254,11 +254,11 @@ def findMinimum(scene:Scene, texts, targetSituation):
     label_x = MathTex("x").scale(0.5).next_to(ax.c2p(x.get_value()), DOWN*0.7).add_updater(lambda m: m.next_to(ax.c2p(x.get_value()), DOWN*0.7))
     label_xPlus1 = MathTex("x+1").scale(0.5).next_to(ax.c2p(x.get_value()+1), DOWN*0.5).add_updater(lambda m: m.next_to(ax.c2p(x.get_value()+1), DOWN*0.5))
 
-    line_x_white = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)).set_color(WHITE))
-    line_xPlus1_white = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)).set_color(WHITE))
+    line_x_white = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph), line_func=Line).set_color(WHITE))
+    line_xPlus1_white = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph), line_func=Line).set_color(WHITE))
     
-    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph)).set_color(BLUE))
-    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph)).set_color(YELLOW))
+    line_x = always_redraw(lambda: ax.get_vertical_line(ax.input_to_graph_point(x.get_value(),graph), line_func=Line).set_color(BLUE))
+    line_xPlus1 = always_redraw(lambda: ax.get_vertical_line(ax.i2gp(x.get_value()+1, graph), line_func=Line).set_color(YELLOW))
 
     scene.play(Create(line_x_white), Create(line_xPlus1_white), Create(label_x), Create(label_xPlus1))
     scene.play(FadeToColor(label_xPlus1, YELLOW), FadeToColor(line_xPlus1_white, YELLOW),
@@ -315,10 +315,10 @@ def findMinimum(scene:Scene, texts, targetSituation):
                TransformFromCopy(texts[2].get_part_by_tex("x=1")[-1], aPlus1Val[0]), TransformFromCopy(texts[2].get_part_by_tex("x=4")[-1], bPlus1Val[0]))
     scene.play(FadeOut(Group(aCircle, bCircle, box1, box2, aPointer, bPointer, aPlus1Pointer, bPlus1Pointer, aPlus1[1:], bPlus1[1:])),
                Transform(aPlus1Val, MathTex("2").scale(0.5).move_to(aPlus1)), Transform(bPlus1Val, MathTex("5").scale(0.5).move_to(bPlus1)))
-    verticalLines = VGroup(ax.get_vertical_line(ax.i2gp(1, graph)),
-                           ax.get_vertical_line(ax.i2gp(2, graph)),
-                           ax.get_vertical_line(ax.i2gp(4, graph)),
-                           ax.get_vertical_line(ax.i2gp(5, graph)))
+    verticalLines = VGroup(ax.get_vertical_line(ax.i2gp(1, graph), line_func=Line),
+                           ax.get_vertical_line(ax.i2gp(2, graph), line_func=Line),
+                           ax.get_vertical_line(ax.i2gp(4, graph), line_func=Line),
+                           ax.get_vertical_line(ax.i2gp(5, graph), line_func=Line))
     scene.play(aVal.animate.next_to(ax.c2p(1), DOWN*0.5), aPlus1Val.animate.next_to(ax.c2p(2), DOWN*0.5),
                bVal.animate.next_to(ax.c2p(4), DOWN*0.5), bPlus1Val.animate.next_to(ax.c2p(5), DOWN*0.5),
                Create(verticalLines[0]), Create(verticalLines[1]), Create(verticalLines[2]), Create(verticalLines[3]))
@@ -358,8 +358,8 @@ def findFx(scene:Scene, texts, ft, graphGroup, minLine, verticalLines, vals):
                TransformFromCopy(fx_forTransform.set_color(WHITE), fx[:2]),
                Transform(abs_graph, graph),
                TransformFromCopy(minLine, minLine2),
-               Transform(verticalLines[1], ax.get_vertical_line(ax.i2gp(2, graph))),
-               Transform(verticalLines[2], ax.get_vertical_line(ax.i2gp(4, graph))))
+               Transform(verticalLines[1], ax.get_vertical_line(ax.i2gp(2, graph), line_func=Line)),
+               Transform(verticalLines[2], ax.get_vertical_line(ax.i2gp(4, graph), line_func=Line)))
     graphGroup -= graphLabel_old
     graphGroup += graphLabel_new
 
