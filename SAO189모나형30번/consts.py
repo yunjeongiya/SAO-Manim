@@ -1,5 +1,16 @@
 from manim import *
 
+MINT = "#0CDAE0"
+NEON_PURPLE = "#FF6AFF"
+
+XSTART = -1/2
+XEND = 5/2
+YSTART = -1/4
+YEND = 5/4
+
+A = 1/2
+B = 4/3
+
 TITLE = Tex("18학년도 9월 나형 30번")
 TEXTS = VGroup(
     VGroup(TITLE, Underline(TITLE, buff=0.2, stroke_width=1)),
