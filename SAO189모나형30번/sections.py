@@ -277,3 +277,67 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     scene.play(a.animate.set_value(2/3+0.05), b.animate.set_value(4/3-0.05))
     scene.play(a.animate.set_value(2/3), b.animate.set_value(4/3))
     scene.remove(ul, area, trapezoid)
+
+def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
+    trapezoid = Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
+                        graphDict["ax"].i2gp(b.get_value(), graphDict["hx"][2]),
+                        graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][2]),
+                        color=NEON_PURPLE, fill_opacity=0.5, stroke_width=0)
+    scene.play(FadeIn(trapezoid))
+    trapezoidTexInitial = Tex("{{사다리꼴 넓이}} 최대").set_color_by_tex("사다리꼴", NEON_PURPLE).next_to(graphDict, UP)
+    scene.play(Write(trapezoidTexInitial))
+    symmetricAx = Line(graphDict["ax"].c2p(1,-0.5), graphDict["ax"].c2p(1,1.5), color=BLUE_C)
+    scene.play(Create(symmetricAx))
+    line = VGroup(
+        Line(graphDict["ax"].c2p(0,0), graphDict["ax"].c2p(a.get_value(),0), color=YELLOW),
+        Line(graphDict["ax"].c2p(b.get_value(),0), graphDict["ax"].c2p(2,0), color=YELLOW)
+    )
+    scene.play(FadeIn(line))
+    scene.play(Transform(graphDict["bLabel"], MathTex("2-a").scale_to_fit_height(graphDict["bLabel"].height).move_to(graphDict["bLabel"])))
+    trapezoidTex = Tex(r"$\dfrac{1}{2}$({{밑변}}+{{윗변}})$\times${{높이}} 최대").set_color(NEON_PURPLE).set_color_by_tex("최대", WHITE).move_to(trapezoidTexInitial, aligned_edge=RIGHT)
+    scene.play(TransformMatchingTex(trapezoidTexInitial, trapezoidTex),
+               FadeOut(Group(symmetricAx, line)))
+    line = Line(graphDict["ax"].c2p(0,0), graphDict["ax"].c2p(2,0), color=YELLOW)
+    scene.play(FadeToColor(trapezoidTex.get_part_by_tex("밑변"), YELLOW), FadeIn(line))
+    lowerSideVal = Tex("2").move_to(trapezoidTex.get_part_by_tex("밑변"), aligned_edge=LEFT)
+    scene.play(FadeOut(line), FadeOut(trapezoidTex.get_part_by_tex("밑변")),
+               TransformFromCopy(graphDict["2Label"], lowerSideVal),
+               trapezoidTex[2:].animate.next_to(lowerSideVal, RIGHT, buff=0.1))
+    line = graphDict["hx"][2].copy().set_color(YELLOW)
+    scene.play(FadeToColor(trapezoidTex.get_part_by_tex("윗변"), YELLOW), FadeIn(line))
+    upperSideVal = MathTex("2-a{{-}}a").move_to(trapezoidTex.get_part_by_tex("윗변"), aligned_edge=LEFT)
+    scene.play(FadeOut(line), FadeOut(trapezoidTex.get_part_by_tex("윗변")),
+               TransformFromCopy(graphDict["bLabel"], upperSideVal[0]),
+               TransformFromCopy(graphDict["aLabel"], upperSideVal[2]),
+               trapezoidTex[4:].animate.next_to(upperSideVal, RIGHT, buff=0.1))
+    scene.play(FadeIn(upperSideVal[1]))
+    line = Line(graphDict["ax"].c2p(a.get_value(),0), graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][1]), color=YELLOW)
+    scene.play(FadeToColor(trapezoidTex.get_part_by_tex("높이"), YELLOW), FadeIn(line))
+    gaLine = graphDict["ax"].get_horizontal_line(graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][1]))
+    gaLabel = MathTex("g({{a}})").scale_to_fit_height(graphDict2["gxLabel"].height).next_to(gaLine, LEFT, buff=0.1)
+    scene.play(Create(gaLine))
+    scene.play(TransformFromCopy(graphDict["aLabel"], gaLabel))
+    heightVal = MathTex("g(a)").move_to(trapezoidTex.get_part_by_tex("높이"))
+    scene.play(FadeOut(line), FadeOut(trapezoidTex.get_part_by_tex("높이")), TransformFromCopy(gaLabel, heightVal))
+    eqBeforeHeight = VGroup(trapezoidTex[0], lowerSideVal, trapezoidTex[2], upperSideVal, trapezoidTex[4])
+    scene.play(Transform(eqBeforeHeight, MathTex("(2-a)").next_to(trapezoidTex[-2], LEFT, buff=0.1)))
+
+    gaVal = MathTex("a(2-a)").move_to(heightVal, aligned_edge=RIGHT)
+    scene.play(FadeOut(heightVal), FadeIn(gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
+
+    #TODO TEXTS에서 gaVal 날아오도록 수정. 아래 코드 라텍스 에러 해결해야 가능
+    '''
+    gx = MathTex(r"g({{x}}) = \begin{cases} x(2-x) &(|x-1| \leq 1) \\0 &(|x-1| > 1)} \end{cases}").scale_to_fit_height(TEXTS[2][1]).move_to(TEXTS[2][1])
+    ga = MathTex(r"g({{a}}) = \begin{cases} {{a}}(2-{{a}}) &(|x-1| \leq 1) \\0 &(|x-1| > 1) \end{cases}").scale_to_fit_height(TEXTS[2][1]).move_to(TEXTS[2][1])
+    scene.remove(TEXTS[2][1])
+    scene.add(gx)
+    scene.play(TransformMatchingTex(gx, ga))
+    gaVal = MathTex("a(2-a)").move_to(heightVal, aligned_edge=RIGHT)
+    scene.play(FadeOut(heightVal), TransformFromCopy(ga[3:6], gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
+    scene.remove(ga)
+    scene.add(TEXTS[2][1])
+    '''
+    trapezoidVal = MathTex("a{{(a-2)^2}}").move_to(trapezoidTex[:-1], aligned_edge=RIGHT)
+    scene.next_section()
+    scene.play(Transform(VGroup(eqBeforeHeight, gaVal), trapezoidVal))
+    return VGroup(trapezoid, trapezoidVal, trapezoidTex), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)

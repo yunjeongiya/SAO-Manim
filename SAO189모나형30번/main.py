@@ -12,3 +12,4 @@ class main(Scene):
         describeProblem(self)
         hxTex, a, b, k = analyzeHx(self, graphDict, graphDict2)
         compareHxGx(self, hxTex, graphDict, graphDict2, VGroup(originGraphDict, originGraphDict2), a, b, k)
+        trapezoidTex, toFadeOut = specifyTrapezoid(self, graphDict, graphDict2, a, b)
