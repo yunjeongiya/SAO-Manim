@@ -127,7 +127,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
                Create(fxMinus2), Write(twoLabel))
     scene.play(Create(fxMinus2Label))
     graphDict.add([("bLabel", bLabel), ("fxMinusB", fxMinusB), ("fxMinusBLabel", fxMinusBLabel), 
-                   ("twoLabel", twoLabel), ("fxMinus2", fxMinus2), ("fxMinus2Label", fxMinus2Label)])
+                   ("2Label", twoLabel), ("fxMinus2", fxMinus2), ("fxMinus2Label", fxMinus2Label)])
 
     box = SurroundingRectangle(hxTex[3:6], color=RED)
     scene.play(FadeToColor(VGroup(fxMinusB, fxMinusBLabel, fxMinus2, hxTex.get_part_by_tex("f(x-b)"), fxMinus2Label, hxTex.get_part_by_tex("f(x-2)")), WHITE), Create(box))
@@ -173,6 +173,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
     graphDict["bLabel"].add_updater(lambda m: m.move_to(graphDict["ax"].c2p(b.get_value(), -0.15)))
     bVerticalLine = always_redraw(lambda: graphDict["ax"].get_vertical_line(graphDict["ax"].i2gp(b.get_value(), hx[2])))
     scene.play(Create(bVerticalLine))
+    graphDict["bVerticalLine"] = bVerticalLine
 
     scene.play(hxTex.get_parts_by_tex("-")[2].animate.scale(2).set_color(NEON_PURPLE), run_time=0.5)
     scene.play(hxTex.get_parts_by_tex("-")[2].animate(run_time=0.5).scale(1/2),
