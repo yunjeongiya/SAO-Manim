@@ -7,5 +7,8 @@ class main(Scene):
     def construct(self):
         self.next_section(skip_animations=True)
         graphDict, graphDict2 = showProblem(self)
+        originGraphDict = graphDict.copy()
+        originGraphDict2 = graphDict2.copy()
         describeProblem(self)
-        hxTex = analyzeHx(self, graphDict, graphDict2)
+        hxTex, a, b, k = analyzeHx(self, graphDict, graphDict2)
+        trapezoid = compareHxGx(self, hxTex, graphDict, graphDict2, VGroup(originGraphDict, originGraphDict2), a, b, k)

@@ -151,7 +151,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
         x = A+(B-A)/(arrowNum-1)*i
         diff.add(DoubleArrow(graphDict["ax"].c2p(x, x), graphDict["ax"].c2p(x,x-A), tip_length=0.15))
         #diff.append(DoubleArrow(graphDict["ax"].i2gp(x, graphDict["fx"][1]), graphDict["ax"].i2gp(x, graphDict["fxMinusA"][1]), tip_length=0.2)) #TODO: 왜 약간 아래로 치우치는지..?
-    
+
     #scene.play(AnimationGroup(Create(diff[i]) for i in range(arrowNum))) #TypeError: Object <generator object analyzeHx.<locals>.<genexpr> at 0x000001B3A06BFB50> cannot be converted to an animation
     #scene.play(Create(diff[i]) for i in range(arrowNum)) #TypeError: Unexpected argument <generator object analyzeHx.<locals>.<genexpr> at 0x000001B3A06BFB50> passed to Scene.play().
     scene.play(*[Create(diff[i]) for i in range(arrowNum)], run_time=0.5) #리스트컴프리헨션으로 리스트로 감싸고 다시 언패킹해서 넣어줘야 함
@@ -234,5 +234,45 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
                Transform(newAx, oldAx), Transform(hx[-1], newHxFrom2), graphDict["axLabel"][0].animate.shift(LEFT*3),)
     hx[-1] = newHxFrom2
     scene.remove(newAx)
-    return VGroup(hxTex, box, ab2Ineq)
+    return VGroup(hxTex, box, ab2Ineq), a, b, k
+
+def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, b, k):
+    TEXTS[4].set_color(WHITE)
+    TEXTS[3].get_part_by_tex("a<b<2").set_color(WHITE)
+    scene.play(FadeOut(hxTex), FadeIn(Group(TEXTS, graphDict2)),
+               graphDict.animate.scale(1/2).next_to(graphDict2, LEFT))
+    hgIneqOrigin = TEXTS[5].get_part_by_tex(r"0\leq h(x)\leq g(x)")
+    hgIneq = MathTex("{{0}}\leq {{h(x)}}\leq {{g(x)}}").scale_to_fit_height(hgIneqOrigin.height).move_to(hgIneqOrigin, aligned_edge=LEFT)
+    hgIneq.set_color_by_tex("h(x)", RED).set_color_by_tex("g(x)", PURE_GREEN)
+    scene.play(FadeIn(hgIneq), Circumscribe(hgIneq, fade_out=True),
+               FadeToColor(graphDict2["gx"], PURE_GREEN))
+    scene.play(FadeOut(TEXTS),
+               VGroup(hgIneq, VGroup(graphDict, graphDict2)).animate.arrange(DOWN, buff=LARGE_BUFF).scale(1.5).move_to(ORIGIN))
+    scene.play(graphDict.animate.move_to(ORIGIN+DOWN), graphDict2.animate.move_to(ORIGIN+DOWN))
+    scene.play(VGroup(hgIneq.get_part_by_tex("0"), hgIneq.get_part_by_tex("g(x)")).animate.set_color(PURE_GREEN).scale(4/3), run_time=0.5)
+    scene.play(VGroup(hgIneq.get_part_by_tex("0"), hgIneq.get_part_by_tex("g(x)")).animate.scale(3/4), run_time=0.5)
     
+    scene.play(FadeIn(Group(TEXTS, originGraphDicts)), VGroup(graphDict, graphDict2).animate.scale(0.6).to_edge(RIGHT).shift(UP*0.5), FadeOut(hgIneq))
+    integralOrigin = TEXTS[6].get_part_by_tex("{\displaystyle\int_0^2}\{g(x)-h(x)\}dx")
+    integral = MathTex(r"{\displaystyle\int_0^2}\{ {{g(x)}}-{{h(x)}}\}dx")
+    integral.scale_to_fit_height(integralOrigin.height).move_to(integralOrigin, aligned_edge=LEFT)
+    integral.set_color(YELLOW).set_color_by_tex("g(x)", PURE_GREEN).set_color_by_tex("h(x)", RED)
+    scene.play(Circumscribe(integral, fade_out=True))
+    scene.play(FadeIn(VGroup(integral.get_part_by_tex("g(x)"), integral.get_part_by_tex("h(x)"))))
+    scene.play(FadeIn(VGroup(integral[0], integral[2], integral[4])))
+    trapezoid = Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
+                                                    graphDict2["ax"].c2p(b.get_value(), a.get_value()*k.get_value()),
+                                                    graphDict2["ax"].c2p(a.get_value(), a.get_value()*k.get_value()))
+    area = always_redraw(lambda: Difference(graphDict2["ax"].get_area(graphDict2["gx"][1]),
+                                            trapezoid, color=YELLOW, fill_opacity=0.5, stroke_width=0))
+    ul = Underline(TEXTS[6].get_part_by_tex("최소가 되게 하는"), color=YELLOW)
+    scene.next_section()
+    scene.play(Write(ul), FadeToColor(integral, WHITE))
+    scene.remove(integral)
+    scene.play(FadeIn(area))
+    scene.play(k.animate.set_value(4/3))
+    scene.play(a.animate.set_value(2/3-0.1), b.animate.set_value(4/3+0.1))
+    scene.play(a.animate.set_value(2/3+0.05), b.animate.set_value(4/3-0.05))
+    scene.play(a.animate.set_value(2/3), b.animate.set_value(4/3))
+    scene.remove(ul, area)
+    return trapezoid
