@@ -46,7 +46,7 @@ def showProblem(scene:Scene):
     graphDict2 = VDict({
         "ax" : ax2, "axLabel" : axLabel2,
         "gx" : gx, "gxLabel" : gxLabel, "gxVertex" : gxVertex,
-        "2Label" : MathTex("2").move_to(ax2.c2p(2, -0.15))
+        "twoLabel" : MathTex("2").move_to(ax2.c2p(2, -0.15))
     })
 
     scene.add(TEXTS, VGroup(graphDict, graphDict2).arrange(RIGHT).scale(0.5).next_to(TEXTS, DOWN, aligned_edge=LEFT))
@@ -127,7 +127,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
                Create(fxMinus2), Write(twoLabel))
     scene.play(Create(fxMinus2Label))
     graphDict.add([("bLabel", bLabel), ("fxMinusB", fxMinusB), ("fxMinusBLabel", fxMinusBLabel), 
-                   ("2Label", twoLabel), ("fxMinus2", fxMinus2), ("fxMinus2Label", fxMinus2Label)])
+                   ("twoLabel", twoLabel), ("fxMinus2", fxMinus2), ("fxMinus2Label", fxMinus2Label)])
 
     box = SurroundingRectangle(hxTex[3:6], color=RED)
     scene.play(FadeToColor(VGroup(fxMinusB, fxMinusBLabel, fxMinus2, hxTex.get_part_by_tex("f(x-b)"), fxMinus2Label, hxTex.get_part_by_tex("f(x-2)")), WHITE), Create(box))
@@ -301,7 +301,7 @@ def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
     scene.play(FadeToColor(trapezoidTex.get_part_by_tex("밑변"), YELLOW), FadeIn(line))
     lowerSideVal = Tex("2").move_to(trapezoidTex.get_part_by_tex("밑변"), aligned_edge=LEFT)
     scene.play(FadeOut(line), FadeOut(trapezoidTex.get_part_by_tex("밑변")),
-               TransformFromCopy(graphDict["2Label"], lowerSideVal),
+               TransformFromCopy(graphDict["twoLabel"], lowerSideVal),
                trapezoidTex[2:].animate.next_to(lowerSideVal, RIGHT, buff=0.1))
     line = graphDict["hx"][2].copy().set_color(YELLOW)
     scene.play(FadeToColor(trapezoidTex.get_part_by_tex("윗변"), YELLOW), FadeIn(line))
@@ -338,6 +338,5 @@ def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
     scene.add(TEXTS[2][1])
     '''
     trapezoidVal = MathTex("a{{(a-2)^2}}").move_to(trapezoidTex[:-1], aligned_edge=RIGHT)
-    scene.next_section()
     scene.play(Transform(VGroup(eqBeforeHeight, gaVal), trapezoidVal))
     return VGroup(trapezoid, trapezoidVal, trapezoidTex), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)
