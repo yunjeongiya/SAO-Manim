@@ -11,4 +11,4 @@ class main(Scene):
         originGraphDict2 = graphDict2.copy()
         describeProblem(self)
         hxTex, a, b, k = analyzeHx(self, graphDict, graphDict2)
-        trapezoid = compareHxGx(self, hxTex, graphDict, graphDict2, VGroup(originGraphDict, originGraphDict2), a, b, k)
+        compareHxGx(self, hxTex, graphDict, graphDict2, VGroup(originGraphDict, originGraphDict2), a, b, k)

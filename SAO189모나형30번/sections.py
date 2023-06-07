@@ -260,9 +260,11 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     scene.play(Circumscribe(integral, fade_out=True))
     scene.play(FadeIn(VGroup(integral.get_part_by_tex("g(x)"), integral.get_part_by_tex("h(x)"))))
     scene.play(FadeIn(VGroup(integral[0], integral[2], integral[4])))
-    trapezoid = Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
-                                                    graphDict2["ax"].c2p(b.get_value(), a.get_value()*k.get_value()),
-                                                    graphDict2["ax"].c2p(a.get_value(), a.get_value()*k.get_value()))
+    trapezoid = always_redraw(lambda: Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
+                                              graphDict2["ax"].c2p(b.get_value(), a.get_value()*k.get_value()),
+                                              graphDict2["ax"].c2p(a.get_value(), a.get_value()*k.get_value()),
+                                              color=NEON_PURPLE, fill_opacity=0, stroke_width=0))
+    scene.add(trapezoid) #가 없으면 trapezoid에 대한 always_redraw가 작동하지 않음
     area = always_redraw(lambda: Difference(graphDict2["ax"].get_area(graphDict2["gx"][1]),
                                             trapezoid, color=YELLOW, fill_opacity=0.5, stroke_width=0))
     ul = Underline(TEXTS[6].get_part_by_tex("최소가 되게 하는"), color=YELLOW)
@@ -274,5 +276,4 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     scene.play(a.animate.set_value(2/3-0.1), b.animate.set_value(4/3+0.1))
     scene.play(a.animate.set_value(2/3+0.05), b.animate.set_value(4/3-0.05))
     scene.play(a.animate.set_value(2/3), b.animate.set_value(4/3))
-    scene.remove(ul, area)
-    return trapezoid
+    scene.remove(ul, area, trapezoid)
