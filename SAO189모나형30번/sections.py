@@ -260,26 +260,26 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     integral.set_color(YELLOW).set_color_by_tex("g(x)", PURE_GREEN).set_color_by_tex("h(x)", RED)
     scene.play(Circumscribe(integral, fade_out=True))
     scene.play(FadeIn(VGroup(integral.get_part_by_tex("g(x)"), integral.get_part_by_tex("h(x)"))))
-    scene.play(FadeIn(VGroup(integral[0], integral[2], integral[4])))
     trapezoid = always_redraw(lambda: Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
-                                              graphDict2["ax"].c2p(b.get_value(), a.get_value()*k.get_value()),
-                                              graphDict2["ax"].c2p(a.get_value(), a.get_value()*k.get_value()),
-                                              color=NEON_PURPLE, fill_opacity=0, stroke_width=0))
+                                              graphDict["ax"].i2gp(b.get_value(), graphDict["hx"][2]),
+                                              graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][2]),
+                                              fill_opacity=0, stroke_color=RED, z_index=6))
     scene.add(trapezoid) #가 없으면 trapezoid에 대한 always_redraw가 작동하지 않음
     area = always_redraw(lambda: Difference(graphDict2["ax"].get_area(graphDict2["gx"][1]),
                                             trapezoid, color=YELLOW, fill_opacity=0.5, stroke_width=0))
+    scene.play(FadeIn(VGroup(integral[0], integral[2], integral[4], area)))
     ul = Underline(TEXTS[6].get_part_by_tex("최소가 되게 하는"), color=YELLOW)
     scene.play(Write(ul), FadeToColor(integral, WHITE))
     scene.remove(integral)
-    scene.play(FadeIn(area))
     scene.play(k.animate.set_value(K))
+    k.add_updater(lambda m: m.set_value(GX(a.get_value())/a.get_value()))
     scene.play(a.animate.set_value(A-0.1), b.animate.set_value(B+0.1))
     scene.play(a.animate.set_value(A+0.05), b.animate.set_value(B-0.05))
     scene.play(a.animate.set_value(A), b.animate.set_value(B))
     scene.remove(ul, area, trapezoid)
 
 def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
-    trapezoid = Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
+    trapezoid = Polygon(graphDict["ax"].c2p(0,0), graphDict["ax"].c2p(2,0),
                         graphDict["ax"].i2gp(b.get_value(), graphDict["hx"][2]),
                         graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][2]),
                         color=NEON_PURPLE, fill_opacity=0.5, stroke_width=0)
