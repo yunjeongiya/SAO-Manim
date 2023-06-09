@@ -436,7 +436,7 @@ def findAB(scene:Scene, trapezoidTex, toFadeOut, graphDict, originGraphDict, ori
     scene.play(Create(kaHorizontalLine), Write(kaLabel))
     scene.play(FadeOut(ha), TransformFromCopy(kaLabel, ka))
 
-    scene.play(FadeToColor(TEXTS[4].get_part_by_tex("k"), WHITE))
+    scene.play(FadeToColor(VGroup(TEXTS[4].get_part_by_tex("k"), kaLabel), WHITE))
     gx = TEXTS[2][1]
     gaForCopy = makeGaForCopy(scene, gx)
     gaVal = MathTex("a({{2-}}{{a}})").next_to(equal,RIGHT)
