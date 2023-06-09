@@ -8,8 +8,12 @@ XEND = 5/2
 YSTART = -1/4
 YEND = 5/4
 
-A = 1/2
+INITIAL_A = 1/2
+INITIAL_B = 4/3
+
+A = 2/3
 B = 4/3
+K = 4/3
 
 TITLE = Tex("18학년도 9월 나형 30번")
 TEXTS = VGroup(
@@ -33,3 +37,6 @@ TEXTS = VGroup(
     Tex(r"{{${\displaystyle\int_0^2}\{g(x)-h(x)\}dx$}}의 값이 {{최소가 되게 하는 $k, a, b$}}에 대하여"),
     Tex("{{$60(k+a+b)$}}의 값을 구하시오. [4점]")
 ).arrange(DOWN, center=False, aligned_edge=LEFT).scale(0.6).to_corner(UL)
+
+FX = lambda x: x if x > 0 else 0
+GX = lambda x: x*(2-x) if abs(x-1) <= 1 else 0

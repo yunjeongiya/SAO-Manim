@@ -22,10 +22,10 @@ def showProblem(scene:Scene):
     fx = fxGraphBuilder(0, ax)
     fxLabel = MathTex("y={{f(x)}}").next_to(fx, LEFT).shift(RIGHT*4+UP)
 
-    aLabel = MathTex("a").move_to(ax.c2p(A, -0.15))
+    aLabel = MathTex("a").move_to(ax.c2p(INITIAL_A, -0.15))
 
-    fxMinusA = VGroup(DashedVMobject(fxGraphBuilder(A, ax)[0], num_dashes=20),
-                            DashedVMobject(fxGraphBuilder(A, ax)[1], num_dashes=35))
+    fxMinusA = VGroup(DashedVMobject(fxGraphBuilder(INITIAL_A, ax)[0], num_dashes=20),
+                            DashedVMobject(fxGraphBuilder(INITIAL_A, ax)[1], num_dashes=35))
     fxMinusALabel = MathTex("y={{f(x-a)}}").next_to(fxMinusA, RIGHT).shift(LEFT*2+DOWN*0.5)
     graphDict = VDict({
         "ax" : ax, "axLabel" : axLabel,
@@ -35,7 +35,7 @@ def showProblem(scene:Scene):
     ax2 = ax.copy()
     axLabel2 = axLabel.copy()
     gx = VGroup(ax.plot(lambda x : 0, x_range=[XSTART, 0], stroke_width=2),
-                ax.plot(lambda x : x*(2-x), x_range=[0, 2], stroke_width=2),
+                ax.plot(GX, x_range=[0, 2], stroke_width=2),
                 ax.plot(lambda x : 0, x_range=[2, XEND], stroke_width=2))
     gxLabel = MathTex("y=g(x)").next_to(gx, RIGHT).shift(LEFT*3+UP)
     gxVertex = VGroup(
@@ -84,7 +84,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
         hxTex.get_part_by_tex("f(x)"),
         graphDict["fx"], graphDict["fxLabel"].get_part_by_tex("f(x)")), YELLOW))
     
-    newFxMinusA = fxGraphBuilder(A, graphDict["ax"]).set_stroke_color(MINT)
+    newFxMinusA = fxGraphBuilder(INITIAL_A, graphDict["ax"]).set_stroke_color(MINT)
     scene.play(FadeToColor(VGroup(
         hxTex.get_part_by_tex("f(x-a)"), graphDict["fxMinusALabel"].get_part_by_tex("f(x-a)")), MINT),
         FadeIn(newFxMinusA.set_z_index(3)))
@@ -97,8 +97,8 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
                graphDict["fxLabel"].animate.scale(1.3).to_edge(UP).shift(DR*2+RIGHT*2),
                graphDict["fxMinusALabel"].animate.scale(1.3).to_edge(UP).shift(DR*2+RIGHT*2))
     
-    bLabel = MathTex("b").move_to(graphDict["ax"].c2p(B, -0.15))
-    fxMinusB = fxGraphBuilder(B, graphDict["ax"]).set_stroke_color(NEON_PURPLE).set_z_index(2)
+    bLabel = MathTex("b").move_to(graphDict["ax"].c2p(INITIAL_B, -0.15))
+    fxMinusB = fxGraphBuilder(INITIAL_B, graphDict["ax"]).set_stroke_color(NEON_PURPLE).set_z_index(2)
     fxMinusBLabel = MathTex("y={{f(x-b)}}").set_color_by_tex("f(x-b)", NEON_PURPLE).scale_to_fit_height(graphDict["fxLabel"].height).next_to(fxMinusB, UR*0.8)
     twoLabel = MathTex("2").move_to(graphDict["ax"].c2p(2, -0.15))
     fxMinus2 = fxGraphBuilder(2, graphDict["ax"]).set_stroke_color(PURE_GREEN).set_z_index(1)
@@ -135,7 +135,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
     scene.play(Create(hx))
     graphDict["hx"] = hx
 
-    a = ValueTracker(A)
+    a = ValueTracker(INITIAL_A)
     scene.add(a)
     graphDict["aLabel"].add_updater(lambda m: m.move_to(graphDict["ax"].c2p(a.get_value(), -0.15)))
     k = ValueTracker(1)
@@ -148,8 +148,8 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
     arrowNum = 4
     diff = VGroup()
     for i in range(arrowNum):
-        x = A+(B-A)/(arrowNum-1)*i
-        diff.add(DoubleArrow(graphDict["ax"].c2p(x, x), graphDict["ax"].c2p(x,x-A), tip_length=0.15))
+        x = INITIAL_A+(INITIAL_B-INITIAL_A)/(arrowNum-1)*i
+        diff.add(DoubleArrow(graphDict["ax"].c2p(x, x), graphDict["ax"].c2p(x,x-INITIAL_A), tip_length=0.15))
         #diff.append(DoubleArrow(graphDict["ax"].i2gp(x, graphDict["fx"][1]), graphDict["ax"].i2gp(x, graphDict["fxMinusA"][1]), tip_length=0.2)) #TODO: 왜 약간 아래로 치우치는지..?
 
     #scene.play(AnimationGroup(Create(diff[i]) for i in range(arrowNum))) #TypeError: Object <generator object analyzeHx.<locals>.<genexpr> at 0x000001B3A06BFB50> cannot be converted to an animation
@@ -168,7 +168,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
 
     scene.play(FadeToColor(VGroup(hxTex.get_part_by_tex("f(x-b)"), fxMinusB), NEON_PURPLE))
 
-    b = ValueTracker(B)
+    b = ValueTracker(INITIAL_B)
     scene.add(b)
     graphDict["bLabel"].add_updater(lambda m: m.move_to(graphDict["ax"].c2p(b.get_value(), -0.15)))
     bVerticalLine = always_redraw(lambda: graphDict["ax"].get_vertical_line(graphDict["ax"].i2gp(b.get_value(), hx[2])))
@@ -177,7 +177,7 @@ def analyzeHx(scene:Scene, graphDict, graphDict2):
 
     scene.play(hxTex.get_parts_by_tex("-")[2].animate.scale(2).set_color(NEON_PURPLE), run_time=0.5)
     scene.play(hxTex.get_parts_by_tex("-")[2].animate(run_time=0.5).scale(1/2),
-               Transform(fxMinusB[1], fxMinusB[1].copy().rotate(-PI/2, about_point=graphDict["ax"].c2p(B,0)).shift(UP*1.5).set_z_index(2)),
+               Transform(fxMinusB[1], fxMinusB[1].copy().rotate(-PI/2, about_point=graphDict["ax"].c2p(INITIAL_B,0)).shift(UP*1.5).set_z_index(2)),
                (VGroup(*graphDict)-fxMinusB-fxMinusBLabel+newAx).animate.shift(UP*1.5),
                fxMinusB[0].animate.shift(UP*1.5),
                Transform(fxMinusBLabel, MathTex("y={{-}}{{f(x-b)}}").scale_to_fit_height(graphDict["fxMinusBLabel"].height).shift(DOWN*3+LEFT*2)))
@@ -272,10 +272,10 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     scene.play(Write(ul), FadeToColor(integral, WHITE))
     scene.remove(integral)
     scene.play(FadeIn(area))
-    scene.play(k.animate.set_value(4/3))
-    scene.play(a.animate.set_value(2/3-0.1), b.animate.set_value(4/3+0.1))
-    scene.play(a.animate.set_value(2/3+0.05), b.animate.set_value(4/3-0.05))
-    scene.play(a.animate.set_value(2/3), b.animate.set_value(4/3))
+    scene.play(k.animate.set_value(K))
+    scene.play(a.animate.set_value(A-0.1), b.animate.set_value(B+0.1))
+    scene.play(a.animate.set_value(A+0.05), b.animate.set_value(B-0.05))
+    scene.play(a.animate.set_value(A), b.animate.set_value(B))
     scene.remove(ul, area, trapezoid)
 
 def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
