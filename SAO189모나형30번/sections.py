@@ -322,16 +322,152 @@ def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
     eqBeforeHeight = VGroup(trapezoidTex[0], lowerSideVal, trapezoidTex[2], upperSideVal, trapezoidTex[4])
     scene.play(Transform(eqBeforeHeight, MathTex("(2-a)").next_to(trapezoidTex[-2], LEFT, buff=0.1)))
 
-    gx = TEXTS[2][1].save_state()
-    gxPart1 = gx[0][searchShapesInTex(gx, MathTex("x(2-x)"))[0]]
-    scene.play(*[
-    Transform(gx[0][group], MathTex("a").scale_to_fit_height(gx[0][group].height).move_to(gx[0][group]), path_arc=-PI)
-    for group in searchShapesInTex(gx, MathTex("x"))[:3]
-    ])
-    gaValForCopy = MathTex("a(2-a)").scale_to_fit_height(gxPart1.height).move_to(gxPart1)
+    gx = TEXTS[2][1].copy() #복사본으로 안하면 마지막에 다시 할때 IndexError: list index out of range 발생... restore했었는데도 완전히 복구가 안되나?
+    scene.remove(TEXTS[2][1])
+    scene.add(gx)
+    gaForCopy = makeGaForCopy(scene, gx)
     gaVal = MathTex("a(2-a)").move_to(heightVal, aligned_edge=RIGHT)
-    scene.play(FadeOut(heightVal), TransformFromCopy(gaValForCopy, gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
+    scene.play(FadeOut(heightVal), TransformFromCopy(gaForCopy, gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
     
     trapezoidVal = MathTex("a{{(a-2)^2}}").move_to(trapezoidTex[:-1], aligned_edge=RIGHT)
-    scene.play(Restore(gx), Transform(VGroup(eqBeforeHeight, gaVal), trapezoidVal))
-    return VGroup(trapezoidVal, trapezoidTex), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)
+    scene.play(Restore(gx), FadeOut(VGroup(eqBeforeHeight, gaVal)), FadeIn(trapezoidVal))
+    scene.remove(gx)
+    scene.add(TEXTS[2][1])
+    return VGroup(trapezoidVal[0], trapezoidVal[1], trapezoidTex[-1]), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)
+
+def findAB(scene:Scene, trapezoidTex, toFadeOut, graphDict, originGraphDict, originGraphDict2, a, b, k):
+    ax = graphDict["ax"].copy()
+    axLabel = graphDict["axLabel"].copy()
+    axLabel[0] = MathTex("a").scale_to_fit_width(axLabel[0].width).move_to(axLabel[0])
+    scene.play(FadeOut(toFadeOut), FadeIn(VGroup(ax, axLabel)))
+    dotO = Dot(ax.c2p(0,0), color=YELLOW)
+    scene.play(Create(dotO), Indicate(trapezoidTex[0]))
+    dot2 = Dot(ax.c2p(2,0), color=YELLOW)
+    twoLabel = graphDict["twoLabel"].copy()
+    scene.play(FadeOut(dotO), Create(dot2), Write(twoLabel), Indicate(trapezoidTex[1]))
+    func = lambda x: x*pow((x-2), 2)
+    graph = ax.plot(func, x_range=[XSTART+0.3, XEND+0.3])
+    scene.play(FadeOut(dot2), Create(graph))
+    hx = VGroup(originGraphDict2["ax"].plot(lambda x : 0, x_range=[XSTART, 0]).set_z_index(5),
+                always_redraw(lambda: originGraphDict2["ax"].plot(lambda x: k.get_value()*x, [0, a.get_value()]).set_z_index(5)),
+                always_redraw(lambda: originGraphDict2["ax"].plot(lambda x: k.get_value()*a.get_value(), [a.get_value(), b.get_value()]).set_z_index(5)),
+                always_redraw(lambda: originGraphDict2["ax"].plot(lambda x: k.get_value()*(b.get_value()-x+a.get_value()), [b.get_value(), 2]).set_z_index(5)),
+                always_redraw(lambda: originGraphDict2["ax"].plot(lambda x: k.get_value()*(b.get_value()-2+a.get_value()), [2, XEND]).set_z_index(5)))
+    aLabel = originGraphDict["aLabel"].copy().move_to(originGraphDict2["ax"].c2p(a.get_value(),-0.15))
+    aVerticalLine = originGraphDict2["ax"].get_vertical_line(originGraphDict2["ax"].i2gp(a.get_value(), hx[2]))
+    scene.play(FadeIn(VGroup(hx, aLabel, aVerticalLine)))
+    oneLabel = MathTex("1").scale_to_fit_height(twoLabel.height).move_to(ax.c2p(1,-0.15))
+    oneVerticalLine = ax.get_vertical_line(ax.i2gp(1, graph))
+    line = Line(ax.c2p(0,0), ax.c2p(1, 0), color=YELLOW)
+    line2 = Line(originGraphDict2["ax"].c2p(0,0), originGraphDict2["ax"].c2p(1, 0), color=YELLOW)
+    graph2 = ax.plot(func, x_range=[XSTART+0.3, 1])
+    scene.add(graph2)
+    scene.play(FadeIn(line), FadeIn(line2), FadeIn(oneLabel), FadeIn(oneVerticalLine))
+    scene.play(FadeOut(graph))
+
+    maxLines = VGroup(
+        DashedLine(ax.c2p(a.get_value(),0), ax.i2gp(a.get_value(), graph)),
+        DashedLine(ax.i2gp(a.get_value(), graph), ax.c2p(0, func(a.get_value())))
+    )
+    maxLabel = Tex("최대").scale(0.4).next_to(ax.c2p(0, func(a.get_value())), LEFT)
+    scene.play(FadeOut(VGroup(hx, aLabel, aVerticalLine, line, line2)),
+               FadeToColor(trapezoidTex[-1], YELLOW))
+    scene.play(Create(maxLines))
+    scene.play(FadeIn(maxLabel))
+
+    graph3 = ax.plot(func, x_range=[1, 2])
+    arc1 = ArcBetweenPoints(ax.c2p(0,0), ax.c2p(a.get_value(), 0), angle=PI/2, color=YELLOW)
+    arc2 = ArcBetweenPoints(ax.c2p(a.get_value(), 0), ax.c2p(2, 0), angle=PI/3, color=YELLOW)
+    ratioTex = MathTex("1:2", color=YELLOW).scale(0.8).next_to(ax.c2p(a.get_value(),0), DOWN*1.5)
+    scene.play(Create(graph3))
+    scene.play(Create(arc1), Create(arc2))
+    scene.play(Write(ratioTex))
+
+    aAnswerTex = Tex(r"$a= ${{$\dfrac{2}{3}$}}일때 최대").set_color_by_tex(r"$\dfrac{2}{3}$", YELLOW).to_edge(RIGHT).shift(UP*2)
+    scene.play(FadeOut(VGroup(trapezoidTex, ax, graph2, graph3, arc1, arc2, ratioTex, maxLines, maxLabel, oneLabel, oneVerticalLine, twoLabel, axLabel)),
+               FadeIn(aAnswerTex[1], shift=UP))
+    scene.play(Write(VGroup(aAnswerTex[0], aAnswerTex[2])))
+
+    bLabel = MathTex("b").scale_to_fit_height(oneLabel.height).move_to(originGraphDict2["ax"].c2p(b.get_value(),-0.15))
+    bVerticalLine = originGraphDict2["ax"].get_vertical_line(originGraphDict2["ax"].i2gp(b.get_value(), hx[2]))
+    scene.play(FadeToColor(aAnswerTex, WHITE), FadeIn(hx, aLabel, aVerticalLine, bLabel, bVerticalLine))
+
+    bAnswerTex = MathTex("b={{2-}}{{a}}").next_to(aAnswerTex, DOWN*2.5, aligned_edge=LEFT)
+    scene.play(Transform(bLabel, MathTex("2-a").scale_to_fit_height(bLabel.height).move_to(bLabel)),
+               Write(bAnswerTex))
+    aValInbAnswerTex = aAnswerTex[1].copy().move_to(bAnswerTex[-1]).set_color(YELLOW)
+    scene.play(Indicate(aAnswerTex[1]))
+    scene.play(FadeOut(bAnswerTex[-1]),
+               TransformFromCopy(aAnswerTex[1], aValInbAnswerTex))
+    tempTex = Tex("최소가 되게 하는 {{$k$}}, $a, b$").scale_to_fit_height(TEXTS[6].get_part_by_tex("최소가 되게 하는").height).move_to(TEXTS[6].get_part_by_tex("최소가 되게 하는"), LEFT)
+    ul = Underline(tempTex, color=YELLOW)
+    bValTex = MathTex(r"\dfrac{4}{3}").next_to(bAnswerTex[0], RIGHT)
+    scene.play(FadeOut(VGroup(bAnswerTex[1], aValInbAnswerTex)), FadeIn(bValTex),
+               Create(ul))
+    scene.play(Indicate(tempTex.get_part_by_tex("k")))
+
+    scene.play(FadeOut(ul), FadeToColor(TEXTS[4].get_part_by_tex("k"), YELLOW))
+
+    dot = Dot(originGraphDict2["ax"].i2gp(a.get_value(), hx[2]), color=YELLOW)
+    scene.play(Create(dot))
+
+    equal = MathTex("{{=}}").next_to(bAnswerTex[0], DOWN*3.5, aligned_edge=RIGHT)
+    ha = MathTex("h({{a}})").next_to(equal, LEFT)
+    ga = MathTex("g({{a}})").next_to(equal, RIGHT)
+    scene.play(FadeToColor(TEXTS[4].get_part_by_tex("k"), WHITE),
+               FadeToColor(hx[1:4], MINT), Write(VGroup(ha[0], ha[2]).set_color(MINT)))
+    scene.play(TransformFromCopy(aLabel, ha[1]))
+
+    scene.play(FadeToColor(originGraphDict2["gx"][1], PURE_GREEN), Write(equal), Write(VGroup(ga[0], ga[2]).set_color(PURE_GREEN)))
+    scene.play(TransformFromCopy(aLabel,ga[1]))
+
+    scene.play(FadeToColor(ga, WHITE),
+               FadeToColor(TEXTS[4][2:], MINT))
+    
+    k.clear_updaters()
+    scene.play(FadeOut(dot), FadeToColor(originGraphDict2["gx"][1], WHITE),
+               k.animate.set_value(1))
+
+    scene.play(k.animate.set_value(K),
+               FadeToColor(TEXTS[4][2:], WHITE), FadeToColor(TEXTS[4].get_part_by_tex("k"), MINT))
+    ka = MathTex("k{{a}}").next_to(equal, LEFT).set_color_by_tex("k", MINT)
+    kaHorizontalLine = originGraphDict2["ax"].get_horizontal_line(originGraphDict2["ax"].i2gp(a.get_value(), hx[2]))
+    kaLabel = ka.copy().scale(0.4).next_to(kaHorizontalLine, LEFT*0.7)
+    scene.play(Create(kaHorizontalLine), Write(kaLabel))
+    scene.play(FadeOut(ha), TransformFromCopy(kaLabel, ka))
+
+    scene.play(FadeToColor(TEXTS[4].get_part_by_tex("k"), WHITE))
+    gx = TEXTS[2][1]
+    gaForCopy = makeGaForCopy(scene, gx)
+    gaVal = MathTex("a({{2-}}{{a}})").next_to(equal,RIGHT)
+    scene.play(FadeOut(ga), TransformFromCopy(gaForCopy, gaVal))
+
+    kTex = MathTex("k").set_color(MINT).move_to(ka, aligned_edge=RIGHT)
+    kValEqTex = MathTex("2-{{a}}").next_to(equal, RIGHT)
+
+    scene.play(Restore(gx),
+               TransformMatchingTex(ka, kTex),
+               TransformMatchingTex(gaVal, kValEqTex))
+    
+    scene.play(Indicate(aAnswerTex[1]))
+    aValCopy = aAnswerTex[1].copy().move_to(kValEqTex[-1]).set_color(YELLOW)
+    scene.play(FadeOut(kValEqTex[-1]), TransformFromCopy(aAnswerTex[1], aValCopy))
+    
+    kValTex = MathTex(r"\dfrac{4}{3}").next_to(equal, RIGHT)
+    #scene.play(Transform(VGroup(kValEqTex[0], aValCopy), kValTex))
+    #VGroup각각에 대해 Transform 두 번 적용되어 kValTex가 화면에 두개가 생김...
+    scene.play(FadeOut(VGroup(kValEqTex[0], aValCopy)), FadeIn(kValTex))
+
+    finalAnswer = MathTex("60({{k}}+{{a}}+{{b}})").next_to(kTex, DOWN*3.5, aligned_edge=LEFT)
+    scene.play(FadeToColor(kTex, WHITE),
+               TransformFromCopy(TEXTS[-1][0], finalAnswer))
+    
+    aValCopy = aAnswerTex[1].copy().move_to(finalAnswer.get_part_by_tex("a"), aligned_edge=DOWN).shift(DOWN*0.3)
+    bValCopy = bValTex.copy().move_to(finalAnswer.get_part_by_tex("b"), aligned_edge=DOWN).shift(DOWN*0.3)
+    kValCopy = kValTex.copy().move_to(finalAnswer.get_part_by_tex("k"), aligned_edge=DOWN).shift(DOWN*0.3)
+    scene.play(FadeOut(VGroup(finalAnswer.get_part_by_tex("a"), finalAnswer.get_part_by_tex("b"), finalAnswer.get_part_by_tex("k"))),
+               TransformFromCopy(aAnswerTex[1], aValCopy), TransformFromCopy(bValTex, bValCopy), TransformFromCopy(kValTex, kValCopy))
+
+    scene.play(FadeOut(VGroup(aAnswerTex, bAnswerTex[0], bValTex, kTex, equal, kValTex)),
+               Transform(VGroup(finalAnswer.get_parts_by_tex("+"), finalAnswer.get_part_by_tex("60("), finalAnswer.get_part_by_tex(")"), aValCopy, bValCopy, kValCopy), 
+                         MathTex("200").move_to(finalAnswer)))
