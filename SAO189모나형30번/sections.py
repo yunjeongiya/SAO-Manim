@@ -263,7 +263,7 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     trapezoid = always_redraw(lambda: Polygon(graphDict2["ax"].c2p(0,0), graphDict2["ax"].c2p(2,0),
                                               graphDict["ax"].i2gp(b.get_value(), graphDict["hx"][2]),
                                               graphDict["ax"].i2gp(a.get_value(), graphDict["hx"][2]),
-                                              fill_opacity=0, stroke_color=RED, z_index=6))
+                                              fill_opacity=0, stroke_width=0))
     scene.add(trapezoid) #가 없으면 trapezoid에 대한 always_redraw가 작동하지 않음
     area = always_redraw(lambda: Difference(graphDict2["ax"].get_area(graphDict2["gx"][1]),
                                             trapezoid, color=YELLOW, fill_opacity=0.5, stroke_width=0))
