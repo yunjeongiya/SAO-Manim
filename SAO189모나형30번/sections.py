@@ -322,21 +322,16 @@ def specifyTrapezoid(scene:Scene, graphDict, graphDict2, a, b):
     eqBeforeHeight = VGroup(trapezoidTex[0], lowerSideVal, trapezoidTex[2], upperSideVal, trapezoidTex[4])
     scene.play(Transform(eqBeforeHeight, MathTex("(2-a)").next_to(trapezoidTex[-2], LEFT, buff=0.1)))
 
+    gx = TEXTS[2][1].save_state()
+    gxPart1 = gx[0][searchShapesInTex(gx, MathTex("x(2-x)"))[0]]
+    scene.play(*[
+    Transform(gx[0][group], MathTex("a").scale_to_fit_height(gx[0][group].height).move_to(gx[0][group]), path_arc=-PI)
+    for group in searchShapesInTex(gx, MathTex("x"))[:3]
+    ])
+    gaValForCopy = MathTex("a(2-a)").scale_to_fit_height(gxPart1.height).move_to(gxPart1)
     gaVal = MathTex("a(2-a)").move_to(heightVal, aligned_edge=RIGHT)
-    scene.play(FadeOut(heightVal), FadeIn(gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
-
-    #TODO TEXTS에서 gaVal 날아오도록 수정. 아래 코드 라텍스 에러 해결해야 가능
-    '''
-    gx = MathTex(r"g({{x}}) = \begin{cases} x(2-x) &(|x-1| \leq 1) \\0 &(|x-1| > 1)} \end{cases}").scale_to_fit_height(TEXTS[2][1]).move_to(TEXTS[2][1])
-    ga = MathTex(r"g({{a}}) = \begin{cases} {{a}}(2-{{a}}) &(|x-1| \leq 1) \\0 &(|x-1| > 1) \end{cases}").scale_to_fit_height(TEXTS[2][1]).move_to(TEXTS[2][1])
-    scene.remove(TEXTS[2][1])
-    scene.add(gx)
-    scene.play(TransformMatchingTex(gx, ga))
-    gaVal = MathTex("a(2-a)").move_to(heightVal, aligned_edge=RIGHT)
-    scene.play(FadeOut(heightVal), TransformFromCopy(ga[3:6], gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
-    scene.remove(ga)
-    scene.add(TEXTS[2][1])
-    '''
+    scene.play(FadeOut(heightVal), TransformFromCopy(gaValForCopy, gaVal), eqBeforeHeight.animate.next_to(gaVal, LEFT, buff=0.1))
+    
     trapezoidVal = MathTex("a{{(a-2)^2}}").move_to(trapezoidTex[:-1], aligned_edge=RIGHT)
-    scene.play(Transform(VGroup(eqBeforeHeight, gaVal), trapezoidVal))
-    return VGroup(trapezoid, trapezoidVal, trapezoidTex), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)
+    scene.play(Restore(gx), Transform(VGroup(eqBeforeHeight, gaVal), trapezoidVal))
+    return VGroup(trapezoidVal, trapezoidTex), VGroup(graphDict, graphDict2, trapezoid, gaLine, gaLabel)
