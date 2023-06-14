@@ -273,8 +273,8 @@ def compareHxGx(scene:Scene, hxTex, graphDict, graphDict2, originGraphDicts, a, 
     scene.remove(integral)
     scene.play(k.animate.set_value(K))
     k.add_updater(lambda m: m.set_value(GX(a.get_value())/a.get_value()))
-    scene.play(a.animate.set_value(A-0.1), b.animate.set_value(B+0.1))
-    scene.play(a.animate.set_value(A+0.05), b.animate.set_value(B-0.05))
+    scene.play(a.animate.set_value(A-0.2), b.animate.set_value(B+0.2))
+    scene.play(a.animate.set_value(A+0.2), b.animate.set_value(B-0.2))
     scene.play(a.animate.set_value(A), b.animate.set_value(B))
     scene.remove(ul, area, trapezoid)
 
