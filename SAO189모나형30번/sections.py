@@ -446,8 +446,8 @@ def findAB(scene:Scene, trapezoidTex, toFadeOut, graphDict, originGraphDict, ori
     kValEqTex = MathTex("2-{{a}}").next_to(equal, RIGHT)
 
     scene.play(Restore(gx),
-               TransformMatchingTex(ka, kTex),
-               TransformMatchingTex(gaVal, kValEqTex))
+               TransformMatchingTex(ka, kTex, shift=UP),
+               TransformMatchingTex(gaVal, kValEqTex, shift=UP))
     
     scene.play(Indicate(aAnswerTex[1]))
     aValCopy = aAnswerTex[1].copy().move_to(kValEqTex[-1]).set_color(YELLOW)
