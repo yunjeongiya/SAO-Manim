@@ -36,7 +36,7 @@ def showProblem(scene:Scene):
     axLabel2 = axLabel.copy()
     gx = VGroup(ax.plot(lambda x : 0, x_range=[XSTART, 0], stroke_width=2),
                 ax.plot(GX, x_range=[0, 2], stroke_width=2),
-                ax.plot(lambda x : 0, x_range=[2, XEND], stroke_width=2))
+                ax.plot(lambda x : 0, x_range=[2, XEND], stroke_width=2)).set_z_index(6) # 겹쳐질 때 hx그래프보다 위에 있어야 함
     gxLabel = MathTex("y=g(x)").next_to(gx, RIGHT).shift(LEFT*3+UP)
     gxVertex = VGroup(
         ax.get_lines_to_point(ax.c2p(1,1)),
