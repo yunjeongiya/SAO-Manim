@@ -25,3 +25,12 @@ TEXTS = VGroup(
     Tex("(단, $p$와 $q$는 서로소인 자연수이다.) [4점]")
 ).arrange(DOWN, center=False, aligned_edge=LEFT).scale(0.6).to_corner(UL)
 
+XSTART = -1
+XEND = 2
+
+YSTART = -3
+YEND = 5
+
+YLENRATIO = 0.5
+
+MINT = "#0CDAE0"

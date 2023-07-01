@@ -6,3 +6,4 @@ class main(Scene):
         self.next_section(skip_animations=True)
         showProblem(self)
         describeProblem(self)
+        analyzeGraph(self)
