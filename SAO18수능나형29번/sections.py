@@ -22,6 +22,7 @@ def analyzeFx(scene:Scene, fx, conditions):
     fxGroup = basicGraphGroup([XSTART, XEND], [YSTART, YEND], func = rightFxFunc,
                               yLengthRatio=YLENRATIO,
                               y_axis_config={"include_tip": False, "stroke_width": 0}).next_to(fx, DOWN).shift(RIGHT)
+    fxGroup.remove("yLabel")
     fxGroup.buildGraphLabel("$y=f(x)$", direction=LEFT)
     #cases의 &로 이어진 부분은 모양으로 검색했을 때 찾을 수 x (& 자체가 전체 줄에 따라 움직이는 거라 같은 모양 임시객체를 만들 수 없음)
     # -> 시작점 끝점 구해서 새로 직선 그어 해결
@@ -36,7 +37,7 @@ def analyzeFx(scene:Scene, fx, conditions):
     box2 = SurroundingRectangle(fx[0][searchShapesInTex(fx, MathTex(r"(2x+1)"))])
     dot1over2 = Dot(fxGroup["ax"].c2p(-0.5, 0), color=YELLOW).scale(0.7)
     scene.play(FadeOut(Group(box, dot1)), 
-               Create(box2), Create(dot1over2), Create(fxGroup.dotOnAxLabelBuilder(-0.5, MathTex(r"-\frac{1}{2}"), buf=0.7)))
+               Create(box2), Create(dot1over2), Create(fxGroup.dotOnAxLabelBuilder(-0.5, MathTex(r"-\frac{1}{2}"), buff=0.7)))
 
     scene.play(FadeOut(Group(box2, dot1over2)),
                Create(fxGroup["graph"]), Create(fxGroup["graphLabel"]))
@@ -68,7 +69,6 @@ def analyzeFx(scene:Scene, fx, conditions):
               Underline(conditions[0].get_part_by_tex("미분가능")).get_right(),
               color=YELLOW)
     scene.play(Create(ul))
-
     scene.play(a.animate.set_value(1))
 
     rightFx = fxGroup["graph"]
@@ -83,8 +83,9 @@ def analyzeFx(scene:Scene, fx, conditions):
                FadeToColor(fxGroup["graphLabel"], MINT), FadeIn(fxGroup["graph"]),
                AnimationGroup(AnimationGroup(TransformFromCopy(fxGroup["labelOn1"], oneTex[0]), 
                                              TransformFromCopy(fxGroup["labelOn1"], oneTex[1])),
-                              FadeOut(aTex), lag_ratio=0.5))
+                              aTex.animate.become(oneTex), lag_ratio=0.5))
     fxGroup.remove("labelOnA")
+    scene.remove(oneTex[0], oneTex[1])
     return fxGroup
 
 def analyzeGx(scene:Scene, gx):
@@ -95,6 +96,7 @@ def analyzeGx(scene:Scene, gx):
     gxGroup = basicGraphGroup([XSTART, XEND], [YSTART, YEND], func = lambda x: rightGxFunc(x)/12,
                               yLengthRatio=YLENRATIO,
                               y_axis_config={"include_tip": False, "stroke_width": 0}).next_to(gx, DOWN)
+    gxGroup.remove("yLabel")
     scene.play(Create(ul))
     scene.play(Create(gxGroup["ax"]), Create(gxGroup["xLabel"]))
 
@@ -122,18 +124,49 @@ def analyzeGx(scene:Scene, gx):
     rightGx = gxGroup["graph"]
     gxGroup.buildGraphLabel("$y=g(x)$", color=YELLOW)
     gxGroup["graph"] = VGroup(leftGx, rightGx)
-    scene.next_section()
     scene.play(Write(gxGroup["graphLabel"].add_updater(lambda m: m.next_to(gxGroup["graph"], UR).shift(DOWN*0.4))))
-    return gxGroup
+    scene.remove(box)
+    return gxGroup, k
+
+def compareGraph(scene:Scene, fx, gx, conditions, fxGroup, gxGroup, k):
+    compareFGTex = conditions[1].get_part_by_tex(r"$f(x) \geq g(x)$")
+    box = SurroundingRectangle(compareFGTex)
+    scene.play(Create(box))
+    compareFGTexCopy = MathTex(r"f(x) {{\geq}} g(x)").scale_to_fit_height(compareFGTex.height).move_to(compareFGTex)
+    compareFGTexCopy.set_color_by_tex("f(x)", MINT)
+    compareFGTexCopy.set_color_by_tex("g(x)", YELLOW)
+    scene.play(k.animate.set_value(XEND-0.2))
+    scene.add(compareFGTexCopy)
+    scene.play(FadeOut(Group(box, fx, gx, conditions)),
+               FadeIn(compareFGTexCopy),
+               fxGroup.animate.scale(1.5).move_to(ORIGIN+DOWN+LEFT*1.5, aligned_edge=LEFT),
+               gxGroup.animate.scale(1.5).move_to(ORIGIN+DOWN+LEFT*1.5, aligned_edge=LEFT))
+    
+    contact = Dot(fxGroup["ax"].i2gp(CONTACTX, fxGroup["graph"]), color=RED)
+    scene.play(k.animate.set_value(KMIN))
+    scene.add(contact)
+    scene.play(Flash(contact))
+    scene.remove(contact)
+
+    kMinPointer = pointerBuilder(Tex("$k$의 최솟값").scale(0.7), gxGroup["labelOnK"])
+    scene.play(Create(kMinPointer))
+    
+    scene.play(FadeOut(kMinPointer, compareFGTexCopy),
+               fxGroup.animate.to_edge(LEFT).shift(LEFT*2),
+               gxGroup.animate.to_edge(LEFT).shift(LEFT*2))
     
 def analyzeGraph(scene:Scene):
     TEXTS.save_state()
     conditions = TEXTS[5]
     fx = TEXTS[2]
     gx = TEXTS[3]
+    scene.next_section()
     scene.play(conditions.animate.to_edge(UP), 
                fx.animate.shift(DOWN*0.5),
                gx.animate.next_to(TEXTS[2], RIGHT).shift(DOWN*0.5+RIGHT*2),
                FadeOut(Group(TEXTS[0], TEXTS[1], TEXTS[4], TEXTS[6], TEXTS[7])))
     fxGroup = analyzeFx(scene, fx, conditions)
-    gxGroup = analyzeGx(scene, gx)
+    gxGroup, k = analyzeGx(scene, gx)
+    compareGraph(scene, fx, gx, conditions, fxGroup, gxGroup, k)
+
+    return fxGroup, gxGroup

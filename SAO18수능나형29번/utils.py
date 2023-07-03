@@ -1,4 +1,5 @@
 from manim import *
+import numpy
 
 def searchShapesInTex(text:VMobject, shape:VMobject):
     T = TransformMatchingShapes
@@ -17,8 +18,9 @@ def searchShapesInTex(text:VMobject, shape:VMobject):
         return results[0]
     return results
 
+texTypes = str | Text | Tex | MathTex
+
 class basicGraphGroup(VDict):
-    texTypes = str | Text | Tex | MathTex
     def __init__(self, xrange:list[float] = [-1, 1, 1], yrange:list[float] = [-1, 1, 1],
                  xLengthRatio:float = 1, yLengthRatio:float = 1,
                  xLabelTex : None | texTypes = None,
@@ -112,26 +114,37 @@ class basicGraphGroup(VDict):
         return self[graphLabelKey]
 
     def dotOnAxLabelBuilder(self, val: float | ValueTracker, label: None | texTypes = None, 
-                            isOnX: bool = True, buf : float = 0.5,
+                            isOnX: bool = True, buff : float = 0.5,
                             axKey : None | str = None, labelKey : None | str = None):
+        if labelKey is None: labelKey = "labelOn"+str(val)
+
         if axKey is None : axKey = self.axKey
         if label is None: label = str(val)
         if type(label) is str: label = Tex(label)
 
         label.scale(self.getScaleRatio()*self.texScaleRatio)
 
-        if labelKey is None: labelKey = "labelOn"+str(val)
         if type(val) is ValueTracker:
             if isOnX:
-                self[labelKey] = always_redraw(lambda: label.move_to(self[axKey].coords_to_point(val.get_value(), -buf)))
+                self[labelKey] = always_redraw(lambda: label.move_to(self[axKey].coords_to_point(val.get_value(), -buff)))
             else:
-                self[labelKey] = always_redraw(lambda: label.move_to(self[axKey].coords_to_point(-buf, val.get_value())))
+                self[labelKey] = always_redraw(lambda: label.move_to(self[axKey].coords_to_point(-buff, val.get_value())))
         else:
             if isOnX:
-                self[labelKey] = label.move_to(self[axKey].coords_to_point(val, -buf))
+                self[labelKey] = label.move_to(self[axKey].coords_to_point(val, -buff))
             else:
-                self[labelKey] = label.move_to(self[axKey].coords_to_point(-buf, val))
+                self[labelKey] = label.move_to(self[axKey].coords_to_point(-buff, val))
         return self[labelKey]
-
+    
     def getScaleRatio(self):
         return Line(self["ax"].c2p(0, 0), self["ax"].c2p(1, 0)).get_length()
+    
+
+def pointerBuilder(tex: texTypes, point: numpy.ndarray | Mobject | VMobject, arr_len: float = 2, buff=0.1, **kwargs):
+    if type(tex) is str:
+        tex = Tex(tex)
+    tex.next_to(point, DOWN*arr_len)
+    if(type(point) is not numpy.ndarray):
+        point = point.get_bottom()
+    arrow = Arrow(point, tex.get_edge_center(UP), buff=buff, **kwargs)
+    return VGroup(tex, arrow)

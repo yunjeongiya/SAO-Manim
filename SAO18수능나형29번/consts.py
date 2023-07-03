@@ -33,4 +33,11 @@ YEND = 5
 
 YLENRATIO = 0.5
 
+CONTACTX = 2
+CONTACTY = 5
+
+Q = 19
+P = 12
+KMIN = Q/P
+
 MINT = "#0CDAE0"
