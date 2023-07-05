@@ -113,9 +113,9 @@ class basicGraphGroup(VDict):
         self[graphLabelKey] = self[axKey].get_graph_label(self[graphKey], labelTex.scale(self.getScaleRatio()*self.texScaleRatio), **kwargs)
         return self[graphLabelKey]
 
-    def dotOnAxLabelBuilder(self, val: float | ValueTracker, label: None | texTypes = None, 
-                            isOnX: bool = True, buff : float = 0.5,
-                            axKey : None | str = None, labelKey : None | str = None):
+    def buildDotOnAxLabel(self, val: float | ValueTracker, label: None | texTypes = None, 
+                          isOnX: bool = True, buff : float = 0.5,
+                          axKey : None | str = None, labelKey : None | str = None):
         if labelKey is None: labelKey = "labelOn"+str(val)
 
         if axKey is None : axKey = self.axKey
@@ -140,11 +140,11 @@ class basicGraphGroup(VDict):
         return Line(self["ax"].c2p(0, 0), self["ax"].c2p(1, 0)).get_length()
     
 
-def pointerBuilder(tex: texTypes, point: numpy.ndarray | Mobject | VMobject, arr_len: float = 2, buff=0.1, **kwargs):
+def pointerBuilder(tex: texTypes, point: numpy.ndarray | Mobject | VMobject, arrow_len: float = 2, buff=0.1, **kwargs):
     if type(tex) is str:
         tex = Tex(tex)
-    tex.next_to(point, DOWN*arr_len)
+    tex.next_to(point, DOWN*arrow_len)
     if(type(point) is not numpy.ndarray):
         point = point.get_bottom()
     arrow = Arrow(point, tex.get_edge_center(UP), buff=buff, **kwargs)
-    return VGroup(tex, arrow)
+    return VDict({"arrow": arrow, "tex": tex})

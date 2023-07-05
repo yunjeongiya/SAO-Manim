@@ -21,17 +21,17 @@ TEXTS = VGroup(
         \end{cases}'''),
     Tex("이고, 다음 조건을 만족시킨다."),
     VGroup( Ga, Na.next_to(Ga, DOWN, aligned_edge=LEFT), SurroundingRectangle(VGroup(Ga, Na), buff=MED_SMALL_BUFF, color=WHITE, stroke_width=1)),
-    Tex(r"$k$의 최솟값이 $\dfrac{q}{p}$일 때, $a+p+q$의 값을 구하시오."),
+    Tex(r"{{$k$의 최솟값이 }}{{$\dfrac{q}{p}$}}일 때, {{$a$}} {{$+p+q$}}의 값을 구하시오."),
     Tex("(단, $p$와 $q$는 서로소인 자연수이다.) [4점]")
 ).arrange(DOWN, center=False, aligned_edge=LEFT).scale(0.6).to_corner(UL)
 
 XSTART = -1
-XEND = 2
+XEND = 2.3
 
 YSTART = -3
-YEND = 5
+YEND = 9.5
 
-YLENRATIO = 0.5
+YLENRATIO = 0.25
 
 CONTACTX = 2
 CONTACTY = 5
