@@ -63,8 +63,9 @@ def analyzeFx(scene:Scene, fx, conditions):
     scene.play(Create(box2))
     scene.play(Create(leftFx))
 
-    scene.play(a.animate.set_value(XSTART), run_time=2)
-    scene.play(a.animate.set_value(XEND), run_time=2)
+    buff = 0.1
+    scene.play(a.animate.set_value(XSTART+buff), run_time=2)
+    scene.play(a.animate.set_value(XEND-buff), run_time=2)
     scene.play(a.animate.set_value(1/4), run_time=2)
 
     ul = Line(Underline(conditions[0].get_part_by_tex("실수 전체의 집합에서")).get_left(),
