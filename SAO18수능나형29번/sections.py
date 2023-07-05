@@ -51,7 +51,8 @@ def analyzeFx(scene:Scene, fx, conditions):
                      stroke_width = 1)
     )
     fxGroup.buildDotOnAxLabel(a, MathTex("a"), labelKey="labelOnA")
-    scene.play(Create(box), Create(aLine), Create(fxGroup["labelOnA"]))
+    scene.play(Create(box))
+    scene.play(Create(aLine), Create(fxGroup["labelOnA"]))
     
     oldGraph = fxGroup["graph"]
     fxGroup["graph"] = always_redraw(lambda: fxGroup["ax"].plot(rightFxFunc, [a.get_value(), XEND], color=YELLOW))
@@ -59,7 +60,8 @@ def analyzeFx(scene:Scene, fx, conditions):
 
     box2 = SurroundingRectangle(fx[0][searchShapesInTex(fx, MathTex(r"(x \leq a)"))], color=MINT)
     leftFx = always_redraw(lambda: Line(fxGroup["ax"].c2p(XSTART, 0), fxGroup["ax"].c2p(a.get_value(), 0), color=MINT))
-    scene.play(Create(box2), Create(leftFx))
+    scene.play(Create(box2))
+    scene.play(Create(leftFx))
 
     scene.play(a.animate.set_value(XSTART), run_time=2)
     scene.play(a.animate.set_value(XEND), run_time=2)
