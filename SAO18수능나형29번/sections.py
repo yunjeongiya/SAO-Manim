@@ -7,7 +7,7 @@ def showProblem(scene:Scene) :
 
 def describeProblem(scene:Scene):
     boxes = VGroup( SurroundingRectangle(TEXTS[2]), SurroundingRectangle(TEXTS[3]))
-    scene.play(Create(boxes))
+    scene.play(Create(boxes[0]), Create(boxes[1]))
     ul = Underline(TEXTS[5][0].get_part_by_tex("$f(x)$는 실수 전체의 집합에서"), color=YELLOW)
     box = SurroundingRectangle(TEXTS[5][0].get_part_by_tex("미분가능"))
     scene.play(FadeOut(boxes),
