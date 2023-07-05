@@ -241,7 +241,7 @@ def findContactX(scene:Scene, fxGroup: basicGraphGroup, fPrime):
     scene.play(Create(contact))
     contactLine = fxGroup["ax"].get_vertical_line(fxGroup["ax"].i2gp(CONTACTX, fxGroup["graph"]))
     scene.play(Create(contactLine.rotate(PI)))
-    scene.play(Wiggle(fxGroup["labelOn1"]))
+    scene.play(Wiggle(fxGroup["labelOn1"], scale_value=1.5, run_time=3, n_wiggles=10))
 
     scene.play(FadeOut(Group(leftEq, fPrime[-1], x1, x2["arrow"])))
     scene.play(TransformFromCopy(x2["tex"][-1], fxGroup.buildDotOnAxLabel(2)))
@@ -293,7 +293,7 @@ def calculateForK(scene:Scene, fxGroup:basicGraphGroup, gxGroup:basicGraphGroup)
     decomposedFxRight, fPrime = calculatefPrime(scene, fx)
 
     fPrime += MathTex("={{12}}").set_color_by_tex("12", YELLOW).next_to(fPrime[1])
-    scene.play(Wiggle(gxGroup["graphLabel"].get_part_by_tex("12")))
+    scene.play(Wiggle(gxGroup["graphLabel"].get_part_by_tex("12"), scale_value=1.5, run_time=3, n_wiggles=10))
     scene.play(TransformFromCopy(gxGroup["graphLabel"].get_part_by_tex("12"), fPrime[2]))
 
     scene.play(FadeOut(Group(fx, decomposedFxRight, fPrime[0])), FadeToColor(fPrime[-1], WHITE))
