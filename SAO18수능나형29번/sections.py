@@ -84,11 +84,11 @@ def analyzeFx(scene:Scene, fx, conditions):
     )
     scene.play(FadeOut(Group(box, box2, ul, aLine, rightFx, leftFx, fxGroup["labelOnA"], fxGroup["labelOn-0.5"])),
                FadeToColor(fxGroup["graphLabel"], MINT), FadeIn(fxGroup["graph"]),
-               AnimationGroup(AnimationGroup(TransformFromCopy(fxGroup["labelOn1"], oneTex[0]), 
-                                             TransformFromCopy(fxGroup["labelOn1"], oneTex[1])),
-                              aTex.animate.become(oneTex), lag_ratio=0.5))
+               TransformFromCopyFadeOutTarget(fxGroup["labelOn1"], aTex[0], oneTex[0]),
+               TransformFromCopyFadeOutTarget(fxGroup["labelOn1"], aTex[1], oneTex[1]))
     fxGroup.remove("labelOnA")
     fxGroup.remove("labelOn-0.5")
+    aTex.become(oneTex)
     scene.remove(oneTex[0], oneTex[1])
     return fxGroup
 
@@ -251,9 +251,9 @@ def findContactX(scene:Scene, fxGroup: basicGraphGroup, fPrime):
 def findContactY(scene:Scene, fxGroup: basicGraphGroup, x2, contact: Dot):
     xToChange = fxGroup["graphLabel"].get_parts_by_tex("x")
     alter2s = VGroup(*[MathTex("2").scale(fxGroup.getScaleRatio()*fxGroup.texScaleRatio).move_to(x).shift(UP*0.05) for x in xToChange])
-    scene.play(FadeOut(x2),
-               AnimationGroup(TransformFromCopy(fxGroup["labelOn2"], alter2s),
-               xToChange.animate.become(alter2s), lag_ratio=0.5))
+    scene.play(FadeOut(x2), 
+               TransformFromCopyFadeOutTarget(fxGroup["labelOn2"], xToChange, alter2s))
+    xToChange.become(alter2s)
     scene.remove(alter2s)
 
     newFxLabel = MathTex("{{y=}}5").scale(fxGroup.getScaleRatio()*fxGroup.texScaleRatio).move_to(fxGroup["graphLabel"], aligned_edge=LEFT)
@@ -304,23 +304,21 @@ def calculateForK(scene:Scene, fxGroup:basicGraphGroup, gxGroup:basicGraphGroup)
     alter2forX = MathTex("2").scale(gxGroup.getScaleRatio()*gxGroup.texScaleRatio).move_to(gxGroup["graphLabel"].get_part_by_tex("x"))
     alter5forY = MathTex("5").scale(gxGroup.getScaleRatio()*gxGroup.texScaleRatio).move_to(gxGroup["graphLabel"].get_part_by_tex("y"))
     scene.play(FadeOut(fxGroup["graph"]),
-               AnimationGroup(AnimationGroup(TransformFromCopy(contactLabel.get_part_by_tex("2"), alter2forX),
-                                             TransformFromCopy(contactLabel.get_part_by_tex("5"), alter5forY)),
-                              AnimationGroup(gxGroup["graphLabel"].get_part_by_tex("x").animate.become(alter2forX),
-                                             gxGroup["graphLabel"].get_part_by_tex("y").animate.become(alter5forY)),
-                              lag_ratio=0.5))
+               TransformFromCopyFadeOutTarget(contactLabel.get_part_by_tex("2"), gxGroup["graphLabel"].get_part_by_tex("x"), alter2forX),
+               TransformFromCopyFadeOutTarget(contactLabel.get_part_by_tex("5"), gxGroup["graphLabel"].get_part_by_tex("y"), alter5forY))
+    gxGroup["graphLabel"].get_part_by_tex("x").become(alter2forX)
+    gxGroup["graphLabel"].get_part_by_tex("y").become(alter5forY)
     scene.remove(alter2forX, alter5forY)
     fxGroup.remove("graph")
 
-    kVal = MathTex(r"k={{ \dfrac{19}{12} }}").scale(gxGroup.getScaleRatio()*gxGroup.texScaleRatio).move_to(gxGroup["graphLabel"])
-    scene.play(Transform(gxGroup["graphLabel"], kVal))
+    kVal = MathTex(r"{{k=}}\dfrac{19}{12}").scale(gxGroup.getScaleRatio()*gxGroup.texScaleRatio).move_to(gxGroup["graphLabel"])
+    scene.play(ReplacementTransform(gxGroup["graphLabel"], kVal))
+    gxGroup["graphLabel"] = kVal
 
     gxGroup.buildDotOnAxLabel(KMIN, label=MathTex(r"\dfrac{19}{12}").scale(0.8), labelKey="newLabelOnK", buff=1)
 
     scene.play(FadeOut(Group(contact, contactLine, contactLabel, fxGroup["labelOn2"])),
-               AnimationGroup(TransformFromCopy(gxGroup["graphLabel"], gxGroup["newLabelOnK"]),
-                              gxGroup["labelOnK"].animate.become(gxGroup["newLabelOnK"]),
-                              lag_ratio=0.3))
+               TransformFromCopyFadeOutTarget(kVal[1:], gxGroup["labelOnK"], gxGroup["newLabelOnK"], lag_ratio=0.3))
     scene.remove(gxGroup["labelOnK"])
     gxGroup.remove("labelOnK")
     fxGroup.remove("labelOn2")
@@ -341,8 +339,8 @@ def finalAnswer(scene: Scene, kMin, toFadeOut):
 
     texPoverQ = MathTex(r"\dfrac{q}{p}").move_to(kMin, aligned_edge=RIGHT)
     scene.play(FadeOut(ul), 
-               AnimationGroup(TransformFromCopy(TEXTS[6].get_part_by_tex(r"$\dfrac{q}{p}$"), texPoverQ),
-               kMin.animate.become(texPoverQ), lag_ratio=0.5))
+               TransformFromCopyFadeOutTarget(TEXTS[6].get_part_by_tex(r"$\dfrac{q}{p}$"), kMin, texPoverQ))
+    kMin.become(texPoverQ)
     scene.remove(texPoverQ)
 
     ans = VGroup(

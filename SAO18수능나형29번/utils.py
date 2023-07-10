@@ -148,3 +148,10 @@ def pointerBuilder(tex: texTypes, point: numpy.ndarray | Mobject | VMobject, arr
         point = point.get_bottom()
     arrow = Arrow(point, tex.get_edge_center(UP), buff=buff, **kwargs)
     return VDict({"arrow": arrow, "tex": tex})
+
+class TransformFromCopyFadeOutTarget(AnimationGroup): #TODO origin, copy, target 순으로 바꾸기
+    def __init__(self, origin:Mobject, target:Mobject, copy:Mobject|None, algined_edge=LEFT, lag_ratio=0.5, **kwargs):
+        if copy is None:
+            copy = origin.copy()
+            copy.scale_to_fit_height(origin.height).move_to(target, algined_edge)
+        super().__init__(TransformFromCopy(origin, copy), FadeOut(target), lag_ratio=lag_ratio, **kwargs)
