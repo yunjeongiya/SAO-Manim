@@ -89,6 +89,7 @@ def analyzeFx(scene:Scene, fx, conditions):
     fxGroup.remove("labelOnA")
     fxGroup.remove("labelOn-0.5")
     aTex.become(oneTex)
+    scene.add(aTex)
     scene.remove(oneTex[0], oneTex[1])
     return fxGroup
 
