@@ -35,3 +35,55 @@ def showExample(scene:Scene) :
     scene.play(Create(path), run_time=4)
 
     return VGroup(ul, ul2, path)
+
+def describeShortestDistanceConcept(scene:Scene, toFadeOut:VGroup) :
+    box = SurroundingRectangle(TEXTS[5].get_part_by_tex("최단 거리"))
+    scene.play(FadeOut(toFadeOut), FadeToColor(VGroup(A, B), WHITE),
+               Create(box))
+    
+    row = 4
+    col = 6
+    
+    grid = VDict({
+        "rows" : VGroup(*[VGroup(*[Row(i,j) for i in range(col - 1)]) for j in range(row, 0, -1)]),
+        "cols" : VGroup(*[VGroup(*[Col(i,j) for i in range(col)]) for j in range(row, 1, -1)])
+    })
+    grid["A"] = Tex("A").next_to(grid["rows"][0][0], LEFT)
+    grid["B"] = Tex("B").next_to(grid["rows"][-1][-1], RIGHT)
+    scene.play(FadeIn(grid.scale(0.8).next_to(TRAILS, RIGHT, buff=1.5)))
+
+    path = VGroup(
+        grid["rows"][0][0].copy(),
+        grid["cols"][0][1].copy(),
+        grid["rows"][1][1].copy(),
+        grid["rows"][1][2].copy(),
+        grid["cols"][1][3].copy(),
+        grid["rows"][2][3].copy(),
+        grid["rows"][2][4].copy(),
+        grid["cols"][2][5].copy(),
+    ).set_color(YELLOW)
+    scene.play(Create(path), run_time=2)
+
+    arrowPath = buildArrowPathFromPath(path, 0.5)
+    scene.play(Transform(path, arrowPath))
+
+    scene.play(path.animate.arrange(RIGHT, buff=0).next_to(grid, UP))
+    
+    path2 = VGroup(
+        grid["cols"][0][0].copy(),
+        grid["rows"][1][0].copy(),
+        grid["cols"][1][1].copy(),
+        grid["rows"][2][1].copy(),
+        grid["rows"][2][2].copy(),
+        grid["rows"][2][3].copy(),
+        grid["cols"][2][4].copy(),
+        grid["rows"][3][4].copy(),
+    )
+    arrowPath2 = buildArrowPathFromPath(path2, 0.5)
+    alignedArrowPath2 = arrowPath2.copy().arrange(RIGHT, buff=0).next_to(grid, UP)
+    scene.play(ChangeOrder(path, alignedArrowPath2, (1,0,3,4,2,5,7,6)))
+    
+    path.become(alignedArrowPath2)
+    scene.play(Transform(path, arrowPath2))
+
+    return VGroup(path, grid, box)

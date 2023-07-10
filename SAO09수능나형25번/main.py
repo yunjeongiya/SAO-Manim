@@ -6,3 +6,4 @@ class main(Scene):
     def construct(self):
         showProblem(self)
         toFadeOut = showExample(self)
+        toFadeOut = describeShortestDistanceConcept(self, toFadeOut)
