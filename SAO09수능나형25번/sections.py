@@ -87,3 +87,101 @@ def describeShortestDistanceConcept(scene:Scene, toFadeOut:VGroup) :
     scene.play(Transform(path, arrowPath2))
 
     return VGroup(path, grid, box)
+
+def findPath(scene:Scene, toFadeOut):
+    scene.play(FadeOut(toFadeOut),
+               FadeToColor(TRAILS, YELLOW))
+    diaTrails = VGroup(
+    *[VGroup(
+        *[VDict({
+            "UR": DRline(isLeft=False),
+            "UL": URline(isLeft=True),
+            "DL": DRline(isLeft=True),
+            "DR": URline(isLeft=False),
+            "UP" : Dot().move_to(UP),
+            "DOWN" : Dot().move_to(DOWN),
+            "LEFT" : Dot().move_to(LEFT),
+            "RIGHT" : Dot().move_to(RIGHT)
+        }) for _ in range(4)]).arrange(RIGHT, buff=-DEFAULT_DOT_RADIUS*2)
+    for _ in range(2)]).arrange(DOWN, buff=-DEFAULT_DOT_RADIUS*2).scale(TEXT_SCALE).move_to(TRAILS)
+    scene.play(ReplacementTransform(TRAILS, diaTrails.set_color(YELLOW)))
+
+    trailsExpandScale = 1.3
+    scene.play(FadeOut(TEXTS[:4], TEXTS[5:]),
+               VGroup(diaTrails, A, B).animate.set_color(WHITE).move_to(ORIGIN).scale(trailsExpandScale))
+    
+    path = VGroup(
+        diaTrails[1][0]["UL"].copy(),
+        diaTrails[0][0]["DR"].copy(),
+        diaTrails[0][1]["DL"].copy(),
+        diaTrails[0][1]["DR"].copy(),
+        diaTrails[0][2]["DL"].copy(),
+        diaTrails[1][2]["UR"].copy(),
+        diaTrails[1][3]["UL"].copy(),
+        diaTrails[0][3]["DR"].copy()
+    ).set_color(YELLOW)
+    scene.play(Create(path), run_time=2)
+
+    arrowPath = buildArrowPathFromPath(path, TEXT_SCALE*trailsExpandScale)
+    scene.play(Transform(path, arrowPath))
+
+    scene.play(path.animate.arrange(RIGHT, buff=0).next_to(diaTrails, DOWN))
+
+    path2 = VGroup(
+        diaTrails[1][0]["DL"].copy(),
+        diaTrails[1][0]["DR"].copy(),
+        diaTrails[1][1]["UL"].copy(),
+        diaTrails[1][1]["UR"].copy(),
+        diaTrails[1][2]["UL"].copy(),
+        diaTrails[0][2]["DR"].copy(),
+        diaTrails[0][3]["UL"].copy(),
+        diaTrails[0][3]["UR"].copy()
+    )
+    arrowPath2 = buildArrowPathFromPath(path2, TEXT_SCALE*trailsExpandScale)
+    alignedArrowPath2 = arrowPath2.copy().arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
+    scene.play(ChangeOrder(path, alignedArrowPath2, (1,2,0,4,3,7,5,6)))
+    path.become(alignedArrowPath2)
+
+    scene.play(Transform(path, arrowPath2))
+
+    alignedArrowPath3 = buildArrowPathFromPath(
+        VGroup(diaTrails[0][0]["DL"].copy(),
+               diaTrails[0][0]["UR"].copy(),
+               diaTrails[0][1]["DL"].copy(),
+               diaTrails[0][1]["DR"].copy(),
+               diaTrails[0][2]["UL"].copy(),
+               diaTrails[0][2]["DR"].copy(),
+               diaTrails[0][3]["UL"].copy(),
+               diaTrails[0][3]["DR"].copy()),
+        TEXT_SCALE*trailsExpandScale).arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
+    scene.play(Transform(path, alignedArrowPath2))
+    scene.play(ChangeOrder(path, alignedArrowPath3, (0,3,4,1,5,6,7,2)))
+    path.become(alignedArrowPath3)
+
+    permutationEq = MathTex(r"8!{{\over}}{{3!}}{{5!}}").next_to(path, UR).shift(RIGHT)
+    scene.play(Write(permutationEq.get_part_by_tex("8!")))
+    scene.play(FadeIn(permutationEq.get_part_by_tex(r"\over")))
+    scene.play(TransformFromCopy(path[:3], permutationEq.get_part_by_tex("3!").set_color(VIOLET)))
+    scene.play(TransformFromCopy(path[3:], permutationEq.get_part_by_tex("5!").set_color(MINT)))
+
+    arrowPath4 = buildArrowPathFromPath(
+        VGroup(diaTrails[1][0]["DL"].copy(),
+               diaTrails[1][0]["UR"].copy().shift(DOWN*2*TEXT_SCALE*trailsExpandScale),
+               diaTrails[1][1]["UL"].copy().shift(DOWN*2*TEXT_SCALE*trailsExpandScale),
+               diaTrails[1][1]["DR"].copy(),
+               diaTrails[1][2]["DL"].copy(),
+               diaTrails[1][2]["DR"].copy(),
+               diaTrails[1][3]["UL"].copy(),
+               diaTrails[0][3]["DR"].copy()),
+        TEXT_SCALE*trailsExpandScale)
+    scene.next_section()
+    alignedArrowPath4 = arrowPath4.copy().arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
+    scene.play(FadeOut(permutationEq),
+               ChangeOrder(path, alignedArrowPath4, (0,1,4,2,3,5,6,7)))
+    path.become(alignedArrowPath4)
+    
+    scene.play(Transform(path, arrowPath4))
+
+    scene.play(FadeToColor(path[1:3], PURE_RED))
+
+    return path, diaTrails
