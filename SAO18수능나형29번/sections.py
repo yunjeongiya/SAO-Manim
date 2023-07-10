@@ -175,7 +175,7 @@ def analyzeGraph(scene:Scene):
     return fxGroup, gxGroup
 
 def calculatefPrime(scene: Scene, fx):    
-    fPrime = VGroup(MathTex("f{{'}}(x)=")).next_to(fx, DOWN, aligned_edge=LEFT)
+    fPrime = VGroup(MathTex("f{{'}}(x)=")).next_to(fx, DOWN, aligned_edge=LEFT).shift(LEFT*0.1)
     scene.play(TransformFromCopy(fx[0], fPrime[0]))
     scene.play(Indicate(fPrime[0][1]))
 
@@ -222,12 +222,13 @@ def calculatefPrime(scene: Scene, fx):
 def findContactX(scene:Scene, fxGroup: basicGraphGroup, fPrime):
     scene.play(FadeOut(fPrime[1][0]), Transform(fPrime[-1][-1], MathTex("2").move_to(fPrime[-1][-1], aligned_edge=LEFT)))
     
-    scene.play(Transform(fPrime[1][1], MathTex("x^2-x").move_to(fPrime[1][1], aligned_edge=RIGHT)))
+    scene.play(Transform(fPrime[1][1], MathTex("x^2-x").move_to(fPrime[1][1], aligned_edge=RIGHT).shift(UP*0.05)))
     
-    minus2 = MathTex("-2").move_to(fPrime[1][1], aligned_edge=RIGHT)
+    minus2 = MathTex("- {{2}}").move_to(fPrime[1][1], aligned_edge=RIGHT)
     scene.play(fPrime[1][1].animate.shift(LEFT*0.8),
                Transform(fPrime[-1][-1], MathTex("0").move_to(fPrime[-1][-1])),
-               TransformFromCopy(fPrime[-1][-1], minus2))
+               TransformFromCopy(fPrime[-1][-1], minus2[1].shift(DOWN*0.05)),
+               FadeIn(minus2[0].shift(LEFT*0.1+DOWN*0.05)))
     
     leftEq = MathTex("(x+1){{(x-2)}}").move_to(minus2, aligned_edge=RIGHT)
     scene.play(ReplacementTransform(VGroup(fPrime[1][1], minus2),leftEq))
@@ -278,7 +279,7 @@ def calculateForK(scene:Scene, fxGroup:basicGraphGroup, gxGroup:basicGraphGroup)
     gxGroup["graphLabel"] = newGxLabel
 
     clues = VGroup(
-        Tex("① {{$y=$}}$(${{$x$}}$-1)^2 (2${{$x$}}$+1)${{ 의 접선}}"),
+        Tex("① {{$y=$}} $(${{$x$}}$-1)^2 (2${{$x$}}$+1)${{ 의 접선}}"),
         Tex("② 기울기 = {{12}}인 직선")
     ).arrange(DOWN, buff=DEFAULT_MOBJECT_TO_MOBJECT_BUFFER*2,aligned_edge=LEFT).to_edge(RIGHT).shift(UP+LEFT*0.5)
     result = pointerBuilder("$x$절편", clues, arrow_len=3)
@@ -286,7 +287,7 @@ def calculateForK(scene:Scene, fxGroup:basicGraphGroup, gxGroup:basicGraphGroup)
     scene.play(TransformFromCopy(gxGroup["graphLabel"].get_part_by_tex("12"), clues[1]))
     scene.play(Create(result))
 
-    fx = Tex("$f${{$(x)=$}}$(${{$x$}}$-1)^2 (2${{$x$}}$+1)$").move_to(clues[0])
+    fx = Tex("$f${{$(x)=$}} $(${{$x$}}$-1)^2 (2${{$x$}}$+1)$").move_to(clues[0])
     scene.play(FadeOut(Group(clues[1], result)),
                TransformMatchingTex(clues[0], fx, shift=UP))
 
