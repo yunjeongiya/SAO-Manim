@@ -9,3 +9,4 @@ class main(Scene):
         toFadeOut = describeShortestDistanceConcept(self, toFadeOut)
         toFadeOut, diaTrails, trailsExpandScale = findPath(self, toFadeOut)
         trailParts, trailsExpandScale = generalizePath(self, toFadeOut, diaTrails, trailsExpandScale)
+        toFadeOut = calculatePathCountsOfParts(self, trailParts, diaTrails, trailsExpandScale)

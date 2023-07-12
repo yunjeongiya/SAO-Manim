@@ -38,7 +38,7 @@ class DRArrow(Arrow):
         super().__init__(max_tip_length_to_length_ratio=0.1, color=VIOLET)
         self.rotate(-PI/4)
 
-def buildArrowPathFromPath(path, scale):
+def buildArrowPathFromPath(path, scale, rotate_factor=0):
     arrowPath = VGroup()
     for line in path:
         if type(line) is Row:
@@ -50,7 +50,7 @@ def buildArrowPathFromPath(path, scale):
         elif type(line) is DRline:
             arrowPath += DRArrow()
         else: raise TypeError("all line should be one of Row, Col, URline, DRline")
-        arrowPath[-1].scale(scale).move_to(line)
+        arrowPath[-1].scale(scale).rotate(rotate_factor).move_to(line)
     return arrowPath
 
 class ChangeOrder(AnimationGroup):
@@ -59,3 +59,7 @@ class ChangeOrder(AnimationGroup):
             Transform(mobject[i], target[targetSequence[i]])
             for i in range(len(targetSequence))
         ])
+        
+class TransformFromCopyFadeOutTarget(AnimationGroup):
+    def __init__(self, origin:Mobject, copy:Mobject, target:Mobject, lag_ratio=0.5, **kwargs):
+        super().__init__(TransformFromCopy(origin, copy), FadeOut(target), lag_ratio=lag_ratio, **kwargs)

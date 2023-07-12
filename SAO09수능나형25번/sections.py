@@ -324,3 +324,90 @@ def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
         })
     })
     return trailParts, trailsExpandScale
+
+def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandScale):
+    trailParts["left"].save_state()
+    scene.play(FadeOut(trailParts["right"], trailParts["nums"], trailParts["arrows"], A, B, diaTrails),
+               trailParts["left"].animate.to_edge(LEFT).set_color(WHITE))
+
+    scene.play(VGroup(trailParts["left"]["a"]).animate.rotate(-PI/4),
+               VGroup(trailParts["left"]["b"]).animate.rotate(-PI/4))
+    
+    pathOnA = buildArrowPathFromPath(VGroup(
+        trailParts["left"]["a"]["trail"][0]["UL"].copy(),
+        trailParts["left"]["a"]["trail"][0]["UR"].copy(),
+        trailParts["left"]["a"]["trail"][2].copy(),
+        trailParts["left"]["a"]["trail"][3]["DR"].copy(),
+    ), trailsExpandScale*TEXT_SCALE, -PI/4)
+    scene.play(Create(pathOnA))
+
+    pathOnA2 = buildArrowPathFromPath(VGroup(
+        trailParts["left"]["a"]["trail"][0]["UL"].copy(),
+        trailParts["left"]["a"]["trail"][1].copy(),
+        trailParts["left"]["a"]["trail"][3]["UL"].copy(),
+        trailParts["left"]["a"]["trail"][3]["UR"].copy()
+    ), trailsExpandScale*TEXT_SCALE, -PI/4).arrange(RIGHT).next_to(trailParts["left"]["a"], RIGHT).shift(RIGHT*2)
+    scene.play(pathOnA.animate.arrange(RIGHT).next_to(trailParts["left"]["a"], RIGHT).shift(RIGHT*2))
+    scene.play(ChangeOrder(pathOnA, pathOnA2, (0,3,1,2)))
+
+    permutationEq = MathTex(r"4!{{\over}}3!").next_to(pathOnA, RIGHT).shift(RIGHT*2)
+    scene.play(Write(permutationEq[0]))
+    scene.play(Write(permutationEq[1]))
+    scene.play(TransformFromCopy(pathOnA2[:3], permutationEq[2].set_color(MINT)))
+
+    four = MathTex("4").move_to(permutationEq)
+    scene.play(ReplacementTransform(permutationEq, four))
+
+    aCountVal = four.copy().next_to(trailParts["left"]["aCountTex"][1], LEFT)
+    scene.play(TransformFromCopyFadeOutTarget(four, aCountVal, trailParts["left"]["aCountTex"][0]))
+    trailParts["left"]["aCountTex"][0].become(aCountVal)
+    scene.remove(aCountVal)
+
+    virtualTrack = VGroup(
+        trailParts["left"]["b"]["trail"][0]["UL"].copy(),
+        trailParts["left"]["b"]["trail"][0]["UP"].copy(),
+        trailParts["left"]["b"]["trail"][0]["UR"].copy(),
+    ).shift(RIGHT*trailsExpandScale*TEXT_SCALE*(2**(1/2))).set_color(YELLOW)
+    scene.play(Create(virtualTrack))
+
+    pathOnB = buildArrowPathFromPath(VGroup(
+        trailParts["left"]["b"]["trail"][0]["UL"].copy(),
+        trailParts["left"]["b"]["trail"][0]["UR"].copy(),
+        trailParts["left"]["b"]["trail"][4]["DL"].copy(),
+        trailParts["left"]["b"]["trail"][4]["DR"].copy()
+    ), trailsExpandScale*TEXT_SCALE, -PI/4)
+    scene.play(Create(pathOnB))
+
+    pathOnB2 = buildArrowPathFromPath(VGroup(
+        trailParts["left"]["b"]["trail"][0]["UL"].copy(),
+        virtualTrack[0].copy(),
+        virtualTrack[2].copy(),
+        trailParts["left"]["b"]["trail"][4]["UR"].copy()
+    ), trailsExpandScale*TEXT_SCALE, -PI/4).arrange(RIGHT).next_to(trailParts["left"]["b"], RIGHT).shift(RIGHT*2)
+    scene.play(pathOnB.animate.arrange(RIGHT).next_to(trailParts["left"]["b"], RIGHT).shift(RIGHT*2))
+    scene.play(ChangeOrder(pathOnB, pathOnB2, (0,2,3,1)))
+
+    permutationEq = MathTex(r"{ 4!{{\over}}{{2!}}{{2!}} } -{{1}}").next_to(pathOnB, RIGHT).shift(RIGHT*2.9)
+    scene.play(Write(permutationEq[0]))
+    scene.play(Write(permutationEq[1]))
+    scene.play(TransformFromCopy(pathOnB2[:2], permutationEq[2].set_color(MINT)))
+    scene.play(TransformFromCopy(pathOnB2[2:], permutationEq[3].set_color(VIOLET)))
+    
+    virtualPath = VGroup(
+        trailParts["left"]["b"]["trail"][0]["UL"].copy(),
+        virtualTrack[0].copy(),
+        virtualTrack[2].copy(),
+        trailParts["left"]["b"]["trail"][4]["UR"].copy()
+    ).set_color(YELLOW)
+    scene.play(Create(virtualPath))
+    scene.play(Write(permutationEq[4]),
+               TransformFromCopy(virtualPath, permutationEq[5].set_color(YELLOW)))
+    
+    five = MathTex("5").move_to(permutationEq, aligned_edge=LEFT)
+    scene.play(ReplacementTransform(permutationEq, five))
+    bCountVal = five.copy().next_to(trailParts["left"]["bCountTex"][1], LEFT)
+    scene.play(TransformFromCopyFadeOutTarget(five, bCountVal, trailParts["left"]["bCountTex"][0]))
+    trailParts["left"]["bCountTex"][0].become(bCountVal)
+    scene.remove(bCountVal)
+
+    return VGroup(pathOnA, pathOnB, four, five, virtualTrack, virtualPath)
