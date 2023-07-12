@@ -7,4 +7,5 @@ class main(Scene):
         showProblem(self)
         toFadeOut = showExample(self)
         toFadeOut = describeShortestDistanceConcept(self, toFadeOut)
-        toFadeOut, diaTrails = findPath(self, toFadeOut)
+        toFadeOut, diaTrails, trailsExpandScale = findPath(self, toFadeOut)
+        trailParts, trailsExpandScale = generalizePath(self, toFadeOut, diaTrails, trailsExpandScale)

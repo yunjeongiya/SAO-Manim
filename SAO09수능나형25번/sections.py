@@ -174,7 +174,6 @@ def findPath(scene:Scene, toFadeOut):
                diaTrails[1][3]["UL"].copy(),
                diaTrails[0][3]["DR"].copy()),
         TEXT_SCALE*trailsExpandScale)
-    scene.next_section()
     alignedArrowPath4 = arrowPath4.copy().arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
     scene.play(FadeOut(permutationEq),
                ChangeOrder(path, alignedArrowPath4, (0,1,4,2,3,5,6,7)))
@@ -184,4 +183,144 @@ def findPath(scene:Scene, toFadeOut):
 
     scene.play(FadeToColor(path[1:3], PURE_RED))
 
-    return path, diaTrails
+    return path, diaTrails, trailsExpandScale
+
+def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
+    trailsToFadeOut = VGroup(diaTrails[0][0]["UL"], 
+                             diaTrails[0][0]["UR"], 
+                             diaTrails[0][0]["DL"], 
+                             diaTrails[0][0]["UP"],
+                             diaTrails[0][0]["LEFT"],  
+                             diaTrails[1][3]["UR"],
+                             diaTrails[1][3]["DL"],
+                             diaTrails[1][3]["DR"],
+                             diaTrails[1][3]["RIGHT"],
+                             diaTrails[1][3]["DOWN"])
+    scene.play(FadeOut(toFadeOut),
+               FadeToColor(trailsToFadeOut, YELLOW))
+    
+    scene.play(FadeOut(trailsToFadeOut))
+
+    scene.play(Indicate(diaTrails[0][2]["LEFT"],color=MINT,scale_factor=2),
+               Indicate(diaTrails[1][2]["LEFT"],color=MINT,scale_factor=2))
+
+    line = Line(diaTrails[1][0]["LEFT"].get_center(), diaTrails[0][3]["RIGHT"].get_center(), color=YELLOW)
+    scene.play(Create(line))
+
+    lines = VGroup(
+        *[Line(start=UP*3, end=DOWN*3, color=MINT) for _ in range(7)]
+    ).arrange(RIGHT, buff=1).scale(TEXT_SCALE*trailsExpandScale)
+    scene.play(Create(lines))
+
+    scene.play(Indicate(diaTrails[0][1]["UP"],color=MINT,scale_factor=2),
+               Indicate(diaTrails[1][1]["UP"],color=MINT,scale_factor=2),
+               Indicate(diaTrails[1][1]["DOWN"],color=MINT,scale_factor=2))
+
+    scene.play(Indicate(diaTrails[0][2]["LEFT"],color=MINT,scale_factor=2),
+               Indicate(diaTrails[1][2]["LEFT"],color=MINT,scale_factor=2))
+
+    dot = diaTrails[0][2]["LEFT"].copy().set_color(MINT).scale(2).set_z_index(1)
+    scene.play(FadeOut(line, lines), FadeIn(dot))
+    
+    trailPart1 = VGroup(diaTrails[1][0].copy(),
+                        diaTrails[0][0]["DR"].copy(),
+                        diaTrails[1][1]["UL"].copy(),
+                        diaTrails[0][1].copy()).set_color(YELLOW)
+    scene.play(FadeIn(trailPart1))
+
+    trailPart2 = VGroup(diaTrails[0][2].copy(),
+                        diaTrails[1][2]["UR"].copy(),
+                        diaTrails[1][3]["LEFT"].copy(),
+                        diaTrails[1][3]["UL"].copy(),
+                        diaTrails[0][3].copy()).set_color(VIOLET)
+    scene.play(FadeIn(trailPart2))
+
+    dot2 = diaTrails[1][2]["LEFT"].copy().set_color(MINT).scale(2).set_z_index(1)
+    scene.play(FadeOut(trailPart1, trailPart2, dot),
+               FadeIn(dot2))
+    
+    trailPart3 = trailPart2.copy().rotate(PI).shift((LEFT*4+DOWN)*TEXT_SCALE*trailsExpandScale)
+    scene.play(FadeIn(trailPart3))
+    trailPart4 = trailPart1.copy().shift(RIGHT*4*TEXT_SCALE*trailsExpandScale)
+    scene.play(FadeIn(trailPart4))
+
+    scene.play(FadeOut(trailPart3, trailPart4, dot2))
+    trailsToFadeOut.set_color(BLACK)
+    ACopy = A.copy()
+    BCopy = B.copy()
+    smallDiaTrails = diaTrails.copy()
+    VGroup(ACopy, BCopy, smallDiaTrails,
+           trailPart1, trailPart2, trailPart3, trailPart4,
+           dot, dot2).scale(2/3).to_corner(UL)
+    trailsExpandScale *= 2/3
+    scene.play(Transform(VGroup(A, B, diaTrails), VGroup(ACopy, BCopy, smallDiaTrails)))
+    scene.play(FadeIn(trailPart1, trailPart2, dot))
+    one = Tex("①")
+    trailPart1Copy = trailPart1.copy()
+    arrow = Arrow(max_tip_length_to_length_ratio=0.1).scale(0.5)
+    trailPart2Copy = trailPart2.copy()
+    VGroup(one, trailPart1Copy, arrow, trailPart2Copy).arrange(RIGHT).to_corner(UR)
+    scene.play(Write(one))
+    scene.play(TransformFromCopy(trailPart1, trailPart1Copy))
+    scene.play(Create(arrow))
+    scene.play(TransformFromCopy(trailPart2, trailPart2Copy))
+
+    scene.play(FadeOut(trailPart1, trailPart2, dot),
+               FadeIn(trailPart3, trailPart4, dot2))
+    two = Tex("②")
+    trailPart3Copy = trailPart3.copy().rotate(PI)
+    arrow2 = arrow.copy()
+    trailPart4Copy = trailPart4.copy()
+    VGroup(two, trailPart3Copy, arrow2, trailPart4Copy).arrange(RIGHT).next_to(one, DOWN, aligned_edge=LEFT).shift(DOWN*2)
+    scene.play(Write(two))
+    trailPart3Temp = trailPart3.copy()
+    scene.play(trailPart3Temp.animate.flip(RIGHT).move_to(trailPart3Copy))
+    scene.remove(trailPart3Temp)
+    scene.add(trailPart3Copy)
+    scene.play(Create(arrow2))
+    scene.play(TransformFromCopy(trailPart4, trailPart4Copy))
+    
+    arrowOntrailPart1 = Arrow(trailPart1Copy[0]["LEFT"], trailPart1Copy[3]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
+    arrowOntrailPart4 = Arrow(trailPart4Copy[0]["LEFT"], trailPart4Copy[3]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
+    aCountTex = Tex("{{$a$}} 가지").next_to(trailPart1Copy, DOWN)
+    aCountTex2 = aCountTex.copy().next_to(trailPart4Copy, DOWN)
+    scene.play(FadeOut(trailPart3, trailPart4, dot2),
+               Create(arrowOntrailPart1), Create(arrowOntrailPart4))
+    scene.play(Write(aCountTex), Write(aCountTex2))
+
+    arrowOntrailPart2 = Arrow(trailPart2Copy[0]["LEFT"], trailPart2Copy[4]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
+    arrowOntrailPart3 = Arrow(trailPart3Copy[0]["LEFT"], trailPart3Copy[4]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
+    bCountTex = Tex("{{$b$}} 가지").next_to(trailPart2Copy, DOWN)
+    bCountTex2 = bCountTex.copy().next_to(trailPart3Copy, DOWN)
+    scene.play(Create(arrowOntrailPart2), Create(arrowOntrailPart3))
+    scene.play(Write(bCountTex), Write(bCountTex2))
+    
+    trailParts = VDict({
+        "nums" : VGroup(one, two),
+        "arrows" : VGroup(arrow, arrow2),
+        "left" : VDict({
+            "a" : VDict({
+                "trail" : trailPart1Copy,
+                "arrow" : arrowOntrailPart1,
+            }),
+            "aCountTex" : aCountTex,
+            "b" : VDict({
+                "trail" : trailPart3Copy,
+                "arrow" : arrowOntrailPart3,
+            }),
+            "bCountTex" : bCountTex2
+        }),
+        "right" : VDict({
+            "b" : VDict({
+                "trail" : trailPart2Copy,
+                "arrow" : arrowOntrailPart2,
+            }),
+            "bCountTex" : bCountTex,
+            "a" : VDict({
+                "trail" : trailPart4Copy,
+                "arrow" : arrowOntrailPart4,
+            }),
+            "aCountTex" : aCountTex2
+        })
+    })
+    return trailParts, trailsExpandScale
