@@ -361,6 +361,7 @@ def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandS
     aCountVal = four.copy().next_to(trailParts["left"]["aCountTex"][1], LEFT)
     scene.play(TransformFromCopyFadeOutTarget(four, aCountVal, trailParts["left"]["aCountTex"][0]))
     trailParts["left"]["aCountTex"][0].become(aCountVal)
+    scene.add(trailParts["left"]["aCountTex"][0])
     scene.remove(aCountVal)
 
     virtualTrack = VGroup(
@@ -408,6 +409,7 @@ def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandS
     bCountVal = five.copy().next_to(trailParts["left"]["bCountTex"][1], LEFT)
     scene.play(TransformFromCopyFadeOutTarget(five, bCountVal, trailParts["left"]["bCountTex"][0]))
     trailParts["left"]["bCountTex"][0].become(bCountVal)
+    scene.add(trailParts["left"]["bCountTex"][0])
     scene.remove(bCountVal)
 
     return VGroup(pathOnA, pathOnB, four, five, virtualTrack, virtualPath)
