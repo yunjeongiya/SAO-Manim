@@ -411,3 +411,28 @@ def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandS
     scene.remove(bCountVal)
 
     return VGroup(pathOnA, pathOnB, four, five, virtualTrack, virtualPath)
+
+def findFinalAnswer(scene:Scene, toFadeOut, trailParts, diaTrails):
+    scene.play(FadeOut(toFadeOut),
+               trailParts["left"].animate.restore().set_color(WHITE),
+               VGroup(trailParts["left"]["aCountTex"], trailParts["left"]["bCountTex"]).animate.to_edge(RIGHT).shift(LEFT*4),
+               FadeIn(diaTrails, A, B))
+    
+    trailParts["right"]["aCountTex"] = trailParts["left"]["aCountTex"].copy().next_to(trailParts["right"]["a"], DOWN)
+    trailParts["right"]["bCountTex"] = trailParts["left"]["bCountTex"].copy().next_to(trailParts["right"]["b"], DOWN)
+    trailParts["right"].set_color(WHITE)
+    scene.play(Write(trailParts["nums"][0]))
+    scene.play(FadeIn(trailParts["arrows"][0], trailParts["right"]["b"], trailParts["right"]["bCountTex"]))
+    scene.play(Write(trailParts["nums"][1]))
+    scene.play(FadeIn(trailParts["arrows"][1], trailParts["right"]["a"], trailParts["right"]["aCountTex"]))
+
+    partOneCnt = MathTex(r"4\times5").next_to(trailParts["arrows"][0], DOWN).shift(DOWN)
+    partTwoCnt = MathTex(r"5\times4").next_to(trailParts["arrows"][1], DOWN).shift(DOWN)
+    scene.play(ReplacementTransform(VGroup(trailParts["left"]["aCountTex"], trailParts["right"]["bCountTex"]), partOneCnt),
+               ReplacementTransform(VGroup(trailParts["left"]["bCountTex"], trailParts["right"]["aCountTex"]), partTwoCnt))
+    
+    scene.play(Transform(partOneCnt, MathTex("20").move_to(partOneCnt)), Transform(partTwoCnt, MathTex("20").move_to(partTwoCnt)))
+    
+    ans = MathTex("20{{+}}20").next_to(diaTrails, DOWN).shift(DOWN)
+    scene.play(Write(ans[1]), TransformFromCopy(partOneCnt, ans[0]), TransformFromCopy(partTwoCnt, ans[2]))
+    scene.play(Transform(ans, MathTex("40").move_to(ans)))

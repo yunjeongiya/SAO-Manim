@@ -10,3 +10,4 @@ class main(Scene):
         toFadeOut, diaTrails, trailsExpandScale = findPath(self, toFadeOut)
         trailParts, trailsExpandScale = generalizePath(self, toFadeOut, diaTrails, trailsExpandScale)
         toFadeOut = calculatePathCountsOfParts(self, trailParts, diaTrails, trailsExpandScale)
+        findFinalAnswer(self, toFadeOut, trailParts, diaTrails)
