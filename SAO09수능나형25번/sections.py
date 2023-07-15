@@ -32,9 +32,22 @@ def showExample(scene:Scene) :
         TRAILS[0][3]["DL"].copy(),
         TRAILS[0][3]["DR"].copy()
     ).set_color(VIOLET)
-    scene.play(Create(path), run_time=4)
+    scene.play(Create(path), run_time=4, rate_func=linear)
 
-    return VGroup(ul, ul2, path)
+    path2 = VGroup(
+        TRAILS[1][0]["DL"].copy(),
+        TRAILS[1][0]["DR"].copy(),
+        TRAILS[1][1]["UL"].copy(),
+        TRAILS[1][1]["UR"].copy(),
+        TRAILS[1][2]["UL"].copy(),
+        TRAILS[0][2]["DR"].copy(),
+        TRAILS[0][3]["UL"].copy(),
+        TRAILS[0][3]["UR"].copy()
+    )
+    scene.play(FadeOut(path),
+               Create(path2, run_time=2, rate_func=linear))
+
+    return VGroup(ul, ul2, path2)
 
 def describeShortestDistanceConcept(scene:Scene, toFadeOut:VGroup) :
     box = SurroundingRectangle(TEXTS[5].get_part_by_tex("최단 거리"))
