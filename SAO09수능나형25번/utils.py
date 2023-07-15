@@ -53,7 +53,7 @@ def buildArrowPathFromPath(path, scale, rotate_factor=0):
         arrowPath[-1].scale(scale).rotate(rotate_factor).move_to(line)
     return arrowPath
 
-class ChangeOrder(AnimationGroup):
+class TransformEach(AnimationGroup):
     def __init__(self, mobject:VMobject, target:VMobject, targetSequence:tuple):
         super().__init__(*[
             Transform(mobject[i], target[targetSequence[i]])

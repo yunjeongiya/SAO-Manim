@@ -81,7 +81,7 @@ def describeShortestDistanceConcept(scene:Scene, toFadeOut:VGroup) :
     )
     arrowPath2 = buildArrowPathFromPath(path2, 0.5)
     alignedArrowPath2 = arrowPath2.copy().arrange(RIGHT, buff=0).next_to(grid, UP)
-    scene.play(ChangeOrder(path, alignedArrowPath2, (1,0,3,4,2,5,7,6)))
+    scene.play(TransformEach(path, alignedArrowPath2, (1,0,3,4,2,5,7,6)))
     
     path.become(alignedArrowPath2)
     scene.play(Transform(path, arrowPath2))
@@ -139,7 +139,7 @@ def findPath(scene:Scene, toFadeOut):
     )
     arrowPath2 = buildArrowPathFromPath(path2, TEXT_SCALE*trailsExpandScale)
     alignedArrowPath2 = arrowPath2.copy().arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
-    scene.play(ChangeOrder(path, alignedArrowPath2, (1,2,0,4,3,7,5,6)))
+    scene.play(TransformEach(path, alignedArrowPath2, (1,2,0,4,3,7,5,6)))
     path.become(alignedArrowPath2)
 
     scene.play(Transform(path, arrowPath2))
@@ -154,8 +154,7 @@ def findPath(scene:Scene, toFadeOut):
                diaTrails[0][3]["UL"].copy(),
                diaTrails[0][3]["DR"].copy()),
         TEXT_SCALE*trailsExpandScale).arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
-    scene.play(Transform(path, alignedArrowPath2))
-    scene.play(ChangeOrder(path, alignedArrowPath3, (0,3,4,1,5,6,7,2)))
+    scene.play(TransformEach(path, alignedArrowPath3, (0,3,4,1,5,6,7,2)))
     path.become(alignedArrowPath3)
 
     permutationEq = MathTex(r"8!{{\over}}{{3!}}{{5!}}").next_to(path, UR).shift(RIGHT)
@@ -176,7 +175,7 @@ def findPath(scene:Scene, toFadeOut):
         TEXT_SCALE*trailsExpandScale)
     alignedArrowPath4 = arrowPath4.copy().arrange(RIGHT, buff=0).next_to(diaTrails, DOWN)
     scene.play(FadeOut(permutationEq),
-               ChangeOrder(path, alignedArrowPath4, (0,1,4,2,3,5,6,7)))
+               TransformEach(path, alignedArrowPath4, (0,1,4,2,3,5,6,7)))
     path.become(alignedArrowPath4)
     
     scene.play(Transform(path, arrowPath4))
@@ -347,8 +346,7 @@ def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandS
         trailParts["left"]["a"]["trail"][3]["UL"].copy(),
         trailParts["left"]["a"]["trail"][3]["UR"].copy()
     ), trailsExpandScale*TEXT_SCALE, -PI/4).arrange(RIGHT).next_to(trailParts["left"]["a"], RIGHT).shift(RIGHT*2)
-    scene.play(pathOnA.animate.arrange(RIGHT).next_to(trailParts["left"]["a"], RIGHT).shift(RIGHT*2))
-    scene.play(ChangeOrder(pathOnA, pathOnA2, (0,3,1,2)))
+    scene.play(TransformEach(pathOnA, pathOnA2, (0,3,1,2)))
 
     permutationEq = MathTex(r"4!{{\over}}3!").next_to(pathOnA, RIGHT).shift(RIGHT*2)
     scene.play(Write(permutationEq[0]))
@@ -385,8 +383,7 @@ def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandS
         virtualTrack[2].copy(),
         trailParts["left"]["b"]["trail"][4]["UR"].copy()
     ), trailsExpandScale*TEXT_SCALE, -PI/4).arrange(RIGHT).next_to(trailParts["left"]["b"], RIGHT).shift(RIGHT*2)
-    scene.play(pathOnB.animate.arrange(RIGHT).next_to(trailParts["left"]["b"], RIGHT).shift(RIGHT*2))
-    scene.play(ChangeOrder(pathOnB, pathOnB2, (0,2,3,1)))
+    scene.play(TransformEach(pathOnB, pathOnB2, (0,2,3,1)))
 
     permutationEq = MathTex(r"{ 4!{{\over}}{{2!}}{{2!}} } -{{1}}").next_to(pathOnB, RIGHT).shift(RIGHT*2.9)
     scene.play(Write(permutationEq[0]))
