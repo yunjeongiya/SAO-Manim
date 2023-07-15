@@ -360,7 +360,7 @@ def findAB(scene:Scene, trapezoidTex, toFadeOut, graphDict, originGraphDict, ori
     oneVerticalLine = ax.get_vertical_line(ax.i2gp(1, graph))
     line = Line(ax.c2p(0,0), ax.c2p(1, 0), color=YELLOW)
     line2 = Line(originGraphDict2["ax"].c2p(0,0), originGraphDict2["ax"].c2p(1, 0), color=YELLOW)
-    graph2 = ax.plot(func, x_range=[XSTART+0.3, 1])
+    graph2 = ax.plot(func, x_range=[0, 1])
     scene.add(graph2)
     scene.play(FadeIn(line), FadeIn(line2), FadeIn(oneLabel), FadeIn(oneVerticalLine))
     scene.play(FadeOut(graph))
