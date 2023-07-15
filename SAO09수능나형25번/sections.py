@@ -251,7 +251,7 @@ def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
     scene.play(FadeOut(trailPart1, trailPart2, dot),
                FadeIn(dot2))
     
-    trailPart3 = trailPart2.copy().rotate(PI).shift((LEFT*4+DOWN)*TEXT_SCALE*trailsExpandScale)
+    trailPart3 = trailPart2.copy().flip(RIGHT).shift((LEFT*4+DOWN)*TEXT_SCALE*trailsExpandScale)
     scene.play(FadeIn(trailPart3))
     trailPart4 = trailPart1.copy().shift(RIGHT*4*TEXT_SCALE*trailsExpandScale)
     scene.play(FadeIn(trailPart4))
@@ -280,15 +280,12 @@ def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
     scene.play(FadeOut(trailPart1, trailPart2, dot),
                FadeIn(trailPart3, trailPart4, dot2))
     two = Tex("②")
-    trailPart3Copy = trailPart3.copy().rotate(PI)
+    trailPart3Copy = trailPart3.copy()
     arrow2 = arrow.copy()
     trailPart4Copy = trailPart4.copy()
     VGroup(two, trailPart3Copy, arrow2, trailPart4Copy).arrange(RIGHT).next_to(one, DOWN, aligned_edge=LEFT).shift(DOWN*2)
     scene.play(Write(two))
-    trailPart3Temp = trailPart3.copy()
-    scene.play(trailPart3Temp.animate.flip(RIGHT).move_to(trailPart3Copy))
-    scene.remove(trailPart3Temp)
-    scene.add(trailPart3Copy)
+    scene.play(TransformFromCopy(trailPart3, trailPart3Copy))
     scene.play(Create(arrow2))
     scene.play(TransformFromCopy(trailPart4, trailPart4Copy))
     
