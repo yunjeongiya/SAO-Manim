@@ -299,14 +299,16 @@ def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
 
     arrowOntrailPart2 = Arrow(trailPart2Copy[0]["LEFT"], trailPart2Copy[4]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
     arrowOntrailPart3 = Arrow(trailPart3Copy[0]["LEFT"], trailPart3Copy[4]["RIGHT"], buff=0, stroke_width=3, max_tip_length_to_length_ratio=0.08)
-    bCountTex = Tex("{{$b$}} 가지").next_to(trailPart2Copy, DOWN)
-    bCountTex2 = bCountTex.copy().next_to(trailPart3Copy, DOWN)
+    bCountTex = Tex("{{$b$}} 가지").next_to(trailPart2Copy, DOWN).shift(DOWN*0.2)
+    bCountTex2 = bCountTex.copy().next_to(trailPart3Copy, DOWN).shift(DOWN*0.3)
     scene.play(Create(arrowOntrailPart2), Create(arrowOntrailPart3))
     scene.play(Write(bCountTex), Write(bCountTex2))
     
     trailParts = VDict({
         "nums" : VGroup(one, two),
         "arrows" : VGroup(arrow, arrow2),
+        "multiply" : VGroup(MathTex(r"\times").next_to(arrow, DOWN), 
+                            MathTex(r"\times").next_to(arrow2, DOWN)).set_color(MINT).shift(DOWN*1.1),
         "left" : VDict({
             "a" : VDict({
                 "trail" : trailPart1Copy,
@@ -336,11 +338,13 @@ def generalizePath(scene:Scene, toFadeOut, diaTrails, trailsExpandScale):
 
 def calculatePathCountsOfParts(scene:Scene, trailParts, diaTrails, trailsExpandScale):
     trailParts["left"].save_state()
-    scene.play(FadeOut(trailParts["right"], trailParts["nums"], trailParts["arrows"], A, B, diaTrails),
+    scene.play(Write(trailParts["multiply"]))
+    scene.play(FadeOut(trailParts["right"], trailParts["nums"], trailParts["arrows"], trailParts["multiply"], A, B, diaTrails),
                trailParts["left"].animate.to_edge(LEFT).set_color(WHITE))
+    trailParts.remove("multiply")
 
     scene.play(VGroup(trailParts["left"]["a"]).animate.rotate(-PI/4),
-               VGroup(trailParts["left"]["b"]).animate.rotate(-PI/4))
+               VGroup(trailParts["left"]["b"]).animate.flip(RIGHT).rotate(-PI/4))
     
     pathOnA = buildArrowPathFromPath(VGroup(
         trailParts["left"]["a"]["trail"][0]["UL"].copy(),
@@ -428,7 +432,7 @@ def findFinalAnswer(scene:Scene, toFadeOut, trailParts, diaTrails):
                FadeIn(diaTrails, A, B))
     
     trailParts["right"]["aCountTex"] = trailParts["left"]["aCountTex"].copy().next_to(trailParts["right"]["a"], DOWN)
-    trailParts["right"]["bCountTex"] = trailParts["left"]["bCountTex"].copy().next_to(trailParts["right"]["b"], DOWN)
+    trailParts["right"]["bCountTex"] = trailParts["left"]["bCountTex"].copy().next_to(trailParts["right"]["b"], DOWN).shift(DOWN*0.3)
     trailParts["right"].set_color(WHITE)
     scene.play(Write(trailParts["nums"][0]))
     scene.play(FadeIn(trailParts["arrows"][0], trailParts["right"]["b"], trailParts["right"]["bCountTex"]))
