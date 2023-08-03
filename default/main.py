@@ -12,4 +12,5 @@ class main(Scene):
         self.count += 1
 
     def construct(self):
-        self.next_section(skip_animations=True)
+        #self.next_section(skip_animations=True)
+        showProblem(self)

@@ -1,5 +1,11 @@
 from manim import *
-from library.consts import *
+#from library.consts import *
+#colors
+MINT = "#0CDAE0"
+VIOLET = "#FF6AFF"
+
+#fonts
+GOTHIC = "NanumBarunGothic"
 
 TITLE = Text("", font=GOTHIC)
 
