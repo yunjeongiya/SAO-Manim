@@ -30,12 +30,7 @@ def showProblem(scene:Scene):
         texScaleRatio=0.15
     ).shift(DR*1.5)
     scene.play(Create(graphDict))
-    graphDict["lineOn8.24"] = Line(graphDict["ax"].c2p(8.24,0),
-                                   graphDict["ax"].i2gp(8.24, graphDict["graph"]),
-                                   stroke_width=2)
-    scene.play(TransformFromCopy(xBarDistribution[2], graphDict.buildDotOnAxLabel(8, buff=0.1)),
-               TransformFromCopy(probability[5], graphDict.buildDotOnAxLabel(8.24, buff=0.1)),
-               Create(graphDict["lineOn8.24"]))
+    scene.play(TransformFromCopy(xBarDistribution[2], graphDict.buildDotOnAxLabel(8, buff=0.1)))
     graphDict["lineOn8"] = Line(graphDict["ax"].c2p(8,0),
                                 graphDict["ax"].i2gp(8, graphDict["graph"]),
                                 stroke_width=2)
@@ -43,8 +38,13 @@ def showProblem(scene:Scene):
     graphDict["lineOn7.76"] = Line(graphDict["ax"].c2p(7.76,0),
                                    graphDict["ax"].i2gp(7.76, graphDict["graph"]),
                                    stroke_width=2)
+    graphDict["lineOn8.24"] = Line(graphDict["ax"].c2p(8.24,0),
+                                   graphDict["ax"].i2gp(8.24, graphDict["graph"]),
+                                   stroke_width=2)
     scene.play(TransformFromCopy(probability[1], graphDict.buildDotOnAxLabel(7.76, buff=0.1)),
-               Create(graphDict["lineOn7.76"]))
+               Create(graphDict["lineOn7.76"]),
+               TransformFromCopy(probability[5], graphDict.buildDotOnAxLabel(8.24, buff=0.1)),
+               Create(graphDict["lineOn8.24"]))
     graphDict["dashedLine"] = DashedLine(graphDict["ax"].i2gp(7.76, graphDict["graph"]),
                                          graphDict["ax"].i2gp(8.24, graphDict["graph"]),
                                          stroke_width=2)
@@ -72,6 +72,11 @@ def showProblem(scene:Scene):
     scene.play(Write(graphDict2["xLabel"]),
                Create(graphDict2["lineOn0"]),
                Write(graphDict2.buildDotOnAxLabel(0, buff=0.1)))
+    arrows = VGroup(
+        Arrow(graphDict["ax"].i2gp(7.76, graphDict["graph"]), graphDict2["ax"].c2p(-0.24,0), buff=0, stroke_width=2, max_tip_length_to_length_ratio=0.05),
+        Arrow(graphDict["ax"].i2gp(8.24, graphDict["graph"]), graphDict2["ax"].c2p(0.24,0), buff=0, stroke_width=2, max_tip_length_to_length_ratio=0.05)
+    )
+    scene.play(Create(arrows))
     graphDict2["lineOn0.24"] = Line(graphDict2["ax"].i2gp(0.24, graphDict2["graph"]),
                                     graphDict2["ax"].c2p(0.24,0),
                                     stroke_width=2)
@@ -84,7 +89,7 @@ def showProblem(scene:Scene):
     graphDict2["area"] = graphDict2["ax"].get_area(graphDict2["graph"], [-0.24, 0.24], opacity=0.5, color=YELLOW, stroke_width=0)
     scene.play(FadeIn(graphDict2["area"]))
     #6
-    scene.play(FadeOut(graphDict, probability, xDistribution, xBarDistribution),
+    scene.play(FadeOut(graphDict, probability, xDistribution, xBarDistribution, arrows),
                FadeIn(TEXTS.scale(0.8).to_corner(UL), shift=RIGHT),
                graphDict2.animate.shift(RIGHT*2))
     #7
