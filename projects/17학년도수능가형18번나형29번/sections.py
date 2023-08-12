@@ -62,9 +62,9 @@ def findMByGraph(scene: Scene):
         graphDict1["ax"].c2p(toBe20.get_value(),0), 
         stroke_width=2, color = MINT
     ).set_z_index(-1))
+    graphDict1.buildDotOnAxLabel(toBe20, label=MathTex("20", color=MINT), buff=0.005)
     scene.play(toBe20.animate.set_value(20))
-    scene.play(Write(graphDict1.buildDotOnAxLabel(20, buff=0.005).set_color(MINT)),
-               FadeOut(lineTemp))
+    scene.play(FadeOut(lineTemp))
     #7
     numbers = VGroup(Tex("①").next_to(graphDict1, UL),
                      Tex("②").next_to(graphDict2, UL))
@@ -80,8 +80,8 @@ def findMByGraph(scene: Scene):
         graphDict2["ax"].c2p(toBe20_2.get_value(),0),
         stroke_width=2, color = MINT
     ).set_z_index(-1))
+    graphDict2.buildDotOnAxLabel(toBe20_2, label=MathTex("20", color=MINT), buff=0.005)
     scene.play(toBe20_2.animate.set_value(20))
-    scene.play(Write(graphDict2.buildDotOnAxLabel(20, buff=0.005).set_color(MINT)))
     #8
     graphDict1["lineOn4"] = Line(graphDict1["ax"].c2p(4,0),
                                 graphDict1["ax"].i2gp(4, graphDict1["graph"]),
