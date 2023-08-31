@@ -118,9 +118,9 @@ class BasicGraphDict(VDict):
 
         if type(val) is ValueTracker:
             if isOnX:
-                self[labelKey] = always_redraw(lambda: label.next_to(self[axKey].coords_to_point(val.get_value(), -buff), DOWN, aligned_edge=UP, buff=0))
+                self[labelKey] = label.add_updater(lambda m: m.next_to(self[axKey].coords_to_point(val.get_value(), -buff), DOWN, aligned_edge=UP, buff=0))
             else:
-                self[labelKey] = always_redraw(lambda: label.next_to(self[axKey].coords_to_point(-buff, val.get_value()), DOWN, aligned_edge=UP, buff=0))
+                self[labelKey] = label.add_updater(lambda m: m.next_to(self[axKey].coords_to_point(-buff, val.get_value()), DOWN, aligned_edge=UP, buff=0))
         else:
             if isOnX:
                 self[labelKey] = label.next_to(self[axKey].coords_to_point(val, -buff), DOWN, aligned_edge=UP, buff=0)
