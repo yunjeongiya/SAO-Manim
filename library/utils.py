@@ -91,7 +91,7 @@ class BasicGraphDict(VDict):
         self[graphKey] = self[axKey].plot(func, xRange, **kwargs)
 
         if labelTex is not None:
-            return self[graphKey], self.buildGraphLabel(labelTex, graphKey)
+            return self[graphKey], self.buildGraphLabel(labelTex, graphKey, graphLabelKey)
         return self[graphKey]
 
     def buildGraphLabel(self, labelTex : texTypes, 
