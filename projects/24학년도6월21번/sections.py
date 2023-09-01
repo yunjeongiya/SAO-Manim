@@ -16,11 +16,10 @@ def showProblem(scene:Scene):
         xrange = [-1, 5],
         yrange = [-1, 5],
     ).scale(0.8).next_to(copies, DOWN)
-    scene.play(Create(graphDict))
     greenGraphLabel = MathTex(r"y={{t}}-\log_2 x").scale(TEX_SCALE*1.3).move_to(copies[0], aligned_edge=LEFT)
     tempGraphLabel = MathTex(r"{{y=}}-\log_2 x").scale(TEX_SCALE*1.3).move_to(copies[0], aligned_edge=LEFT)
     scene.remove(copies[0])
-    scene.play(FadeOut(copies[1]),
+    scene.play(Create(graphDict), FadeOut(copies[1]),
                TransformMatchingTex(greenGraphLabel, tempGraphLabel))
     
     #make window for graph
@@ -72,19 +71,19 @@ def showProblem(scene:Scene):
     toExpand = VGroup(graphDict["ax"], graphDict["greenGraph"], graphDict["violetGraph"],
                       DashedLine(graphDict["ax"].c2p(tForViolet.get_value(), 0),
                                  graphDict["ax"].i2gp(tForViolet.get_value(), graphDict["violetGraph"])),
-                      graphDict["labelOnY1"].clear_updaters(), graphDict["lineOnY1"].clear_updaters())
+                      graphDict["lineOnY1"].clear_updaters())
     toRemain = VGroup(graphDict["labelOnt"])
     scene.remove(graphDict)
     scene.add(toExpand, toRemain)
     scene.play(toExpand.set_z_index(-2)
                .animate.scale(2, about_point=graphDict["ax"].c2p(3,-1)),
-               toRemain.animate.scale(2))
-    toExpand[-2].shift(RIGHT*2+UP*0.2).set_z_index(1)
+               toRemain.animate.scale(2),
+               graphDict["labelOnY1"].clear_updaters().animate.scale(1.8, about_point=graphDict["ax"].c2p(3,-1)).shift(RIGHT*1.3+UP*0.6).set_z_index(1))
     #11
     scene.play(tForGreen.animate.set_value(1.7))
     #12
-    scene.play(FadeOut(toRemain, toExpand, greenGraphLabel, violetGraphLabel))
-    graphDict = BasicGraphDict(xrange=[-1,3.5,1], yrange=[-2,3,1], xLengthRatio=1.5, texScaleRatio=0.5).scale(0.8).next_to(TEXTS, buff=0)
+    scene.play(FadeOut(toRemain, toExpand, greenGraphLabel, violetGraphLabel, graphDict["labelOnY1"]))
+    graphDict = BasicGraphDict(xrange=[-1,3.5,1], yrange=[-1.5,2.5,1], texScaleRatio=0.5).scale(1.1).next_to(TEXTS, buff=0)
     scene.play(Create(graphDict))
     graphDict.buildGraph(lambda t: math.log(t, 2), labelTex=r"$y=\log_2 t$", xRange=[1/4,3.5], graphKey="logGraph", graphLabelKey="logGraphLabel")
     scene.play(Create(graphDict["logGraph"]), Write(graphDict["logGraphLabel"].shift(DOWN*0.5)))
