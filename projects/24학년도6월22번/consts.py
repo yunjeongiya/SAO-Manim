@@ -24,7 +24,7 @@ TEXTS = VGroup(
     Tex(r"정수 $a (a \ne 0)$에 대하여 함수 $f(x)$를"),
     MathTex("f(x)=x^3 -2ax^2"),
     Tex("이라 하자. 다음 조건을 만족시키는 {{모든 정수 $k$값의 곱이}}"),
-    Tex("{{$-12$가 되도록}} 하는 $a$에 대하여 $f'(10)$의 값을 구하시오. [4점]"),
+    Tex("{{$-12$}}{{가 되도록}} 하는 $a$에 대하여 $f'(10)$의 값을 구하시오. [4점]"),
     CONDITION.add(SurroundingRectangle(CONDITION, buff=0.2, color=WHITE, stroke_width=2))
 ).arrange(DOWN, center=False, aligned_edge=LEFT, buff=0.3).scale(TEX_SCALE).to_corner(UL)
 
