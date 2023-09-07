@@ -75,7 +75,7 @@ def showProblem(scene:Scene):
     scene.play(Create(graphDictifAisPositive["lineOn4Over3a"]))
     scene.add(k, kPlus3Over2)
     scene.play(k.animate.set_value(4/3))
-    graphDictifAisPositive.buildDotOnAxLabel(4/3*a, MathTex(r"{4}\over{3} a").scale(0.7), labelKey = "dotOn4Over3a")
+    graphDictifAisPositive.buildDotOnAxLabel(4/3*a, MathTex(r"\dfrac{4}{3} a").scale(0.7), labelKey = "dotOn4Over3a")
     scene.play(Write(graphDictifAisPositive["dotOn4Over3a"]))
     #7
     willBeKPlus1 = ValueTracker(k.get_value())
@@ -111,7 +111,7 @@ def showProblem(scene:Scene):
                                                             color=PURE_GREEN, stroke_width=2))
     scene.play(Write(graphDictifAisNegative["dotOnkPlus3Over2"]),
                 Create(graphDictifAisNegative["lineOnkPlus3Over2"]))
-    graphDictifAisNegative.buildDotOnAxLabel(-4/3*a, MathTex(r"{4}\over{3} a").scale(0.7), labelKey = "dotOn4Over3a")
+    graphDictifAisNegative.buildDotOnAxLabel(-4/3*a, MathTex(r"\dfrac{4}{3} a").scale(0.7), labelKey = "dotOn4Over3a")
     graphDictifAisNegative["lineOn4Over3a"] = DashedLine(graphDictifAisNegative["ax"].c2p(-4/3*a, 0),
                                                             graphDictifAisNegative["ax"].i2gp(-4/3*a, graphDictifAisNegative["graph"]),
                                                             stroke_width=2)
