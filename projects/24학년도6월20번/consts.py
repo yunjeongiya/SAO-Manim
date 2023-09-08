@@ -11,7 +11,7 @@ TEX_SCALE = 0.6
 TITLE = Text("24학년도 6월 20번", font=GOTHIC)
 CONDITIONS = VGroup(
     Tex(r"$x\ge 1$인 모든 실수 $x$에 대하여"),
-    Tex(r"$g(x)\ge g(4)$이고 $|g(x)| \le |g(3)|$이다.")
+    Tex(r"$g(x)\ge g(4)$이고 $|g(x)| \ge |g(3)|$이다.")
 ).arrange(DOWN, center=False, aligned_edge=LEFT, buff=0.3)
 TEXTS = VGroup(
     VGroup(TITLE.scale(0.8), Underline(TITLE)),
