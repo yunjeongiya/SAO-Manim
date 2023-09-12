@@ -12,7 +12,7 @@ TITLE = Text("17학년도 수능 가형 18번, 나형 29번", font=GOTHIC)
 
 CONDITIONS = VGroup(
     Tex("(가) $f(10)>f(20)$"),
-    Tex("(나) $f(4)<f(20)$")
+    Tex("(나) $f(4)<f(22)$")
 ).arrange(DOWN, center=False, aligned_edge=LEFT, buff=0.3)
 CONDITIONS.add(SurroundingRectangle(VGroup(CONDITIONS, Dot().next_to(CONDITIONS)), color=WHITE, buff=0.2, corner_radius=0.2, stroke_width=2))
 
