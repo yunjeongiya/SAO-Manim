@@ -127,7 +127,20 @@ class BasicGraphDict(VDict):
             else:
                 self[labelKey] = label.next_to(self[axKey].coords_to_point(-buff, val), DOWN, aligned_edge=UP, buff=0)
         return self[labelKey]
-    
+
+
+    def buildLine(self, lineKey: str, startCoordinate: slice, endCoordinate: slice, axKey : None | str = None, 
+                  isDashedLine=False, isArrow=False, stroke_width=2, max_tip_length_to_length_ratio=0.03, **kwargs):
+        if axKey is None : axKey = self.axKey
+        startPoint = self[axKey].c2p(*startCoordinate)
+        endPoint = self[axKey].c2p(*endCoordinate)
+        if isDashedLine:
+            self[lineKey] = DashedLine(startPoint, endPoint, stroke_width=stroke_width, **kwargs)
+        elif isArrow:
+            self[lineKey] = Arrow(startPoint, endPoint, stroke_width=stroke_width, max_tip_length_to_length_ratio=max_tip_length_to_length_ratio, **kwargs)
+        else:
+            self[lineKey] = Line(startPoint, endPoint, stroke_width=stroke_width, **kwargs)
+
     def getScaleRatio(self):
         return Line(self["ax"].c2p(0, 0), self["ax"].c2p(1, 0)).get_length()
 
