@@ -5,7 +5,6 @@ import math
 
 def showProblem(scene:Scene):
     #1
-    scene.next_section()
     scene.add(TEXTS)
     #2
     XSTART = -6
@@ -44,7 +43,7 @@ def showProblem(scene:Scene):
     graphDictCopy["leftGraph"].set_color(WHITE)
     graphDictCopy["rightGraph"].set_color(WHITE)
     #6
-    n=2
+    n = 2.7
     graphDict.buildLine("lineYN", [XSTART, n], [XEND, n], color=YELLOW)
     graphDict["YNLabel"] = MathTex("y=n", color=YELLOW).scale(0.5).next_to(graphDict["lineYN"], buff=0.1)
     scene.play(FadeToColor(VGroup(TEXTS[2][1][0][1], TEXTS[2][1][1][1],
@@ -62,14 +61,16 @@ def showProblem(scene:Scene):
                                max_tip_length_to_length_ratio=0.02,
                                stroke_width=2, buff=0).set_color(YELLOW)),
                graphDict["xLabel"].animate.set_color(YELLOW).next_to(graphDict["ax"].c2p(XEND, n), buff=0.1),
-               VGroup(graphDict["lineYN"], graphDict["YNLabel"]).animate.set_opacity(0))
+               VGroup(graphDict["lineYN"], graphDict["YNLabel"], graphDict["labelOnY0"]).animate.set_opacity(0))
     graphDict["labelOnY9"] = newLabelOnY9
     graphDict["labelOnY2"] = newLabelOnY2
     #8
+    absGroup = VGroup(VGroup(TEXTS[2][1][0][0], TEXTS[2][1][0][-1]).copy().set_color(PURE_GREEN), 
+    VGroup(TEXTS[2][1][1][0], TEXTS[2][1][1][-1]).copy().set_color(VIOLET))
+    absGroup.add(absGroup.copy().shift(RIGHT*0.01))
     scene.play(FadeToColor(VGroup(TEXTS[2][1][0][2], TEXTS[2][1][1][2]), WHITE),
-               FadeToColor(VGroup(TEXTS[2][1][0][0], TEXTS[2][1][0][-1]), PURE_GREEN), 
-               FadeToColor(VGroup(TEXTS[2][1][1][0], TEXTS[2][1][1][-1]), VIOLET),
-               FadeToColor(VGroup(graphDict["labelOnY9"], graphDict["labelOnY2"], graphDict["fakeXAx"]), WHITE),
+               FadeIn(absGroup),
+               FadeToColor(VGroup(graphDict["labelOnY9"], graphDict["labelOnY2"], graphDict["fakeXAx"], graphDict["xLabel"]), WHITE),
                Transform(graphDict["leftGraph"], graphDict["ax"].plot(lambda x:abs(3**(x+2)-n)+n, [XSTART, 0, 0.001]).set_color(PURE_GREEN)), #그림 상으로 x축이 위로 올라와있어서 그래프 접어올린 후에 다시 올려야 맞음
                Transform(graphDict["rightGraph"], graphDict["ax"].plot(lambda x:abs(math.log(x+4, 2)-n)+n, [0, XEND, 0.001]).set_color(VIOLET)),
                )
@@ -80,5 +81,5 @@ def showProblem(scene:Scene):
     ul = Underline(TEXTS[3][1], color=MINT, stroke_width=2)
     scene.play(Create(ul), Create(graphDict["lineYT"]), Write(graphDict["YTLabel"]))
     #10
-    scene.play(FadeToColor(TEXTS, WHITE), FadeOut(graphDict, ul), FadeIn(graphDictCopy))
+    scene.play(FadeToColor(TEXTS, WHITE), FadeOut(absGroup, graphDict, ul), FadeIn(graphDictCopy))
     scene.next_section(skip_animations=True)
